@@ -3,7 +3,7 @@
    Визуальные эффекты (G.vis) могут использовать Math.random — на сервере vis=false. */
 /* ======================= Константы ======================= */
 const COLS = 9, ROWS = 14, LEVELS = 24, FCOST = 1, MAXF = 10, FREGEN = 300000, DECK = 4, MAXLV = 10;
-const WAVE_GAP = 20, BOXCD = 4 * 3600000;
+const WAVE_GAP = 2, BOXCD = 4 * 3600000;
 /* Улучшения в бою: 4 уровня ★. Множители урона/перезарядки/дальности и цена (доля от стоимости танка) */
 const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 4;
 const ARMK = 0.3; /* урон по 🛡 бронированным без бронебойности */
@@ -395,9 +395,12 @@ function fire(tw, s, L) {
   }
   for (let i = n0; i < G.shots.length; i++) { const q = G.shots[i]; q.o.pen = pen; if (G.vis && tw.skin) { if (tw.skin.sc) q.col = tw.skin.sc === 'rainbow' ? `hsl(${(G.t * 220 + i * 40) % 360},100%,62%)` : tw.skin.sc; q.hc = tw.skin.hc; q.ke = tw.skin.ke; } }
 }
+/* Награда за волну: волна зачищена — следующая стартует сама через WAVE_GAP с и даёт waveRew(). Вызвал раньше, пока враги ещё на поле — ×1.5 */
+const waveRew = () => 10 + 2 * G.wave, earlyRew = () => Math.ceil(waveRew() * 1.5);
+const waveBusy = () => G.spawnQ.length > 0 || G.enemies.length > 0;
 function callWave(manual) {
   if (G.over || G.wave >= G.waves.length) return;
-  if (manual && G.wave > 0 && G.nextT != null && G.nextT > 0) { const b = Math.ceil(G.nextT * 1.5); G.cash += b; if (G.vis) G.fx.push({ k: 'txt', x: COLS / 2, y: 1, txt: `Рано! +${b} 💵`, t: 0, life: 1.2, col: '#ffe36b', big: 1 }); }
+  if (G.wave > 0) { const early = manual && waveBusy(), b = early ? earlyRew() : waveRew(); G.cash += b; if (G.vis) G.fx.push({ k: 'txt', x: COLS / 2, y: 1, txt: `${early ? 'Рано!' : 'Волна пройдена!'} +${b} 💵`, t: 0, life: 1.2, col: '#ffe36b', big: 1 }); }
   G.spawnQ.push(...G.waves[G.wave]); if (G.spawnT <= 0) G.spawnT = .2;
   G.wave++; G.nextT = null;
   for (const tw of G.towers) if (tw.t.kind === 'supply') { const g = Math.round(tw.t.give[tw.tier - 1] * (1 + .1 * (tw.lv - 1))); G.cash += g; if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: `+${g} 💵`, t: 0, life: 1.1, col: '#ffe36b' }); }
@@ -468,7 +471,8 @@ function update(dt) {
   for (const z of G.zones) { z.t -= dt; for (const e of G.enemies) if (!e.dead && Math.hypot(e.x - z.x, e.y - z.y) < z.r) { const k = e.d.boss ? .25 : .5; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = Math.max(e.slowT, .25); } }
   G.zones = G.zones.filter(z => z.t > 0);
   if (G.spawnQ.length) { G.spawnT -= dt; if (G.spawnT <= 0) { const q = G.spawnQ.shift(); spawn(q.type, q.pi, 0, q.mod); G.spawnT = ENEMY[q.type].gap * (G.spawnQ[0] && G.spawnQ[0].type !== q.type ? 1.3 : 1); } }
-  else if (G.wave > 0 && G.wave < G.waves.length) { if (G.nextT == null) G.nextT = WAVE_GAP; G.nextT -= dt; if (G.nextT <= 0) callWave(false); }
+  else if (G.wave > 0 && G.wave < G.waves.length && !G.enemies.length) { if (G.nextT == null) G.nextT = WAVE_GAP; G.nextT -= dt; if (G.nextT <= 0) callWave(false); }
+  else G.nextT = null;
   for (const e of G.enemies) {
     if (e.dead) continue;
     if (e.hitT > 0) e.hitT -= dt;
