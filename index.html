@@ -350,7 +350,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="toast"></div>
 
 <script src="i18n.js?v=3"></script>
-<script src="core.js?v=6"></script>
+<script src="core.js?v=7"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -1274,9 +1274,10 @@ function hud() {
   $('#bLives').textContent = G.lives; { const hb = $('#bHp'), k = G.lives / G.L.lives; $('#bHpF').style.width = Math.max(0, k * 100) + '%'; hb.classList.toggle('mid', k <= .6 && k > .3); hb.classList.toggle('low', k <= .3); hb.querySelector('small').textContent = '/' + G.L.lives; if (hb._v != null && G.lives < hb._v) { hb.classList.remove('hit'); void hb.offsetWidth; hb.classList.add('hit'); } hb._v = G.lives; } $('#bCash').textContent = G.cash;
   $('#bWaveN').textContent = `Волна ${G.wave}/${G.waves.length}`; $('#bWaveP').style.width = (G.wave / G.waves.length * 100) + '%';
   const bw = $('#bWave'), done = G.wave >= G.waves.length;
-  bw.disabled = done || G.over;
+  const busy = G.wave > 0 && waveBusy();
+  bw.disabled = done || G.over || busy;
   bw.classList.toggle('pulse', G.wave === 0 && G.tut !== 1);
-  const bh = done ? 'Последняя волна' : G.wave === 0 ? '▶ В бой!' : G.nextT != null ? `⏩ Волна ${G.wave + 1} <small>+${waveRew()}💵</small>` : `⏩ Волна ${G.wave + 1} <small>+${earlyRew()}💵</small>`;
+  const bh = done ? 'Последняя волна' : G.wave === 0 ? '▶ В бой!' : busy ? `⏳ Волна ${G.wave + 1}` : `⏩ ${Math.max(1, Math.ceil(G.nextT || WAVE_GAP))} с <small>+${earlyRew()}💵</small>`;
   if (bw._h !== bh) { bw._h = bh; bw.innerHTML = bh; }
   updSlots();
   if ($('#radial').classList.contains('on')) document.querySelectorAll('#radial [data-cost]').forEach(b => b.disabled = G.cash < +b.dataset.cost);
