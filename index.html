@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Steel Yard</title>
+<title>Tank Defense</title>
 <link rel="icon" href="img/logo.webp">
 <link rel="preload" as="image" href="img/ui/shop.webp">
 <link rel="preload" as="image" href="img/ui/garage.webp">
@@ -92,6 +92,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .loc .lock{position:absolute;inset:0;background:rgba(43,33,24,.45);z-index:3;display:grid;place-items:center;color:#fff;font-size:18px;text-align:center}
 .wmap{position:relative;border:3px solid var(--ink);border-radius:22px;margin:6px 0 16px;overflow:hidden;box-shadow:0 5px 0 rgba(20,30,45,.35)}
 .logo{display:block;width:min(62%,250px);margin:-4px auto -14px;position:relative;z-index:2;filter:drop-shadow(0 5px 0 rgba(0,0,0,.25));pointer-events:none}
+.logot{text-align:center;margin:6px auto 8px;position:relative;z-index:2;pointer-events:none;line-height:.92;font-weight:900;letter-spacing:1px}.logot b{display:block;font-size:42px;color:#ffd23f;-webkit-text-stroke:2px #2b2b2b;paint-order:stroke fill;text-shadow:0 4px 0 #2b2b2b,0 6px 0 rgba(0,0,0,.2)}.logot b+b{font-size:34px;color:#8fd14f}
 .reg{position:relative;overflow:hidden}
 .reg+.reg{border-top:3px dashed rgba(43,33,24,.4)}
 .reg .rd{position:absolute;inset:0;width:100%;height:100%}
@@ -685,7 +686,7 @@ function homeHTML() {
   const left = BOXCD - (Date.now() - S.boxTs), qs = quests(), qd = qs.filter(q => q.c).length, qr = qReady();
   const nextE = Object.keys(ENEMY).filter(k => ENEMY[k].from > un && ENEMY[k].from < 99).sort((a, b) => ENEMY[a].from - ENEMY[b].from)[0];
   const ups = S.deck.map(id => tankById(id)).filter(t => S.owned[t.id] < MAXLV).sort((a, b) => upCost(a, S.owned[a.id]) - upCost(b, S.owned[b.id]))[0];
-  let h = `<img class="logo" src="img/logo.webp" alt="Steel Yard"><div class="hero" style="background:${loc.bg}">
+  let h = `<div class="logot"><b>TANK</b><b>DEFENSE</b></div><div class="hero" style="background:${loc.bg}">
     <div class="loc2">${loc.icon} ${loc.name} · ${done}/${loc.to - loc.from + 1}</div>
     <div class="lprog"><i style="width:${done / (loc.to - loc.from + 1) * 100}%"></i></div>
     <div class="ttl lvt">${L.boss ? '💀 Босс · ' : ''}Уровень ${un}</div>

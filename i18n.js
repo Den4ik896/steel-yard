@@ -1,4 +1,4 @@
-/* Steel Yard — перевод игры.
+/* Tank Defense — перевод игры.
    Игра написана на русском; всё, что появляется на экране, само переводится на язык игрока через словарь DICT.
    Язык: сначала выбор игрока (кнопка 🌐), потом язык Telegram, потом язык браузера. Нет словаря для языка — английский.
    Добавить язык: впиши его в LANGS и сделай DICT.<код> (ключ — русская фраза, значение — перевод). */
@@ -52,7 +52,7 @@ var DICT = {
     'Прорвалась 🛡 броня. Без бронебойности урон всего 30% — ставь Бобра, Сокола, Жара или улучши Шмеля до ★4.': '🛡 Armor broke through. Without armor piercing it takes only 30% damage — use Beaver, Falcon, Blaze or upgrade Bumblebee to ★4.',
     'Ремонтники чинят врагов — уничтожай их первыми (режим цели «Сильный»).': 'Mechanics repair enemies — kill them first (target mode "Strongest").',
     'Прокачай танки в гараже (+20% урона за уровень) или купи новые в магазине. И улучшай танки в бою до ★4!': 'Upgrade tanks in the garage (+20% damage per level) or buy new ones in the shop. And upgrade tanks in battle up to ★4!',
-    '🛡 Steel Yard — танковая башенная защита.\nСтавь танки, отбивай волны, выбивай лимитки с боссов!': '🛡 Steel Yard — tank tower defense.\nPlace tanks, hold off the waves, win limited tanks from bosses!',
+    '🛡 Tank Defense — танковая башенная защита.\nСтавь танки, отбивай волны, выбивай лимитки с боссов!': '🛡 Tank Defense — tank tower defense.\nPlace tanks, hold off the waves, win limited tanks from bosses!',
     'Проблема с оплатой? Опиши её ответным сообщением — разберёмся вручную. Возврат Stars делается через бота.': "Payment problem? Describe it in a reply and we'll sort it out manually. Stars refunds are made via the bot.",
     'Золото — игровая валюта, не выводится и не продаётся. Лимитки — игровые предметы, торговля ими в TON доступна с 18 лет.': 'Gold is an in-game currency: it cannot be withdrawn or sold. Limited tanks are in-game items; trading them for TON is 18+ only.',
     'Продать и купить можно на Рынке за': 'Buy and sell on the Market for',
