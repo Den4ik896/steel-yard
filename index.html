@@ -213,7 +213,7 @@ nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45e
 #cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #bTip{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:rgba(43,33,24,.85);color:#fff;border-radius:999px;padding:5px 14px;font-size:14px;transition:opacity .4s;pointer-events:none;z-index:3;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
 #tinfo{position:absolute;left:8px;right:8px;bottom:8px;background:var(--cream);border:3px solid var(--ink);border-radius:14px;padding:6px 10px;font-size:12px;display:none;z-index:4;box-shadow:0 4px 0 #000}
-#tinfo.on{display:block}#tinfo.pk{pointer-events:none;opacity:.88;padding:4px 10px}#tinfo.pk .stats{display:none}
+#tinfo.on{display:block}#tinfo.pk{pointer-events:none;position:fixed;bottom:auto;top:var(--pkt,0);left:var(--pkl,8px);right:auto;width:var(--pkw,auto);z-index:30;padding:3px 10px;line-height:1.25}#tinfo.pk b{font-size:14px}#tinfo.pk .dets{margin:2px 0 0}#tinfo.pk .stats{display:none}
 #tinfo b{font-size:15px}
 #tinfo .stats{gap:1px 10px;margin:4px 0}#tinfo .st{font-size:12px}#tinfo .st b{font-size:12px}#tinfo .chip{font-size:11px;padding:0 6px}
 #radial{position:absolute;left:0;top:0;width:0;height:0;z-index:5;display:none}
@@ -350,7 +350,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="toast"></div>
 
 <script src="i18n.js?v=2"></script>
-<script src="core.js?v=4"></script>
+<script src="core.js?v=5"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -1326,10 +1326,12 @@ function spawnHTML(tier) {
   return '<div class="muted" style="font-size:12px;margin-top:4px">🏭 Выпускает:</div><div class="dets">' + R.map(([k, n, x], i) =>
     `<span class="chip${i === cur ? ' ok' : ''}" style="${i > cur ? 'opacity:.5' : ''}">${i > cur ? '🔒 ' : ''}${k} ${n}${x > 1 ? ' ×' + x : ''}</span>`).join(' ') + '</div>';
 }
+/* Пока выбираешь клетку, подсказка висит над полем (поверх HUD), а не закрывает нижние клетки */
+function pkOn(el) { const r = $('#hud').getBoundingClientRect(); el.style.setProperty('--pkt', r.top + 4 + 'px'); el.style.setProperty('--pkl', r.left + 6 + 'px'); el.style.setProperty('--pkw', r.width - 12 + 'px'); el.classList.add('on', 'pk'); }
 function showInfo() {
   const el = $('#tinfo'), s = G.sel; el.classList.remove('pk');
-  if (!s && G.arm) { const d = supById(G.arm); el.innerHTML = `<b>${d.n}</b> <span class="rar" style="--rc:${RAR[d.rar].c}">${RAR[d.rar].n}</span><br>${d.desc}<br><b style="color:#2d8a1f">${d.tgt === 'road' ? 'Тапни по дороге' : 'Тапни по карте'}</b>`; return el.classList.add('on', 'pk'); }
-  if (!s && G.pick) { el.innerHTML = infoTank(tankById(G.pick), G.lvOf[G.pick], '<br><b style="color:#2d8a1f">Тапни по свободной клетке, чтобы поставить</b>'); return el.classList.add('on', 'pk'); }
+  if (!s && G.arm) { const d = supById(G.arm); el.innerHTML = `<b>${d.n}</b> <span class="rar" style="--rc:${RAR[d.rar].c}">${RAR[d.rar].n}</span><br>${d.desc}<br><b style="color:#2d8a1f">${d.tgt === 'road' ? 'Тапни по дороге' : 'Тапни по карте'}</b>`; return pkOn(el); }
+  if (!s && G.pick) { el.innerHTML = infoTank(tankById(G.pick), G.lvOf[G.pick], '<br><b style="color:#2d8a1f">Тапни по свободной клетке, чтобы поставить</b>'); return pkOn(el); }
   if (!s) return el.classList.remove('on');
   const tw = towerAt(s.x, s.y), ob = G.obs.get(s.x + ',' + s.y);
   let h = '';
