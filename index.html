@@ -1,0 +1,1549 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Steel Yard</title>
+<link rel="icon" href="img/logo.webp">
+<link rel="preload" as="image" href="img/ui/shop.webp">
+<link rel="preload" as="image" href="img/ui/garage.webp">
+<link rel="preload" as="image" href="img/ui/battle.webp">
+<link rel="preload" as="image" href="img/ui/market.webp">
+<link rel="preload" as="image" href="img/ui/quests.webp">
+<link rel="preload" as="image" href="img/ui/silver.webp">
+<link rel="preload" as="image" href="img/ui/gold.webp">
+<link rel="preload" as="image" href="img/ui/fuel.webp">
+<link rel="preload" as="image" href="img/ui/star.webp">
+<link rel="preload" as="image" href="img/ui/gem.webp">
+<link rel="preload" as="image" href="img/ui/box_wood.webp">
+<link rel="preload" as="image" href="img/ui/box_iron.webp">
+<link rel="preload" as="image" href="img/ui/box_gold.webp">
+<link rel="preload" as="image" href="img/ui/box_star.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--ink:#2b2118;--cream:#fff6e2;--cream2:#f1dfba;--y:#ffc83a;--g:#5fcb45;--r:#ff5b4f;--b:#45a6ff;--p:#b06bff;
+--common:#a3adb8;--rare:#3d9bff;--epic:#b45cff;--legendary:#ffae1a;--limited:#ff4f9a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;user-select:none;-webkit-user-select:none;font:800 15px/1.3 Nunito,system-ui,sans-serif;color:var(--ink);background:#5bb8ea}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+img{display:block;-webkit-user-drag:none}
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;background:linear-gradient(#8fd6ff,#c9edff)}
+header{display:flex;gap:6px;padding:8px 10px 6px;align-items:center}
+.cur{display:flex;align-items:center;gap:3px;background:var(--cream);border:3px solid var(--ink);border-radius:999px;padding:2px 8px 2px 5px;font-weight:900;box-shadow:0 3px 0 var(--ink);font-size:15px;white-space:nowrap}
+.cur .pl{background:var(--g);color:#fff;border:2px solid var(--ink);border-radius:50%;width:19px;height:19px;display:grid;place-items:center;font-size:14px;line-height:1;margin-left:3px}
+.cur small{font-size:10px;opacity:.6;margin-left:2px}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 12px 20px}
+nav{display:flex;gap:6px;padding:6px 8px 10px;background:var(--ink)}
+nav button{flex:1;position:relative;background:#4a3a2c;border-radius:14px;color:#e8d9bd;padding:5px 0 6px;font-size:12px;font-weight:900}
+nav button span{display:block;font-size:22px;line-height:1.15}
+nav button.on{background:var(--y);color:var(--ink);transform:translateY(-4px);box-shadow:0 4px 0 #c48a12}
+nav button.home{flex:1.25;margin-top:-20px;background:var(--g);color:#fff;border:3px solid #1b140d;border-radius:18px;box-shadow:0 4px 0 #1b140d;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+nav button.home span{font-size:30px}nav button.home.on{background:#5fd04a;color:#fff;box-shadow:0 4px 0 #2a8a1a}
+.hero{position:relative;border:3px solid var(--ink);border-radius:22px;overflow:hidden;box-shadow:0 5px 0 rgba(43,33,24,.3);text-align:center;padding:10px 12px 14px;margin:4px 0 12px}
+.hero .lvt{font-size:28px;line-height:1.1}.hero .loc2{font-weight:900;font-size:14px;opacity:.75}
+.dio{display:flex;justify-content:center;align-items:flex-end;margin:4px -6px 0;min-height:96px;background:radial-gradient(ellipse 60% 22% at 50% 88%,rgba(43,33,24,.22),transparent)}
+.dio img{width:74px;height:74px;margin:0 -4px;animation:hov 2.4s ease-in-out infinite}.dio img:nth-child(2),.dio img:nth-child(3){width:94px;height:94px}
+.dio img:nth-child(2){animation-delay:-.6s}.dio img:nth-child(3){animation-delay:-1.2s}.dio img:nth-child(4){animation-delay:-1.8s}
+.lprog{height:14px;border:2px solid var(--ink);border-radius:8px;background:rgba(255,255,255,.55);overflow:hidden;margin:4px 20px 10px}.lprog i{display:block;height:100%;background:var(--y)}
+.btn.huge{width:100%;font-size:26px;padding:14px 0;border-radius:18px;box-shadow:0 6px 0 var(--ink)}.btn.huge small{font-size:14px;opacity:.85}
+.hcards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.hcard{position:relative;background:var(--cream);border:3px solid var(--ink);border-radius:16px;padding:8px;box-shadow:0 4px 0 rgba(43,33,24,.3);text-align:center;font-size:13px;font-weight:900}
+.hcard img{width:58px;height:58px;display:block;margin:0 auto}.hcard .big{font-size:34px;line-height:58px}.hcard .dot{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--r);border:3px solid var(--ink)}
+.hrow{display:flex;align-items:center;gap:10px;text-align:left}.hrow img{width:58px;height:58px;flex:0 0 58px}
+nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radius:50%;background:var(--r);border:2px solid var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;background:var(--y);border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:8px 14px;font-weight:900;font-size:15px;color:var(--ink);transition:transform .05s}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--g);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.btn.blue{background:var(--b);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.btn.red{background:var(--r);color:#fff}
+.btn.purple{background:var(--p);color:#fff}
+.btn.gray{background:#d9cfbd}
+.btn.sm{padding:5px 10px;font-size:13px;border-radius:11px;box-shadow:0 3px 0 var(--ink)}
+.btn.big{padding:12px 22px;font-size:19px}
+.btn:disabled{filter:grayscale(.8);opacity:.6;cursor:default}
+.panel{background:var(--cream);border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 rgba(43,33,24,.3);padding:12px;margin-bottom:12px}
+.ttl{color:#fff;font-weight:900;-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink)}
+.sect{font-size:20px;margin:14px 2px 8px}
+.muted{opacity:.62;font-size:13px;font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.row.c{justify-content:center}
+.grow{flex:1}
+.chip{display:inline-block;background:var(--cream2);border:2px solid var(--ink);border-radius:999px;padding:0 8px;font-size:12px;font-weight:900;margin:2px 2px 0 0}
+.chip.air{background:#bfe6ff}.chip.no{background:#f3c9c4;opacity:.75;text-decoration:line-through;text-decoration-thickness:2px}.chip.ok{background:#c9efb4}
+.chip.new{background:#ffe36b;box-shadow:0 0 0 2px #fff,0 0 10px #ffd23f}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0;text-align:left}
+.st{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:13px;border-bottom:2px dotted rgba(43,33,24,.18);padding-bottom:2px}
+.st span{opacity:.75;white-space:nowrap}.st b{text-align:right}.st i{font-style:normal}.st i.up{color:#1f8a16}.st i.dn{color:#c43a30}
+.dets{margin:4px 0}
+.dico{display:flex;justify-content:center;gap:7px;margin-top:3px}.dico span{font-size:14px;position:relative;line-height:1.2}.dico .x{opacity:.16;filter:grayscale(1)}
+.dico sup{position:absolute;right:-6px;top:-5px;font-size:9px;background:var(--y);border:1px solid var(--ink);border-radius:6px;padding:0 2px;line-height:1.2;font-weight:900}
+.tc .dps{font-size:12px;font-weight:900;margin-top:2px}.tc .dps em{font-style:normal;color:#c4581e}
+.tiers{border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--cream2);text-align:left;font-size:12px;margin:6px 0}
+.tiers .tr{display:grid;grid-template-columns:30px 54px 1fr 1fr 1fr;gap:4px;padding:4px 8px;border-top:2px solid rgba(43,33,24,.15);align-items:center}
+.tiers .tr:first-child{border-top:0}.tiers .nw{grid-column:2/-1;font-size:11px;color:#1f8a16;font-weight:900}
+.rar{color:var(--rc);-webkit-text-stroke:.3px var(--ink)}
+.tipbox{background:#fff1b8;border:3px solid var(--ink);border-radius:14px;padding:8px 10px;font-size:13px;margin:10px 0;text-align:left}
+.squadbar{display:flex;align-items:center;gap:6px;padding:8px 10px}
+.squadbar img{width:46px;height:46px;background:var(--cream2);border:3px solid var(--ink);border-radius:12px}
+.loc{position:relative;border:3px solid var(--ink);border-radius:22px;margin:6px 0 16px;overflow:hidden;box-shadow:0 5px 0 rgba(43,33,24,.3)}
+.loc .banner{position:relative;z-index:2;text-align:center;margin:10px auto 0;font-size:22px}
+.loc .lock{position:absolute;inset:0;background:rgba(43,33,24,.45);z-index:3;display:grid;place-items:center;color:#fff;font-size:18px;text-align:center}
+.wmap{position:relative;border:3px solid var(--ink);border-radius:22px;margin:6px 0 16px;overflow:hidden;box-shadow:0 5px 0 rgba(20,30,45,.35)}
+.logo{display:block;width:min(62%,250px);margin:-4px auto -14px;position:relative;z-index:2;filter:drop-shadow(0 5px 0 rgba(0,0,0,.25));pointer-events:none}
+.reg{position:relative;overflow:hidden}
+.reg+.reg{border-top:3px dashed rgba(43,33,24,.4)}
+.reg .rd{position:absolute;inset:0;width:100%;height:100%}
+.reg .rbn{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:max-content;z-index:4;display:flex;flex-direction:column;align-items:center;background:linear-gradient(#fbecc4,#e9cf92);border:3px solid var(--ink);padding:4px 26px 3px;font-size:19px;white-space:nowrap;box-shadow:0 4px 0 rgba(43,33,24,.35);clip-path:polygon(0 0,100% 0,94% 50%,100% 100%,0 100%,6% 50%)}
+.reg .rbn small{font-size:12px;color:#6b5434}
+.reg.fog::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.35),transparent 60%),linear-gradient(rgba(70,80,100,.45),rgba(70,80,100,.55))}
+.dec svg,.dec img{width:100%;height:100%;overflow:visible;display:block}
+.dec.fort{width:92px;height:92px;z-index:0}
+.node .flg{position:absolute;width:24px;height:30px;top:-26px;right:-8px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}
+.reg .node{z-index:3}
+.node.cur .flg{animation:bob 1s ease-in-out infinite}
+.lm{position:relative}
+.lm svg{position:absolute;inset:0;width:100%;height:100%}
+.dec{position:absolute;font-size:26px;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.15))}
+.node{position:absolute;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;background:var(--y);border:4px solid var(--ink);box-shadow:0 5px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+.node b{font-size:24px;line-height:1;color:#fff;-webkit-text-stroke:5px var(--ink);paint-order:stroke fill}
+.node i{position:absolute;bottom:-17px;font-style:normal;font-size:15px;letter-spacing:-1px;color:#ffd23f;-webkit-text-stroke:1px var(--ink);white-space:nowrap}
+.node i .e{color:#fff7}
+.node.done{background:var(--g)}
+.node.boss{width:80px;height:80px;background:var(--r)}
+.node.locked{background:#b9b0a0;box-shadow:0 3px 0 var(--ink)}
+.node.locked b{font-size:20px}
+.node.cur{animation:bob 1s ease-in-out infinite}
+.node.cur::after{content:'';position:absolute;inset:-10px;border-radius:50%;border:4px solid #fff;opacity:.8;animation:ping 1.4s infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-62%)}}
+@keyframes hov{0%,100%{transform:none}50%{transform:translateY(-5px)}}
+@keyframes ping{from{transform:scale(.85);opacity:.9}to{transform:scale(1.35);opacity:0}}
+.slots{display:flex;gap:8px;justify-content:center}
+.slot{width:64px;height:64px;border:3px dashed rgba(43,33,24,.4);border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.4)}
+.slot img{width:58px;height:58px}
+.slot.f{border-style:solid;border-color:var(--ink);background:var(--cream)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tc{position:relative;background:var(--cream);border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 rgba(43,33,24,.3);padding:0 8px 8px;text-align:center;overflow:hidden}
+.tc .band{background:var(--rc);margin:0 -8px;padding:2px 0 3px;color:#fff;font-size:12px;font-weight:900;text-shadow:0 1px 0 rgba(0,0,0,.35);border-bottom:3px solid var(--ink)}
+.tc img{width:96px;height:96px;margin:2px auto -4px}
+.tc.lockd img{filter:grayscale(1) brightness(.75);opacity:.7}
+.tc .nm{font-size:16px;font-weight:900}
+.tc .lv{position:absolute;top:28px;left:6px;background:var(--b);color:#fff;border:2px solid var(--ink);border-radius:9px;padding:0 6px;font-size:12px}
+.tc .ins{position:absolute;top:28px;right:6px;background:var(--g);color:#fff;border:2px solid var(--ink);border-radius:9px;padding:0 5px;font-size:12px}
+.tc .role{font-size:12px;opacity:.7}
+.tc .price{margin-top:4px;font-size:13px}
+.bars{text-align:left;margin:8px 0}
+.bar{display:flex;align-items:center;gap:8px;font-size:13px;margin:4px 0}
+.bar span{width:120px}
+.bar div{flex:1;height:12px;border:2px solid var(--ink);border-radius:8px;background:#e9dcc0;overflow:hidden}
+.bar div i{display:block;height:100%;background:var(--y)}
+.bar b{width:44px;text-align:right}
+.boxc{background:var(--cream);border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 rgba(43,33,24,.3);padding:8px;text-align:center}
+.boxc img{width:90px;height:90px;margin:0 auto}
+.boxc .nm{font-size:16px}
+.odds{font-size:11px;font-weight:700;opacity:.75;margin:2px 0 6px;min-height:42px}
+.shopt{display:flex;align-items:center;gap:10px;background:var(--cream);border:3px solid var(--ink);border-radius:16px;padding:6px 10px 6px 6px;margin-bottom:10px;box-shadow:0 4px 0 rgba(43,33,24,.3)}
+.shopt img{width:72px;height:72px;flex:0 0 72px}
+.shopt .i{flex:1;min-width:0;font-size:12px}
+.shopt .i b{font-size:15px}
+.q{display:flex;align-items:center;gap:10px}
+.q .i{flex:1}
+.prog{height:14px;border:2px solid var(--ink);border-radius:8px;background:#e9dcc0;overflow:hidden;margin-top:4px}
+.prog i{display:block;height:100%;background:var(--g)}
+.reset{display:block;margin:20px auto 0;opacity:.5;font-size:12px;text-decoration:underline}
+#modal{position:fixed;inset:0;background:rgba(20,14,8,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.on{display:flex}
+.mbox{position:relative;background:var(--cream);border:4px solid var(--ink);border-radius:22px;box-shadow:0 7px 0 var(--ink);padding:26px 16px 18px;width:100%;max-width:370px;text-align:center;max-height:92vh;overflow-y:auto;animation:pop .25s ease-out}
+.ribbon{position:relative;display:inline-block;background:var(--r);color:#fff;border:3px solid var(--ink);border-radius:12px;padding:4px 20px;font-size:22px;font-weight:900;margin:-8px 0 8px;text-shadow:0 2px 0 rgba(0,0,0,.3);box-shadow:0 4px 0 var(--ink)}
+.ribbon.g{background:var(--g)}.ribbon.b{background:var(--b)}
+.mbox .x{position:absolute;top:6px;right:8px;width:34px;height:34px;display:grid;place-items:center;font-size:26px;line-height:1;color:#e0473c;text-shadow:0 2px 0 rgba(43,33,24,.25)}
+.mbox .x::after,.cur .pl::after{content:'';position:absolute;inset:-25%}.cur .pl{position:relative}
+.fsect{margin:10px 0 2px;font-size:14px;text-align:left}.fchip{padding:2px 8px}.fchip small{opacity:.55;font-size:10px;margin-left:3px}.fchip b{margin-left:5px;background:var(--ink);color:#fff;border-radius:999px;padding:0 5px;font-size:10px}.fchip.none:not(.ok){opacity:.45}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink);margin-right:4px;vertical-align:-1px}
+/* Слитки вместо 🥈/🥇 (подставляет i18n.js) */
+.mi{display:inline-block;width:1.3em;height:1.3em;vertical-align:middle;background:center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}.mi.x1{opacity:.55}
+.mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}
+nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45em}.hcard .big .mi{width:1.6em;height:1.6em}
+.ing{display:inline-block;width:1.35em;height:1.35em;vertical-align:-.3em;margin:0 .08em;background:center/contain no-repeat}
+.ing.s{background-image:url(img/ui/silver.webp)}.ing.g{background-image:url(img/ui/gold.webp)}.ing.f{background-image:url(img/ui/fuel.webp)}.ing.st{background-image:url(img/ui/star.webp)}
+.ing.gem{background-image:url(img/ui/gem.webp)}.ing.lk{background-image:url(img/ui/lock.webp)}.ing.gift{background-image:url(img/ui/gift.webp)}.ing.tk{background-image:url(img/ui/ticket.webp)}
+.enl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
+.en{position:relative;width:74px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:2px 2px 4px;font-size:11px;line-height:1.1}
+.en img{width:56px;height:56px;margin:0 auto}
+.en.new{background:#fff1b8}
+.en i{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--r);color:#fff;border:2px solid var(--ink);border-radius:8px;font-style:normal;font-size:10px;padding:0 4px}
+.sq{display:flex;gap:6px;justify-content:center;align-items:center;margin:8px 0}
+.sq img{width:50px;height:50px;background:#fff;border:3px solid var(--ink);border-radius:12px}
+.stars{font-size:48px;letter-spacing:2px;line-height:1.1;margin:4px 0}
+.stars span{display:inline-block;color:#e2d6be;-webkit-text-stroke:2px var(--ink)}
+.stars span.on{color:#ffd23f;animation:starin .5s backwards}
+@keyframes starin{from{transform:scale(2.4) rotate(-40deg);opacity:0}}
+.rew{display:flex;gap:10px;justify-content:center;font-size:22px;margin:8px 0}
+.rew div{background:#fff;border:3px solid var(--ink);border-radius:14px;padding:4px 12px}
+.shake{display:inline-block;animation:shk .5s infinite}
+@keyframes shk{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg) scale(1.05)}75%{transform:rotate(9deg) scale(1.05)}}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.rays{position:relative;width:170px;height:170px;margin:0 auto;display:grid;place-items:center}
+.rays::before{content:'';position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(var(--rc) 0 12deg,transparent 12deg 30deg);opacity:.45;animation:spin 6s linear infinite}
+.rays img{position:relative;width:140px;height:140px;animation:pop .4s}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60;white-space:nowrap}
+#toast.on{opacity:1}
+#battle{position:fixed;inset:0;display:none;flex-direction:column;z-index:10;background:var(--ink)}
+#battle.on{display:flex}
+#bwrap{display:flex;flex-direction:column;height:100%;max-width:520px;width:100%;margin:0 auto}
+#hud{display:flex;align-items:center;gap:6px;padding:8px 8px 9px;background:linear-gradient(#5b6573,#3c434e);border-bottom:3px solid #000;box-shadow:inset 0 2px 0 rgba(255,255,255,.18)}
+.hpbar{position:relative;flex:1;height:32px;background:#2a1d18;border:3px solid var(--ink);border-radius:10px;box-shadow:0 3px 0 #000;overflow:hidden;min-width:0}
+.hpbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(#7fe05a 0 45%,#4fb43a 55%);transition:width .25s}
+.hpbar.mid i{background:linear-gradient(#ffd84a 0 45%,#e6a91f 55%)}.hpbar.low i{background:linear-gradient(#ff6b5a 0 45%,#d63b2e 55%)}
+.hpbar span{position:relative;display:flex;align-items:center;justify-content:center;height:100%;gap:3px;color:#fff;font-weight:900;font-size:15px;text-shadow:0 2px 0 #000,0 0 3px #000}
+.hpbar small{font-size:11px;opacity:.8}
+.hpbar.hit{animation:hpHit .35s}@keyframes hpHit{30%{transform:translateX(-3px);filter:brightness(1.8)}60%{transform:translateX(3px)}}
+.wvb{position:relative;background:linear-gradient(#ffd45a,#f0a92a);border:3px solid var(--ink);border-radius:10px;box-shadow:0 3px 0 #000;padding:3px 8px 7px;font-size:13px;white-space:nowrap;overflow:hidden}
+.wvb i{position:absolute;left:0;bottom:0;height:5px;background:#c43a30;border-top:2px solid var(--ink);transition:width .3s}
+.ehp{color:#c43a30;font-weight:900}
+.hb{width:40px;height:38px;background:var(--cream);border:3px solid var(--ink);border-radius:12px;font-size:17px;box-shadow:0 3px 0 #000}
+#hud .cur{box-shadow:0 3px 0 #000}
+#wprev{display:flex;align-items:center;gap:4px;padding:3px 10px;color:#e8d9bd;font-size:12px;min-height:32px;background:#2e333b;border-bottom:2px solid #000}
+#wprev img{width:26px;height:26px}
+#wprev b{color:#fff;margin-right:4px}
+#stage{position:relative;flex:1;min-height:0;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#bTip{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:rgba(43,33,24,.85);color:#fff;border-radius:999px;padding:5px 14px;font-size:14px;transition:opacity .4s;pointer-events:none;z-index:3;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
+#tinfo{position:absolute;left:8px;right:8px;bottom:8px;background:var(--cream);border:3px solid var(--ink);border-radius:14px;padding:6px 10px;font-size:12px;display:none;z-index:4;box-shadow:0 4px 0 #000}
+#tinfo.on{display:block}
+#tinfo b{font-size:15px}
+#tinfo .stats{gap:1px 10px;margin:4px 0}#tinfo .st{font-size:12px}#tinfo .st b{font-size:12px}#tinfo .chip{font-size:11px;padding:0 6px}
+#radial{position:absolute;left:0;top:0;width:0;height:0;z-index:5;display:none}
+#radial.on{display:block}
+.rb{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:var(--cream);border:3px solid var(--ink);box-shadow:0 4px 0 #000;display:grid;place-items:center;animation:pop .15s ease-out}
+.rb img{width:48px;height:48px}
+.rb .ri{font-size:26px;line-height:1}
+.rb .pr{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);background:var(--y);border:2px solid var(--ink);border-radius:8px;padding:0 5px;font-size:12px;white-space:nowrap}
+.rb.sel{background:var(--g);transform:scale(1.12)}
+.rb.sel .pr{background:#fff}
+.rb:disabled{filter:grayscale(1);opacity:.7}
+#ctrl{display:flex;gap:6px;padding:10px 8px 12px;align-items:stretch;background:linear-gradient(#4a525e,#2c3139);border-top:3px solid #000;box-shadow:inset 0 2px 0 rgba(255,255,255,.15)}
+.ab{position:relative;width:62px;background:var(--cream);border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 #000;font-size:22px;line-height:1;padding:4px 0 3px;overflow:hidden}
+.ab small{display:block;font-size:10px;margin-top:2px}
+.ab .cd{position:absolute;inset:0;background:rgba(43,33,24,.65);color:#fff;display:none;place-items:center;font-size:18px}
+.ab.on{background:var(--r);color:#fff}
+.ab:disabled .cd{display:grid}
+#bWave{font-size:14px;padding:4px 10px;min-height:0;touch-action:manipulation;white-space:nowrap}#bWave *{pointer-events:none}
+#wbar{display:flex;align-items:center;gap:6px;padding:3px 6px 3px 0;background:#2e333b;border-bottom:2px solid #000}
+#wbar #wprev{flex:1;min-width:0;overflow:hidden;border:0;white-space:nowrap}
+#wbar #bSpeed{width:44px;font-size:16px;padding:2px 0;box-shadow:0 3px 0 #000}#wbar #bSpeed small{font-size:9px}
+#slots{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;min-width:0}
+#ctrl .ab{touch-action:manipulation}#ctrl .ab *{pointer-events:none}
+.ab.sl{width:auto;min-width:0}.ab.sl img{width:40px;height:40px;display:block;margin:0 auto}
+.ab.sl.poor{filter:grayscale(.6);opacity:.65}.ab.sl.empty{opacity:.35}
+.ab.sl .n{position:absolute;top:2px;right:4px;font-size:11px;font-weight:900;background:var(--ink);color:#fff;border-radius:8px;padding:0 4px}
+.ab.swp{width:52px;flex:none;background:#ffe36b}.ab.swp.sup{background:#b9e3ff}
+.sic{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(#fff,color-mix(in srgb,var(--rc) 55%,#fff));border:2px solid var(--ink);font-size:24px;line-height:1}
+.sic .mi{width:30px;height:30px}.sic.big{width:84px;height:84px;font-size:50px;margin:6px auto 2px}.sic.big .mi{width:62px;height:62px}
+.pulse{animation:pls 1s infinite}
+@keyframes pls{50%{transform:scale(1.06);filter:brightness(1.15)}}
+/* Меню в стиле боя: стальные шапка и навигация, глянцевые кнопки, рамки карточек по редкости */
+#app{background:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 14px,transparent 14px 28px),linear-gradient(#3f86cf,#7cc5f2 45%,#c4e9ff)}
+header{background:linear-gradient(#5b6573,#3c434e);border-bottom:3px solid #000;box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 3px 0 rgba(0,0,0,.25);padding:8px 10px;position:relative;z-index:1}
+header .cur{box-shadow:0 3px 0 #000}
+nav{background:linear-gradient(#4a525e,#2c3139);border-top:3px solid #000;box-shadow:inset 0 2px 0 rgba(255,255,255,.15)}
+nav button{background:linear-gradient(#5e6774,#434a55);border:2px solid #000;color:#e6edf5;box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 3px 0 #000}
+nav button.on{background:linear-gradient(#ffe07a,#ffb92e);color:var(--ink);box-shadow:inset 0 2px 0 rgba(255,255,255,.6),0 4px 0 #000}
+nav button.home{background:linear-gradient(#7fe05a,#43a832);border-color:#000;box-shadow:inset 0 3px 0 rgba(255,255,255,.4),0 4px 0 #000}
+nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 0 3px 0 rgba(255,255,255,.5),0 4px 0 #000}
+.btn{box-shadow:inset 0 3px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.12),0 4px 0 var(--ink)}
+.btn.sm{box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 3px 0 var(--ink)}
+.btn.huge{box-shadow:inset 0 4px 0 rgba(255,255,255,.45),inset 0 -4px 0 rgba(0,0,0,.12),0 6px 0 var(--ink)}
+.btn:active:not(:disabled){box-shadow:inset 0 3px 0 rgba(255,255,255,.3),0 1px 0 var(--ink)}
+.panel,.hcard,.hero,.loc{box-shadow:inset 0 3px 0 rgba(255,255,255,.7),0 5px 0 rgba(20,30,45,.35)}
+.panel,.hcard{background:linear-gradient(#fffaf0,var(--cream) 40%,#f6e7c6)}
+.tc{background:linear-gradient(#fff,var(--cream) 55%,#f3e2bf);box-shadow:inset 0 0 0 3px var(--rc),inset 0 0 14px color-mix(in srgb,var(--rc) 45%,transparent),0 4px 0 rgba(20,30,45,.35)}
+.tc .band{background:linear-gradient(color-mix(in srgb,var(--rc) 80%,#fff),var(--rc))}
+.sect.ttl{display:inline-block;background:linear-gradient(#ffd45a,#f0a92a);border:3px solid var(--ink);border-radius:12px;padding:2px 14px;box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 4px 0 rgba(20,30,45,.35);-webkit-text-stroke:4px var(--ink);font-size:18px}
+.node{box-shadow:inset 0 4px 0 rgba(255,255,255,.45),inset 0 -4px 0 rgba(0,0,0,.15),0 5px 0 var(--ink)}
+/* Подарки дня */
+.gweek{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.gday{position:relative;background:var(--cream2);border:3px solid var(--ink);border-radius:12px;padding:3px 2px 4px;display:flex;flex-direction:column;align-items:center;font-size:11px;box-shadow:0 3px 0 rgba(43,33,24,.3)}
+.gday img{width:46px;height:46px}.gday small{font-size:10px;opacity:.7}.gday b{font-size:10px;line-height:1.1;text-align:center}
+.gday:last-child{grid-column:span 2;background:linear-gradient(#fff3b0,#ffd45a)}
+.gday.now{background:linear-gradient(#c9f7b0,#7fe05a);animation:pls 1.2s infinite}
+.gday.done{opacity:.55}.gday.done::after{content:'✓';position:absolute;top:2px;right:5px;color:#1f8a16;font-size:18px;font-weight:900}
+.gifth{position:relative}.gifth .dot{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--r);border:3px solid var(--ink)}
+/* Лимитки и рынок */
+.nftl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.nftc{position:relative;background:#fff;border:3px solid var(--limited);border-radius:14px;padding:6px;font-weight:900;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nftc img{width:64px;height:64px}.nftc small{font-size:10px;color:#7a6a58;font-weight:800;line-height:1.15}
+.eqb{position:absolute;top:-8px;right:-6px;background:#4fc83b;color:#fff;border:2px solid var(--ink);border-radius:8px;font-size:10px;padding:1px 5px}
+.pct{font-style:normal;font-size:11px;padding:1px 5px;border-radius:6px;margin-left:3px}.pct.r1{background:#e5e1d8}.pct.r2{background:#bfe3ff}.pct.r3{background:#e6c8ff}.pct.r4{background:#ffd76b}
+.mkbox{display:flex;flex-direction:column;gap:6px;margin:8px 0;font-weight:800;font-size:14px}
+.mkbox input,.mkbox select{flex:1;min-width:0;font:inherit;font-weight:800;padding:9px 10px;border:3px solid var(--ink);border-radius:12px;background:#fff}
+.mkrow{width:100%;margin-bottom:8px;gap:10px}.mkrow img{width:54px;height:54px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.chips .chip{cursor:pointer;font-size:13px}
+.code{font-family:ui-monospace,monospace;background:#fff;border:2px dashed var(--ink);border-radius:8px;padding:6px;margin:4px 0;word-break:break-all;user-select:all}
+.drop{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#ffe0f0,#fff3c4);border:3px solid var(--limited);border-radius:16px;padding:8px;margin:8px 0;text-align:left;cursor:pointer;animation:hov 1.6s ease-in-out infinite}
+.drop img{width:84px;height:84px}
+
+/* ===== UI-кит (SET 5): кнопки, панели, ленты, кружки уровней — нарисованные картинки, растянутые через 9-slice ===== */
+.btn,.btn.sm,.btn.huge,.btn:active:not(:disabled){background:none;border:3px solid transparent;box-shadow:none;border-image:url(img/kit/btn_yellow.webp) 31 32 fill / 50% 20px stretch;filter:drop-shadow(0 2px 0 rgba(43,33,24,.25))}
+.btn.green{border-image-source:url(img/kit/btn_green.webp)}.btn.blue{border-image-source:url(img/kit/btn_blue.webp)}.btn.red{border-image-source:url(img/kit/btn_red.webp)}.btn.purple{border-image-source:url(img/kit/btn_purple.webp)}
+.btn.gray{border-image:url(img/kit/sq_gray.webp) 24 fill / 14px stretch}
+.btn.sm{border-image-width:50% 15px}.btn.huge{border-image-width:50% 30px}
+.btn.red,.btn.purple{text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.btn:disabled{filter:grayscale(.8);opacity:.6}
+.panel,.hcard,.boxc,.mbox{background:none;border:4px solid transparent;box-shadow:none;border-image:url(img/kit/panel.webp) 24 fill / 13px stretch;filter:drop-shadow(0 4px 0 rgba(43,33,24,.3))}
+.mbox{border-image-width:16px}
+.ribbon,.ribbon.g,.ribbon.b{background:none;border:0;border-radius:0;box-shadow:none;border-image:url(img/kit/ribbon.webp) 28 64 30 64 fill / 18px 40px 20px 40px stretch;padding:7px 46px 12px;color:#fff;text-shadow:0 2px 0 rgba(43,33,24,.55),0 0 3px rgba(43,33,24,.5)}
+.ribbon{filter:hue-rotate(-38deg) saturate(1.2)}.ribbon.g{filter:hue-rotate(55deg)}.ribbon.b{filter:hue-rotate(165deg)}
+.node,.node.done,.node.locked,.node.boss{background:url(img/kit/node_gold.webp) center/154% no-repeat;border:0;box-shadow:none;filter:drop-shadow(0 4px 0 rgba(43,33,24,.35))}
+.node.done{background-image:url(img/kit/node_done.webp);background-size:104%}.node.done b{opacity:0}
+.node.locked{background-image:url(img/kit/node_lock.webp);background-size:104%}.node.locked b{opacity:0}
+.node .flg{width:28px;height:36px;top:-32px;right:-10px;object-fit:contain}
+.cur .pl{background:url(img/kit/plus.webp) center/contain no-repeat;border:0;width:22px;height:22px;color:transparent}
+/* 4 валюты + язык в шапке: на узких экранах ужимаем */
+@media (max-width:440px){header{gap:4px;padding:8px 6px}header .cur{padding:2px 5px 2px 3px;font-size:13px;gap:2px}.cur .pl{width:18px;height:18px;margin-left:1px}header .cur .ing{width:1.15em;height:1.15em}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="cur" id="hSilver">🥈 0</div>
+    <div class="cur" id="hGold" data-act="tab" data-tab="shop">🥇 0<span class="pl">+</span></div>
+    <div class="cur" id="hGems" data-act="tab" data-tab="shop">💎 0<span class="pl">+</span></div>
+    <span class="grow"></span>
+    <div class="cur" id="hFuel" data-act="fuel">⛽ 30</div>
+    <div class="cur" data-act="lang" data-notr title="Language"><i class="mi lang"></i></div>
+  </header>
+  <main id="main"></main>
+  <nav>
+    <button data-tab="shop"><span><i class="mi shop"></i></span>Магазин</button>
+    <button data-tab="garage"><span><i class="mi garage"></i></span>Гараж</button>
+    <button data-tab="home" class="home"><span><i class="mi battle"></i></span>В бой</button>
+    <button data-tab="market"><span><i class="mi market"></i></span>Рынок</button>
+    <button data-tab="quests"><span><i class="mi quests"></i></span>Задания</button>
+  </nav>
+</div>
+
+<div id="battle"><div id="bwrap">
+  <div id="hud">
+    <button class="hb" data-act="pause"><i class="mi pause"></i></button>
+    <div class="hpbar" id="bHp"><i id="bHpF"></i><span>🏰 <b id="bLives">100</b><small>/100</small></span></div>
+    <div class="cur">💵 <b id="bCash">0</b></div>
+    <div class="wvb"><b id="bWaveN">Волна 0/0</b><i id="bWaveP"></i></div>
+  </div>
+  <div id="wbar"><div id="wprev"></div><button class="btn green" id="bWave">▶ В бой!</button><button class="ab" id="bSpeed"><span><i class="mi speed x1"></i></span><small>x1</small></button></div>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="bTip"></div>
+    <div id="radial"></div>
+    <div id="tinfo"></div>
+  </div>
+  <div id="ctrl">
+    <button class="ab swp" id="bSwap"><span>🎒</span><small>Поддержка</small></button>
+    <div id="slots"></div>
+  </div>
+</div></div>
+
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+<div id="toast"></div>
+
+<script src="i18n.js"></script>
+<script src="core.js"></script>
+<script>
+/* ======================= Telegram ======================= */
+const TG = (window.Telegram && window.Telegram.WebApp) || null;
+const IN_TG = !!(TG && TG.initData);
+if (TG) { try { TG.ready(); TG.expand(); } catch (e) {} }
+const haptic = (t) => { try { IN_TG && TG.HapticFeedback.impactOccurred(t); } catch (e) {} };
+const hapticN = (t) => { try { IN_TG && TG.HapticFeedback.notificationOccurred(t); } catch (e) {} };
+
+
+/* ======================= Утилиты ======================= */
+const $ = (s) => document.querySelector(s);
+function shade(hex, k) {
+  const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255; const t = k < 0 ? 0 : 255, p = Math.abs(k);
+  return `rgb(${Math.round(r + (t - r) * p)},${Math.round(g + (t - g) * p)},${Math.round(b + (t - b) * p)})`;
+}
+function prep(L) { if (!L.hl) { L.hl = shade(L.h, .28); L.hd = shade(L.h, -.25); L.t = L.t || shade(L.h, .1); } return L; }
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2000); }
+/* перерисовать открытое окно, не сбрасывая прокрутку и без повторной анимации картинки */
+function keepScroll(fn) { const b = $('#mbox'), y = b.scrollTop; fn(); b.querySelectorAll('.rays img').forEach(i => i.style.animation = 'none'); b.scrollTop = y; requestAnimationFrame(() => { b.scrollTop = y; }); }
+function modal(html) { $('#mbox').innerHTML = html; $('#modal').classList.add('on'); }
+function closeModal() { $('#modal').classList.remove('on'); }
+
+/* ======================= Отрисовка (cartoon) ======================= */
+function rr(c, x, y, w, h, r) { r = Math.max(0, Math.min(r, w / 2, h / 2)); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, Math.max(0, r), 0, 7); }
+function fs(c, fill) { c.fillStyle = fill; c.fill(); c.stroke(); }
+
+/* Узоры камуфляжа лимиток: внутри корпуса, без случайности (одинаково на всех устройствах) */
+function drawPat(c, s, L, lw) {
+  const R = (i) => { const x = Math.sin(i * 12.9898 + 4.1) * 43758.5453; return x - Math.floor(x); }, p = L.p2, W = s * .92, H = s * .6, X = -s * .46, Y = -s * .3;
+  c.save(); rr(c, X, Y, W, H, s * .12); c.clip(); c.fillStyle = p; c.strokeStyle = p; c.lineCap = 'round'; c.lineJoin = 'round';
+  const glow = (b) => { c.shadowColor = p; c.shadowBlur = s * b; };
+  switch (L.pat) {
+    case 'blots': for (let i = 0; i < 8; i++) { c.beginPath(); c.ellipse(X + R(i) * W, Y + R(i + 20) * H, s * (.07 + R(i + 3) * .08), s * (.04 + R(i + 5) * .05), R(i + 7) * 3, 0, 7); c.fill(); } break;
+    case 'digital': { const q = W / 12; for (let i = 0; i < 12 * 8; i++) if (R(i) < .38) c.fillRect(X + (i % 12) * q, Y + Math.floor(i / 12) * q, q + .5, q + .5); break; }
+    case 'splinter': for (let i = 0; i < 7; i++) { const cx = X + R(i) * W, cy = Y + R(i + 30) * H; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + s * (.1 + R(i + 2) * .12), cy - s * .06); c.lineTo(cx + s * (.04 + R(i + 4) * .08), cy + s * .12); c.closePath(); c.fill(); } break;
+    case 'tiger': for (let i = 0; i < 7; i++) { const x = X + (i + .5) * W / 7; for (const k of [-1, 1]) { const y0 = k < 0 ? Y : Y + H, d = s * (.18 + R(i + (k + 1) * 9) * .14) * -k; c.beginPath(); c.moveTo(x - s * .035, y0); c.quadraticCurveTo(x + s * .05, y0 + d * .5, x + s * .01, y0 + d); c.quadraticCurveTo(x + s * .01, y0 + d * .4, x + s * .035, y0); c.closePath(); c.fill(); } } break;
+    case 'candy': c.lineWidth = s * .075; for (let i = -6; i < 9; i++) { c.beginPath(); c.moveTo(X + i * s * .16, Y - s * .05); c.lineTo(X + i * s * .16 + H, Y + H + s * .05); c.stroke(); } break;
+    case 'flame': for (const [col, k] of [[p, 1], ['#ffd23f', .55]]) { c.fillStyle = col; for (let i = 0; i < 4; i++) { const y = Y + H * (.17 + i * .22), tip = X + W * (.15 + R(i) * .25) + (1 - k) * W * .3; c.beginPath(); c.moveTo(X + W, y - s * .07 * k); c.quadraticCurveTo(X + W * .55, y - s * .09 * k, tip, y); c.quadraticCurveTo(X + W * .55, y + s * .05 * k, X + W, y + s * .07 * k); c.fill(); } } break;
+    case 'carbon': { const q = s * .045; for (let i = 0; i * q < W; i++) for (let j = 0; j * q < H; j++) if ((i + j) % 2) c.fillRect(X + i * q, Y + j * q, q, q); break; }
+    case 'hex': { glow(.08); c.lineWidth = s * .018; const r = s * .07, hw = r * Math.sqrt(3); for (let j = 0; j < 7; j++) for (let i = 0; i < 9; i++) { const cx = X + i * hw + (j % 2) * hw / 2, cy = Y + j * r * 1.5; c.beginPath(); for (let a = 0; a < 6; a++) c.lineTo(cx + r * Math.cos(Math.PI / 6 + a * Math.PI / 3), cy + r * Math.sin(Math.PI / 6 + a * Math.PI / 3)); c.closePath(); c.stroke(); } break; }
+    case 'circuit': glow(.1); c.lineWidth = s * .022; for (let i = 0; i < 6; i++) { const x0 = X + R(i) * W, y0 = Y + R(i + 40) * H, x1 = x0 + (R(i + 2) - .5) * s * .5, y1 = y0 + (R(i + 3) - .5) * s * .4; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y0); c.lineTo(x1, y1); c.stroke(); for (const [px, py] of [[x0, y0], [x1, y1]]) { c.beginPath(); c.arc(px, py, s * .025, 0, 7); c.fill(); } } break;
+    case 'lava': glow(.12); c.lineWidth = s * .03; for (let i = 0; i < 5; i++) { let x = X + R(i) * W, y = Y; c.beginPath(); c.moveTo(x, y); for (let k = 1; k <= 5; k++) { x += (R(i * 7 + k) - .5) * s * .22; y += H / 5; c.lineTo(x, y); } c.stroke(); } break;
+    case 'galaxy': { const g = c.createRadialGradient(X + W * .35, Y + H * .4, s * .02, X + W * .35, Y + H * .4, s * .5); g.addColorStop(0, 'rgba(255,90,220,.75)'); g.addColorStop(.5, 'rgba(80,120,255,.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(X, Y, W, H); c.fillStyle = p; for (let i = 0; i < 18; i++) { c.beginPath(); c.arc(X + R(i) * W, Y + R(i + 50) * H, s * (.008 + R(i + 9) * .016), 0, 7); c.fill(); } break; }
+    case 'holo': { const g = c.createLinearGradient(X, Y, X + W, Y + H); ['#ff9cf2', '#9cf2ff', '#c9ff9c', '#fff29c', '#ff9cf2'].forEach((col, i) => g.addColorStop(i / 4, col)); c.globalAlpha = .7; c.fillStyle = g; c.fillRect(X, Y, W, H); break; }
+  }
+  c.restore(); c.lineWidth = lw; c.strokeStyle = OL; rr(c, X, Y, W, H, s * .12); c.stroke();
+}
+function drawTank(c, x, y, s, L, bodyA, turA, o = {}) {
+  prep(L);
+  const lw = Math.max(1.4, s * 0.055);
+  c.save(); c.translate(x, y);
+  c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(s * .07, s * .1, s * .58, s * .46, bodyA, 0, 7); c.fill();
+  c.rotate(bodyA);
+  c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round'; c.lineCap = 'round';
+  const ph = ((o.tread || 0) % 1 + 1) % 1;
+  for (const sy of [-1, 1]) {
+    const ty = sy > 0 ? s * .18 : -s * .42;
+    rr(c, -s * .52, ty, s * 1.04, s * .24, s * .09); fs(c, '#4b443c');
+    c.strokeStyle = 'rgba(0,0,0,.4)'; c.lineWidth = lw * .55;
+    for (let i = 0; i < 7; i++) { const tx = -s * .45 + ((i + ph) / 7) * s * .9; c.beginPath(); c.moveTo(tx, ty + s * .04); c.lineTo(tx, ty + s * .2); c.stroke(); }
+    c.strokeStyle = OL; c.lineWidth = lw;
+  }
+  rr(c, -s * .46, -s * .3, s * .92, s * .6, s * .12); fs(c, L.h);
+  if (L.pat) { drawPat(c, s, L, lw); c.globalAlpha = .35; }
+  c.fillStyle = L.hl; rr(c, -s * .38, -s * .25, s * .72, s * .16, s * .07); c.fill();
+  c.fillStyle = L.hd; rr(c, s * .3, -s * .22, s * .1, s * .44, s * .04); c.fill(); c.globalAlpha = 1;
+  if (L.extra === 'fuel') { c.beginPath(); c.ellipse(-s * .34, 0, s * .1, s * .22, 0, 0, 7); fs(c, '#d8452f'); }
+  if (L.skull) { c.fillStyle = '#f4ead8'; circ(c, -s * .3, 0, s * .08); c.fill(); }
+  if (o.gear) drawGear(c, s, lw, o.gear);
+  c.rotate(turA - bodyA);
+  const rc = -(o.recoil || 0) * s * .12, n = L.bar || 0;
+  for (let i = 0; i < n; i++) {
+    const off = n === 1 ? 0 : (i - (n - 1) / 2) * L.bw * s * 1.7;
+    rr(c, s * .05 + rc, off - L.bw * s / 2, L.bl * s, L.bw * s, L.bw * s * .3); fs(c, '#555b63');
+    if (L.brake) { rr(c, s * .05 + rc + L.bl * s - s * .1, off - L.bw * s * .8, s * .12, L.bw * s * 1.6, s * .03); fs(c, '#444950'); }
+    if (o.flash > 0) { c.fillStyle = '#ffe36b'; circ(c, s * .05 + L.bl * s + s * .1, off, s * .13); c.fill(); c.fillStyle = '#fff'; circ(c, s * .05 + L.bl * s + s * .06, off, s * .06); c.fill(); }
+  }
+  const ts = s * (L.ts || .27);
+  if (L.tur === 'box') rr(c, -ts * 1.1, -ts, ts * 2.1, ts * 2, ts * .35); else if (L.tur === 'dome') { c.beginPath(); c.ellipse(-ts * .1, 0, ts * 1.15, ts * .95, 0, 0, 7); } else circ(c, 0, 0, ts);
+  fs(c, L.t);
+  c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-ts * .15, -ts * .45, ts * .55, ts * .25, 0, 0, 7); c.fill();
+  if (L.extra === 'crystal') { c.beginPath(); c.moveTo(0, -ts * .75); c.lineTo(ts * .5, 0); c.lineTo(0, ts * .75); c.lineTo(-ts * .5, 0); c.closePath(); fs(c, '#9fe6ff'); }
+  else if (L.extra === 'coil') { for (const r of [.8, .55]) { circ(c, 0, 0, ts * r); c.stroke(); } c.fillStyle = o.flash > 0 ? '#fff' : '#7fd6ff'; circ(c, 0, 0, ts * .32); c.fill(); c.stroke(); }
+  else if (L.extra === 'pod') { c.fillStyle = '#2d2d2d'; for (let i = 0; i < 2; i++) for (let j = 0; j < 3; j++) { circ(c, ts * (i * .45), ts * (j - 1) * .55, ts * .19); c.fill(); } }
+  else if (L.extra === 'drum') { c.beginPath(); c.ellipse(-ts * .35, 0, ts * .55, ts * .7, 0, 0, 7); fs(c, '#5b3a1f'); c.fillStyle = '#c99a4a'; for (let i = 0; i < 3; i++) { const a = i * 2.094 + (o.spin || 0); circ(c, -ts * .35 + Math.cos(a) * ts * .3, Math.sin(a) * ts * .38, ts * .14); c.fill(); c.stroke(); } }
+  else if (L.extra === 'core') { const g = c.createRadialGradient(0, 0, 0, 0, 0, ts * .6); g.addColorStop(0, '#fff'); g.addColorStop(.45, L.core || '#4fe3ff'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; circ(c, 0, 0, ts * (o.flash > 0 || o.beam ? .75 : .55)); c.fill(); c.strokeStyle = L.core || '#4fe3ff'; c.lineWidth = lw * .7; circ(c, 0, 0, ts * .7); c.stroke(); c.lineWidth = lw; c.strokeStyle = OL; }
+  else if (L.extra === 'hangar') { rr(c, -ts * .8, -ts * .7, ts * 1.6, ts * 1.4, ts * .5); fs(c, '#33507a'); c.fillStyle = '#ffd23f'; for (let i = 0; i < 3; i++) { rr(c, -ts * .55, -ts * .45 + i * ts * .35, ts * 1.1, ts * .16, ts * .06); c.fill(); } }
+  else if (L.extra === 'dish') { c.beginPath(); c.arc(-ts * .9, 0, ts * .45, Math.PI * .5, Math.PI * 1.5); fs(c, '#cfd6dd'); }
+  else { circ(c, -ts * .3, ts * .25, ts * .28); fs(c, L.hd); }
+  if (o.tier >= 2) { c.strokeStyle = '#ffd23f'; c.lineWidth = lw * .9; for (let i = 0; i < o.tier - 1; i++) { c.beginPath(); c.moveTo(-ts * .7 - i * ts * .3, -ts * .3); c.lineTo(-ts * .5 - i * ts * .3, 0); c.lineTo(-ts * .7 - i * ts * .3, ts * .3); c.stroke(); } }
+  if (o.gear === 'mg') { c.lineWidth = lw * .8; rr(c, -ts * .2, -ts * .98, ts * 2.1, ts * .3, ts * .1); fs(c, '#2f3338'); rr(c, -ts * .45, -ts * 1.18, ts * .7, ts * .7, ts * .15); fs(c, '#6b737d'); c.lineWidth = lw; }
+  c.restore();
+}
+/* Снаряжение лимитки: рисуется на корпусе (координаты корпуса, перед танка — +x) */
+function drawGear(c, s, lw, g) {
+  if (g === 'antenna') {
+    c.strokeStyle = OL; c.lineWidth = lw * .7; c.beginPath(); c.moveTo(-s * .36, -s * .2); c.quadraticCurveTo(-s * .5, -s * .28, -s * .58, -s * .4); c.stroke();
+    c.lineWidth = lw; c.fillStyle = '#e0473c'; circ(c, -s * .58, -s * .4, s * .05); c.fill(); c.stroke(); c.lineWidth = lw;
+    rr(c, -s * .41, -s * .25, s * .1, s * .1, s * .03); fs(c, '#555b63');
+  } else if (g === 'crates') {
+    for (const [cy, w] of [[-s * .27, .17], [s * .06, .2]]) { rr(c, -s * .5, cy, s * .16, s * w, s * .03); fs(c, '#b5823f'); c.beginPath(); c.moveTo(-s * .5, cy + s * w / 2); c.lineTo(-s * .34, cy + s * w / 2); c.stroke(); }
+  } else if (g === 'tracks') {
+    rr(c, s * .4, -s * .27, s * .13, s * .54, s * .03); fs(c, '#4b443c');
+    c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = lw * .5; for (let i = 1; i < 5; i++) { c.beginPath(); c.moveTo(s * .41, -s * .27 + i * s * .108); c.lineTo(s * .52, -s * .27 + i * s * .108); c.stroke(); }
+    c.strokeStyle = OL; c.lineWidth = lw;
+  } else if (g === 'net') {
+    c.save(); c.globalAlpha = .9; c.beginPath(); c.moveTo(-s * .5, -s * .28);
+    for (let i = 0; i <= 6; i++) c.lineTo(-s * (.5 - i * .05) + (i % 2) * s * .04, -s * .28 + i * s * .093);
+    c.lineTo(-s * .06, s * .3); c.lineTo(-s * .1, -s * .3); c.closePath(); fs(c, '#6f7f4a');
+    c.strokeStyle = 'rgba(43,33,24,.45)'; c.lineWidth = lw * .45;
+    for (let i = -3; i <= 3; i++) { c.beginPath(); c.moveTo(-s * .45, i * s * .09); c.lineTo(-s * .12, i * s * .09 + s * .06); c.stroke(); }
+    c.fillStyle = '#4f5f33'; for (const [a, b] of [[-.38, -.15], [-.24, .12], [-.3, .02], [-.18, -.2]]) { circ(c, s * a, s * b, s * .045); c.fill(); }
+    c.restore(); c.strokeStyle = OL; c.lineWidth = lw;
+  } else if (g === 'lights') {
+    for (const sy of [-1, 1]) {
+      c.fillStyle = 'rgba(255,236,140,.35)'; c.beginPath(); c.moveTo(s * .44, sy * s * .22); c.lineTo(s * .85, sy * s * .1); c.lineTo(s * .85, sy * s * .38); c.closePath(); c.fill();
+      c.fillStyle = '#ffe36b'; circ(c, s * .42, sy * s * .22, s * .07); c.fill(); c.stroke();
+    }
+  } else if (g === 'rockets') {
+    for (const sy of [-1, 1]) for (let i = 0; i < 2; i++) {
+      const ry = sy * s * (.12 + i * .1); rr(c, -s * .5, ry - s * .04, s * .3, s * .08, s * .04); fs(c, '#cfd6dd');
+      c.fillStyle = '#e0473c'; c.beginPath(); c.moveTo(-s * .2, ry - s * .04); c.lineTo(-s * .12, ry); c.lineTo(-s * .2, ry + s * .04); c.closePath(); c.fill(); c.stroke();
+    }
+  }
+}
+function drawTruck(c, x, y, s, a, cab, cargo, kind) {
+  const lw = Math.max(1.4, s * .055);
+  c.save(); c.translate(x, y);
+  c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(s * .07, s * .1, s * .58, s * .38, a, 0, 7); c.fill();
+  c.rotate(a); c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
+  for (const wx of [-.34, -.04, .3]) for (const sy of [-1, 1]) { rr(c, wx * s - s * .09, sy * s * .3 - s * .07, s * .18, s * .14, s * .05); fs(c, '#3a3530'); }
+  rr(c, -s * .52, -s * .28, s * .68, s * .56, s * .07); fs(c, cargo);
+  if (kind === 'crates') { for (const [cx, cy] of [[-.36, -.12], [-.36, .12], [-.12, -.12], [-.12, .12]]) { rr(c, (cx - .1) * s, (cy - .1) * s, s * .2, s * .2, s * .03); fs(c, '#d9a35e'); } }
+  else if (kind === 'cross') { c.fillStyle = '#e8463c'; c.fillRect(-s * .3, -s * .06, s * .24, s * .12); c.fillRect(-s * .24, -s * .14, s * .12, s * .28); }
+  else if (kind === 'cover') { c.strokeStyle = 'rgba(0,0,0,.25)'; for (let i = 1; i < 4; i++) { c.beginPath(); c.moveTo(-s * .52 + i * s * .17, -s * .26); c.lineTo(-s * .52 + i * s * .17, s * .26); c.stroke(); } c.strokeStyle = OL; }
+  rr(c, s * .17, -s * .25, s * .34, s * .5, s * .1); fs(c, cab);
+  rr(c, s * .35, -s * .19, s * .1, s * .38, s * .04); fs(c, '#a6dcff');
+  c.restore();
+}
+function drawEnemy(c, type, x, y, s, a, tm, e) {
+  const lw = Math.max(1.4, s * .055);
+  c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
+  if (ELOOK[type]) {
+    const ga = c.globalAlpha; if (type === 'scout' && e) c.globalAlpha = ga * (.5 + .12 * Math.sin(tm * 5));
+    drawTank(c, x, y, s, ELOOK[type], a, e ? e.tur : a, { tread: e ? e.tread : 0 });
+    if (type === 'scout') { c.fillStyle = '#4a5a2c'; for (const [dx, dy, r] of [[-.2, -.12, .1], [.12, .14, .08], [.18, -.16, .07], [-.12, .18, .06]]) { c.beginPath(); c.arc(x + (dx * Math.cos(a) - dy * Math.sin(a)) * s, y + (dx * Math.sin(a) + dy * Math.cos(a)) * s, r * s, 0, 7); c.fill(); } }
+    c.globalAlpha = ga;
+    if (type === 'boss') drawTank(c, x - Math.cos(a) * s * .1, y - Math.sin(a) * s * .1, s * .55, { h: '#7a3632', tur: 'circle', ts: .3, bar: 1, bl: .7, bw: .14, t: '#8a3c37' }, a, (e ? e.tur : a) + .5, {});
+    return;
+  }
+  if (type === 'medic') return drawTruck(c, x, y, s, a, '#e8463c', '#f4f1ea', 'cross');
+  if (type === 'transport') return drawTruck(c, x, y, s, a, '#b2463a', '#8a9152', 'cover');
+  c.save(); c.translate(x, y);
+  if (type === 'btr') {
+    c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.ellipse(s * .07, s * .1, s * .58, s * .4, a, 0, 7); c.fill();
+    c.rotate(a);
+    for (const wx of [-.32, 0, .32]) for (const sy of [-1, 1]) { circ(c, wx * s, sy * s * .32, s * .12); fs(c, '#3a3530'); }
+    c.beginPath(); c.moveTo(-s * .5, -s * .28); c.lineTo(s * .32, -s * .28); c.lineTo(s * .52, 0); c.lineTo(s * .32, s * .28); c.lineTo(-s * .5, s * .28); c.closePath(); fs(c, '#c9564a');
+    c.fillStyle = '#e07a6c'; rr(c, -s * .42, -s * .22, s * .66, s * .12, s * .05); c.fill();
+    c.save(); c.rotate((e ? e.tur : a) - a);
+    rr(c, 0, -s * .04, s * .45, s * .08, s * .03); fs(c, '#555b63');
+    circ(c, 0, 0, s * .15); fs(c, '#a8443a'); c.restore();
+  } else if (type === 'heli' || type === 'ghost') {
+    const dk = type === 'ghost'; if (dk && e) c.globalAlpha *= .55 + .12 * Math.sin(tm * 5);
+    const alt = s * .45;
+    c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.ellipse(s * .1, s * .25, s * .45, s * .22, a, 0, 7); c.fill();
+    c.translate(0, -alt); c.rotate(a + Math.sin(tm * 3) * .06);
+    rr(c, -s * .85, -s * .06, s * .6, s * .12, s * .05); fs(c, (dk ? '#2b313d' : '#a8443a'));
+    rr(c, -s * .9, -s * .2, s * .12, s * .4, s * .05); fs(c, (dk ? '#454e60' : '#c9564a'));
+    c.beginPath(); c.ellipse(0, 0, s * .4, s * .26, 0, 0, 7); fs(c, (dk ? '#454e60' : '#c9564a'));
+    c.beginPath(); c.ellipse(s * .17, 0, s * .15, s * .16, 0, 0, 7); fs(c, (dk ? '#7cf0b0' : '#a6dcff'));
+    c.rotate(tm * 22); c.fillStyle = 'rgba(40,40,40,.18)'; circ(c, 0, 0, s * .7); c.fill();
+    c.fillStyle = '#333'; c.fillRect(-s * .7, -s * .035, s * 1.4, s * .07); c.fillRect(-s * .035, -s * .7, s * .07, s * 1.4);
+  } else if (type === 'bomber') {
+    const alt = s * .5;
+    c.fillStyle = 'rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(s * .12, s * .3, s * .55, s * .2, a, 0, 7); c.fill();
+    c.translate(0, -alt); c.rotate(a);
+    c.beginPath(); c.moveTo(s * .12, -s * .75); c.lineTo(s * .28, -s * .75); c.lineTo(s * .22, s * .75); c.lineTo(s * .06, s * .75); c.closePath(); fs(c, '#a8443a');
+    c.beginPath(); c.moveTo(-s * .5, -s * .28); c.lineTo(-s * .4, -s * .28); c.lineTo(-s * .38, s * .28); c.lineTo(-s * .5, s * .28); c.closePath(); fs(c, '#a8443a');
+    c.beginPath(); c.ellipse(0, 0, s * .6, s * .15, 0, 0, 7); fs(c, '#c9564a');
+    c.beginPath(); c.ellipse(s * .38, 0, s * .12, s * .09, 0, 0, 7); fs(c, '#a6dcff');
+    for (const sy of [-.45, .45]) { circ(c, s * .3, sy * s, s * .09); fs(c, '#555'); c.fillStyle = 'rgba(40,40,40,.3)'; circ(c, s * .4, sy * s, s * .2); c.fill(); }
+  }
+  c.restore();
+}
+const ALLY_LOOK = [{ h: '#3f7fd0', tur: 'dome', ts: .27, bar: 1, bl: .5, bw: .14 }, { h: '#2f6bbf', tur: 'box', ts: .28, bar: 1, bl: .6, bw: .15, brake: 1 }, { h: '#24539a', tur: 'box', ts: .31, bar: 2, bl: .62, bw: .12, brake: 1 }];
+function drawUnit(c, t, x, y, s, bodyA, turA, o) {
+  if (t.kind === 'supply') return drawTruck(c, x, y, s, bodyA, '#5f9e4f', t.look.h, 'crates');
+  drawTank(c, x, y, s, t.look, bodyA, turA, o);
+}
+/* Сундук: объёмный, с крышкой-бочкой, оковкой, заклёпками и замком. tier 0..3 — чем выше, тем богаче (свечение, камень, звёзды) */
+function star4(c, x, y, r) { c.beginPath(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, q = i % 2 ? r * .32 : r; c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } c.closePath(); }
+function star5(c, x, y, r) { c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r * .45 : r; c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } c.closePath(); }
+function drawChest(c, s, col, band, tier = 0) {
+  const lw = s * .04; c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
+  if (tier >= 1) { const g = c.createRadialGradient(0, 0, s * .05, 0, 0, s * .5); g.addColorStop(0, shade(col, .5).replace('rgb', 'rgba').replace(')', ',.75)')); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(-s * .5, -s * .5, s, s); }
+  c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(0, s * .39, s * .44, s * .065, 0, 0, 7); c.fill();
+  /* корпус */
+  let g = c.createLinearGradient(0, 0, 0, s * .38); g.addColorStop(0, col); g.addColorStop(1, shade(col, -.22));
+  rr(c, -s * .41, -s * .02, s * .82, s * .4, s * .07); fs(c, g);
+  /* доски */
+  c.save(); c.strokeStyle = 'rgba(43,33,24,.28)'; c.lineWidth = lw * .55; for (const y of [.12, .25]) { c.beginPath(); c.moveTo(-s * .37, s * y); c.lineTo(s * .37, s * y); c.stroke(); } c.restore();
+  /* крышка-бочка */
+  g = c.createLinearGradient(0, -s * .38, 0, 0); g.addColorStop(0, shade(col, .35)); g.addColorStop(1, shade(col, .05));
+  c.beginPath(); c.moveTo(-s * .43, s * .02); c.lineTo(-s * .43, -s * .16); c.bezierCurveTo(-s * .43, -s * .42, s * .43, -s * .42, s * .43, -s * .16); c.lineTo(s * .43, s * .02); c.closePath(); fs(c, g);
+  /* блик на крышке */
+  c.save(); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = s * .035; c.lineCap = 'round'; c.beginPath(); c.moveTo(-s * .32, -s * .15); c.quadraticCurveTo(-s * .26, -s * .29, -s * .1, -s * .31); c.stroke(); c.restore();
+  /* обод между крышкой и корпусом */
+  rr(c, -s * .45, -s * .03, s * .9, s * .08, s * .03); fs(c, band);
+  /* вертикальная оковка с заклёпками */
+  for (const bx of [-.31, .23]) {
+    c.beginPath(); c.moveTo(bx * s, s * .37); c.lineTo(bx * s, -s * .2); c.quadraticCurveTo((bx + .04) * s, -s * .33, (bx + .08) * s, -s * .32); c.lineTo((bx + .08) * s, s * .37); c.closePath(); fs(c, band);
+    c.fillStyle = shade(band.startsWith('#') ? band : '#888888', .55); for (const y of [-.2, .12, .29]) { c.beginPath(); c.arc((bx + .04) * s, y * s, s * .016, 0, 7); c.fill(); }
+  }
+  /* уголки */
+  for (const k of [-1, 1]) { c.beginPath(); c.moveTo(k * s * .41, s * .22); c.lineTo(k * s * .41, s * .31); c.quadraticCurveTo(k * s * .41, s * .38, k * s * .34, s * .38); c.lineTo(k * s * .25, s * .38); c.closePath(); fs(c, band); }
+  /* замок */
+  c.beginPath(); c.moveTo(-s * .1, -s * .1); c.lineTo(s * .1, -s * .1); c.lineTo(s * .1, s * .07); c.quadraticCurveTo(0, s * .17, -s * .1, s * .07); c.closePath(); fs(c, '#ffd23f');
+  if (tier === 3) { star5(c, 0, -s * .01, s * .065); fs(c, '#fff6b0'); }
+  else if (tier === 2) { c.beginPath(); c.moveTo(0, -s * .07); c.lineTo(s * .055, -s * .01); c.lineTo(0, s * .06); c.lineTo(-s * .055, -s * .01); c.closePath(); fs(c, '#ff4f6a'); }
+  else { c.fillStyle = OL; circ(c, 0, -s * .025, s * .025); c.fill(); c.fillRect(-s * .012, -s * .02, s * .024, s * .06); }
+  if (tier >= 2) { c.fillStyle = '#fff'; for (const [x, y, r] of [[-.36, -.36, .06], [.38, -.3, .045], [.33, .3, .035]]) { star4(c, x * s, y * s, r * s); c.fill(); } }
+}
+/* Подарок: коробка с лентой и бантом — награда за ежедневный заход */
+function drawGift(c, s, col, rib) {
+  const lw = s * .04; c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
+  c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(0, s * .4, s * .38, s * .06, 0, 0, 7); c.fill();
+  let g = c.createLinearGradient(0, -s * .05, 0, s * .4); g.addColorStop(0, col); g.addColorStop(1, shade(col, -.2));
+  rr(c, -s * .33, -s * .05, s * .66, s * .44, s * .05); fs(c, g);
+  rr(c, -s * .38, -s * .17, s * .76, s * .15, s * .04); fs(c, shade(col, .25));
+  rr(c, -s * .065, -s * .17, s * .13, s * .56, s * .02); fs(c, rib);
+  /* бант */
+  for (const k of [-1, 1]) { c.beginPath(); c.moveTo(0, -s * .17); c.bezierCurveTo(k * s * .05, -s * .4, k * s * .3, -s * .38, k * s * .22, -s * .2); c.closePath(); fs(c, rib); }
+  rr(c, -s * .05, -s * .23, s * .1, s * .08, s * .03); fs(c, shade(rib, -.15));
+  c.fillStyle = 'rgba(255,255,255,.45)'; rr(c, -s * .28, s * .0, s * .07, s * .3, s * .03); c.fill();
+}
+/* Лимитка с камуфляжем: та же модель, другой цвет корпуса */
+const SKL = {};
+function skinLook(t, sk) {
+  if (!sk || !sk.h) return t.look; const k = t.id + sk.h + (sk.pt || ''); if (SKL[k]) return SKL[k];
+  const L = Object.assign({}, t.look, { h: sk.h, pat: sk.pt, p2: sk.p2 }); delete L.hl; delete L.hd; delete L.t; return SKL[k] = prep(L);
+}
+const ICON = {};
+const GIFTC = { red: ['#ff5b4f', '#ffd23f'], blue: ['#45a6ff', '#ffffff'], green: ['#5fcb45', '#ff5b4f'], purple: ['#b06bff', '#ffd23f'], gold: ['#ffc83a', '#ff4f9a'] };
+function icon(kind, id, size = 96, attrs, serial) {
+  if (kind === 'b' || kind === 'bo') return `img/ui/box_${id}${kind === 'bo' ? '_o' : ''}.webp`;   // сундуки — нарисованные картинки (bo = открытый)
+  const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
+  const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
+  if (kind === 't') { const t = tankById(id); drawTank(c, size / 2, size / 2, size * .62, skinLook(t, sk), -Math.PI / 4, -Math.PI / 4, sk ? { gear: sk.gr, num: sk.n } : {}); if (sk && sk.fl) { c.font = `${Math.round(size * .26)}px system-ui`; c.fillText(sk.fl, size * .04, size * .3); } }
+  else if (kind === 'e') { const sc = { light: .7, scout: .7, btr: .66, tank: .62, heavy: .58, boss: .5, heli: .5, ghost: .5, assault: .6, bomber: .48, medic: .64, transport: .62 }[id]; drawEnemy(c, id, size / 2, size / 2 + (ENEMY[id].fly ? size * .14 : 0), size * sc, -Math.PI / 4, 0.3, null); }
+  else if (kind === 'b') { const b = BOXES.find(x => x.id === id); c.translate(size / 2, size / 2); drawChest(c, size * .95, b.col, b.band, BOXES.indexOf(b)); }
+  else if (kind === 'g') { const [col, rib] = GIFTC[id] || GIFTC.red; c.translate(size / 2, size / 2 + size * .02); drawGift(c, size * .92, col, rib); }
+  return ICON[k] = cv2.toDataURL();
+}
+
+/* ======================= Сохранение ======================= */
+const KEY = 'steelyard_v3';
+const CLOUD = IN_TG && TG.CloudStorage && TG.isVersionAtLeast && TG.isVersionAtLeast('6.9');
+async function loadState() {
+  let raw = null;
+  if (CLOUD) raw = await new Promise(res => { const t = setTimeout(() => res(null), 1500); try { TG.CloudStorage.getItem(KEY, (err, v) => { clearTimeout(t); res(err ? null : v); }); } catch (e) { res(null); } });
+  if (!raw) { try { raw = localStorage.getItem(KEY); } catch (e) {} }
+  let s; try { s = raw ? Object.assign(DEF(), JSON.parse(raw)) : DEF(); } catch (e) { s = DEF(); }
+  s.deck = (s.deck || []).filter(id => s.owned[id]); if (!s.deck.length) s.deck = [Object.keys(s.owned)[0]];
+  return s;
+}
+let S, saveT;
+function save() {
+  if (ON) return; /* онлайн: состояние хранит сервер */
+  clearTimeout(saveT);
+  saveT = setTimeout(() => { saveT = null; const j = JSON.stringify(S); try { localStorage.setItem(KEY, j); } catch (e) {} if (CLOUD) { try { TG.CloudStorage.setItem(KEY, j, () => {}); } catch (e) {} } }, 300);
+}
+function flush() { if (!saveT || !S) return; clearTimeout(saveT); saveT = null; const j = JSON.stringify(S); try { localStorage.setItem(KEY, j); } catch (e) {} if (CLOUD) { try { TG.CloudStorage.setItem(KEY, j, () => {}); } catch (e) {} } }
+addEventListener('pagehide', flush); document.addEventListener('visibilitychange', () => document.hidden && flush());
+
+/* ======================= Сервер ======================= */
+/* Онлайн (игра открыта с нашего сервера): прогресс, награды, лимитки и рынок решает только сервер.
+   Офлайн (просто файл) — всё как раньше, в localStorage, без лимиток и рынка. */
+let ON = false, ME = null, ITEMS = [], TON = 0, DEVMODE = false;
+function devUser() { let u = null; try { u = localStorage.getItem('sy_dev_uid'); if (!u) { u = String(100000 + Math.floor(Math.random() * 900000)); localStorage.setItem('sy_dev_uid', u); } } catch (e) { u = '100001'; } return u; }
+async function api(path, body = {}) {
+  const h = { 'Content-Type': 'application/json', 'X-Lang': LANG };
+  if (IN_TG) h['X-Init-Data'] = TG.initData; else h['X-Dev-User'] = devUser();
+  let r; try { r = await fetch('/api/' + path, { method: 'POST', headers: h, body: JSON.stringify(body) }); } catch (e) { return { err: 'Нет связи с сервером' }; }
+  let j; try { j = await r.json(); } catch (e) { return { err: 'Сервер недоступен' }; }
+  if (j.state) S = j.state; if (j.items) ITEMS = j.items; if (j.ton != null) TON = j.ton; if (j.me) ME = j.me;
+  return j;
+}
+/* Действие в меню: онлайн — просим сервер, офлайн — считаем сами тем же кодом из core.js */
+async function doAct(a, args = {}) {
+  if (ON) return api('act', { a, args });
+  const r = ECON[a](args); if (r.ok) save(); return r;
+}
+const tonTxt = (g) => num(g) + ' 💎';   // цены рынка — в гемах
+const myItems = (model) => ITEMS.filter(i => i.model === model);
+const eqItem = (model) => { const id = S.eq && S.eq[model]; return ITEMS.find(i => i.id === id) || myItems(model)[0]; };
+
+/* ======================= Меню ======================= */
+let tab = 'home', mapScrolled = false;
+function renderHeader() {
+  tickFuel();
+  $('#hSilver').innerHTML = `🥈 ${num(S.silver)}`;
+  $('#hGold').innerHTML = `🥇 ${num(S.gold)}<span class="pl">+</span>`;
+  $('#hGems').innerHTML = `💎 ${num(S.gems || 0)}<span class="pl">+</span>`;
+  $('#hFuel').innerHTML = `⛽ ${num(S.fuel)}/${MAXF}` + (S.fuel < MAXF ? `<small>${fmt(FREGEN - (Date.now() - S.fTs))}</small>` : '');
+  document.querySelectorAll('nav button').forEach(b => {
+    b.classList.toggle('on', b.dataset.tab === tab);
+    const dot = (b.dataset.tab === 'quests' && qReady()) || (b.dataset.tab === 'shop' && Date.now() - S.boxTs >= BOXCD), has = b.querySelector('.dot');
+    if (dot && !has) b.insertAdjacentHTML('beforeend', '<i class="dot"></i>'); else if (!dot && has) has.remove();
+  });
+}
+function render() {
+  renderHeader();
+  const m = $('#main'), st = m.scrollTop;
+  m.innerHTML = tab === 'home' ? homeHTML() : tab === 'map' ? mapHTML() : tab === 'garage' ? garageHTML() : tab === 'shop' ? shopHTML() : tab === 'market' ? marketHTML() : questsHTML();
+  if (tab === 'market') loadMarket();
+  if (tab === 'map' && !mapScrolled) { mapScrolled = true; const cur = m.querySelector('.node.cur'); if (cur) cur.scrollIntoView({ block: 'center' }); }
+  else m.scrollTop = st;
+}
+function tickUI() {
+  if (tab === 'shop') {
+    const fb = BOXES.find(b => b.price.free), btn = fb && $(`#main [data-act="box"][data-id="${fb.id}"]`), left = BOXCD - (Date.now() - S.boxTs);
+    if (btn) { if (left > 0) btn.textContent = '⏱ ' + fmt(left); else if (btn.disabled && !$('#modal').classList.contains('on')) render(); }
+  }
+  if (tab === 'quests') { const el = $('#qNext'), now = new Date(), nxt = new Date(now); nxt.setHours(24, 0, 0, 0); if (el) el.textContent = `Новые через ${fmt(nxt - now)}`; }
+}
+function setTab(t) { tab = t; mapScrolled = false; $('#main').scrollTop = 0; render(); }
+
+/* Главный экран: один большой путь в бой + карточки, как в мобильных TD-играх */
+function homeHTML() {
+  const un = maxUnlocked(), L = LVL(un), loc = L.loc, done = Object.keys(S.stars).filter(n => n >= loc.from && n <= loc.to && S.stars[n] > 0).length;
+  const left = BOXCD - (Date.now() - S.boxTs), qs = quests(), qd = qs.filter(q => q.c).length, qr = qReady();
+  const nextE = Object.keys(ENEMY).filter(k => ENEMY[k].from > un && ENEMY[k].from < 99).sort((a, b) => ENEMY[a].from - ENEMY[b].from)[0];
+  const ups = S.deck.map(id => tankById(id)).filter(t => S.owned[t.id] < MAXLV).sort((a, b) => upCost(a, S.owned[a.id]) - upCost(b, S.owned[b.id]))[0];
+  let h = `<img class="logo" src="img/logo.webp" alt="Steel Yard"><div class="hero" style="background:${loc.bg}">
+    <div class="loc2">${loc.icon} ${loc.name} · ${done}/${loc.to - loc.from + 1}</div>
+    <div class="lprog"><i style="width:${done / (loc.to - loc.from + 1) * 100}%"></i></div>
+    <div class="ttl lvt">${L.boss ? '💀 Босс · ' : ''}Уровень ${un}</div>
+    <div class="dio">${S.deck.map(id => `<img src="${icon('t', id, 94)}">`).join('')}</div>
+    <button class="btn green huge pulse" data-act="lvl" data-n="${un}">▶ В БОЙ <small>⛽${FCOST}</small></button></div>
+    <div class="hcards">
+      <button class="hcard" data-act="tab" data-tab="shop">${left <= 0 ? '<i class="dot"></i>' : ''}<img src="${icon('b', 'wood', 58)}">${left <= 0 ? 'Бесплатный ящик!' : '⏱ ' + fmt(left)}</button>
+      <button class="hcard" data-act="tab" data-tab="quests">${qr ? '<i class="dot"></i>' : ''}<div class="big"><i class="mi quests"></i></div>Задания ${qd}/${qs.length}</button>
+      <button class="hcard" data-act="tab" data-tab="map"><div class="big"><i class="mi map"></i></div>Карта</button>
+    </div>`;
+  { const ds = dailyState(); h += `<button class="panel hrow gifth" style="width:100%" data-act="daily">${ds.ready ? '<i class="dot"></i>' : ''}<img src="${icon('g', DAILY[(ds.next - 1) % DAILY.length].c, 58)}"><div class="grow"><b>${ds.ready ? 'Подарок дня ждёт!' : 'Подарок дня получен'}</b><div class="muted">🔥 Серия: ${ds.streak} дн. · каждые ${STREAK_EVERY} дней +${STREAK_FUEL} ⛽</div></div>${ds.ready ? '<span class="btn sm green">Забрать</span>' : ''}</button>`; }
+  if (ups) h += `<button class="panel hrow" style="width:100%" data-act="tank" data-id="${ups.id}"><img src="${icon('t', ups.id, 58)}"><div class="grow"><b>${ups.name}</b> ур.${S.owned[ups.id]} → ${S.owned[ups.id] + 1}<div class="muted">+20% урона · 🥈 ${upCost(ups, S.owned[ups.id])}</div></div><span class="btn sm ${S.silver >= upCost(ups, S.owned[ups.id]) ? 'green' : 'gray'}">⬆</span></button>`;
+  if (nextE) { const d = ENEMY[nextE]; h += `<div class="panel hrow"><img src="${icon('e', nextE, 58)}"><div class="grow"><b>Скоро: ${d.n}</b> <span class="muted">с уровня ${d.from}</span><div style="font-size:12px;font-weight:700">${d.desc}</div></div></div>`; }
+  return h;
+}
+/* Рисованные объекты карты (вместо эмодзи): плоские мультяшные силуэты с обводкой */
+const MS = (b) => `<svg viewBox="0 0 40 40" stroke="#2b2118" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${b}</svg>`;
+/* Объекты карты и поля боя — нарисованные картинки (img/deco); имена старых спрайтов сведены к новым */
+const DECO = { tree: 'tree', bush: 'bush', rock: 'rock', tent: 'tent', cactus: 'cactus', palm: 'palm', dune: 'sand', bones: 'skull', pine: 'pine', peak: 'mount', snowman: 'snowman', ice: 'ice', fort: 'fort', bags: 'bags', tower: 'tower', barrels: 'barrels' };
+const MAPSPR = Object.fromEntries(Object.entries(DECO).map(([k, v]) => [k, `<img src="img/deco/${v}.webp" alt="">`]));
+const DECOIMG = {}; for (const [k, v] of Object.entries(DECO)) { const im = new Image(); im.src = `img/deco/${v}.webp`; DECOIMG[k] = im; }
+const MAPDEC = [['tree', 'tree', 'bush', 'rock', 'tent', 'bags', 'tree'], ['cactus', 'dune', 'rock', 'bones', 'palm', 'barrels', 'cactus'], ['pine', 'pine', 'peak', 'snowman', 'ice', 'tower', 'pine']];
+const flagSvg = (c) => `<img class="flg" src="img/kit/flag_${c === '#c43a30' ? 'red' : c === '#3d8bff' ? 'blue' : 'yellow'}.webp" alt="">`;
+function mapHTML() {
+  const un = maxUnlocked();
+  let h = `<div class="panel squadbar"><div class="grow"><div style="font-size:16px">Твой отряд</div><div class="muted">${S.deck.length}/${DECK} танка в бой</div></div>${S.deck.map(id => `<img src="${icon('t', id, 46)}">`).join('')}<button class="btn sm blue" data-act="tab" data-tab="garage">✎</button></div>`;
+  /* Одна сплошная карта кампании: дорога идёт через все области, закрытые области — под туманом, но уровни видны */
+  const X = (n) => 50 + 28 * Math.sin(n * 1.15), TOP = 110, GAP = 100;
+  h += '<div class="wmap">';
+  LOCS.forEach((L, li) => {
+    const cnt = L.to - L.from + 1, H = TOP + (cnt - 1) * GAP + 60, r = rng(L.from * 31), Y = (n) => TOP + (n - L.from) * GAP;
+    const pts = []; if (li) pts.push([X(L.from - 1), -60]); for (let n = L.from; n <= L.to; n++) pts.push([X(n), Y(n)]); if (li < LOCS.length - 1) pts.push([X(L.to + 1), H + TOP]);
+    const pl = pts.map(p => p.join(',')).join(' '), fog = L.from > un, got = Array.from({ length: cnt }, (_, i) => S.stars[L.from + i] || 0).reduce((a, b) => a + b, 0);
+    let hills = []; for (let i = 0; i < 7; i++) { const w = 90 + r() * 140; hills.push(`radial-gradient(${w}px ${w * .45}px at ${r() * 100}% ${r() * H}px,${r() < .5 ? 'rgba(255,255,255,.2)' : 'rgba(40,30,10,.07)'} 64%,transparent 66%)`); }
+    h += `<section class="reg ${fog ? 'fog' : ''}" style="height:${H}px;background:${hills.join(',')},${L.bg}">
+      <div class="rbn"><span>${L.icon} ${L.name}</span><small>${fog ? `🔒 после ур. ${L.from - 1}` : `★ ${got}/${cnt * 3}`}</small></div>
+      <svg class="rd" viewBox="0 0 100 ${H}" preserveAspectRatio="none"><polyline points="${pl}" fill="none" stroke="${OL}" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".3"/><polyline points="${pl}" fill="none" stroke="${L.road}" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><polyline points="${pl}" fill="none" stroke="${L.path}" stroke-width="4" stroke-dasharray="10 12" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+    const DS = MAPDEC[li] || MAPDEC[0];
+    for (let i = 0; i < 12; i++) { const side = r() < .5, sz = 30 + r() * 26; h += `<i class="dec" style="left:${side ? 3 + r() * 13 : 84 + r() * 13}%;top:${30 + r() * (H - 50)}px;width:${sz}px;height:${sz}px">${MAPSPR[DS[Math.floor(r() * DS.length)]]}</i>`; }
+    for (let n = L.from; n <= L.to; n++) {
+      const st = S.stars[n] || 0, lock = n > un, boss = n % 8 === 0, cur = n === un && !st;
+      if (boss) h += `<i class="dec fort" style="left:${X(n)}%;top:${Y(n) - 64}px">${MAPSPR.fort}</i>`;
+      h += `<button class="node ${lock ? 'locked' : st ? 'done' : ''} ${boss ? 'boss' : ''} ${cur ? 'cur' : ''}" style="left:${X(n)}%;top:${Y(n)}px" data-act="lvl" data-n="${n}">
+        <b>${boss ? '💀' : n}</b>${flagSvg(lock ? '#c43a30' : st ? '#3d8bff' : '#ffd23f')}${lock ? '' : `<i>${[0, 1, 2].map(k => k < st ? '★' : '<span class="e">★</span>').join('')}</i>`}</button>`;
+    }
+    h += '</section>';
+  });
+  return h + '</div>';
+}
+/* Кусок HTML: чипы обнаружения как в TDS — зелёный есть, красный нет */
+function detHTML(d, prev) {
+  return [['g', '🛞', 'Земля'], ['a', ...DETS.a], ['h', ...DETS.h], ['l', ...DETS.l]].map(([k, i, n]) =>
+    `<span class="chip ${d[k] ? 'ok' : 'no'}${prev && d[k] && !prev[k] ? ' new' : ''}">${i} ${n}</span>`).join('');
+}
+/* Значки обнаружения для карточек: яркий — есть сразу, с цифрой — откроется на ★N в бою, бледный — никогда */
+function detIcons(t) {
+  if (t.kind === 'supply') return '<div class="dico"><span>💵</span></div>';
+  const d = t.det || {};
+  return `<div class="dico">${[['g', '🛞'], ['a', '✈'], ['h', '👁'], ['l', '🛡']].map(([k, i]) => d[k] == null ? `<span class="x">${i}</span>` : `<span>${i}${d[k] > 1 ? `<sup>${d[k]}</sup>` : ''}</span>`).join('')}</div>`;
+}
+/* Строки характеристик; если передан nx — показывает «было → станет» */
+function statRows(s, nx) {
+  const R = Math.round, f = (a, b, fmt = R, inv) => nx && fmt(b) !== fmt(a) ? `${fmt(a)} <i class="${(inv ? b < a : b > a) ? 'up' : 'dn'}">→ ${fmt(b)}</i>` : fmt(a);
+  if (s.sup) return `<div class="st"><span>💵 Доход за волну</span><b>${f(s.give, nx && nx.give)}</b></div>`;
+  const one = v => v.toFixed(1);
+  return `<div class="st"><span>💥 Урон</span><b>${f(s.dmg, nx && nx.dmg, hpN)}${s.shots > 1 ? ` ×${nx && nx.shots !== s.shots ? s.shots + ' → ' + nx.shots : s.shots}` : ''}</b></div>
+    <div class="st"><span>⚡ DPS</span><b>${f(s.dps, nx && nx.dps, hpN)}</b></div>
+    <div class="st"><span>⏱ Перезарядка</span><b>${f(s.rate, nx && nx.rate, v => v + 'с', 1)}</b></div>
+    <div class="st"><span>📏 Дальность</span><b>${f(s.range, nx && nx.range, one)}</b></div>
+    <div class="st"><span>🎯 Тип</span><b>${s.aoe ? '💥 ' + (nx && nx.aoe !== s.aoe ? `${s.aoe} <i class="up">→ ${nx.aoe}</i>` : s.aoe) : 'Одна цель'}</b></div>`;
+}
+function garageHTML() {
+  let h = `<div class="panel"><div style="font-size:17px;text-align:center;margin-bottom:8px">Отряд в бой (${S.deck.length}/${DECK})</div><div class="slots">`;
+  for (let i = 0; i < DECK; i++) { const id = S.deck[i]; h += id ? `<button class="slot f" data-act="tank" data-id="${id}"><img src="${icon('t', id, 58)}"></button>` : `<div class="slot muted">+</div>`; }
+  h += `</div><div class="muted" style="text-align:center;margin-top:8px">Нажми на танк, чтобы улучшить или взять в отряд</div></div><div class="grid2">`;
+  for (const t of TANKS) {
+    const lv = S.owned[t.id], inD = S.deck.includes(t.id);
+    h += `<button class="tc ${lv ? '' : 'lockd'}" style="--rc:${RAR[t.rar].c}" data-act="tank" data-id="${t.id}"><div class="band">${RAR[t.rar].n}</div>
+      ${lv ? `<span class="lv">ур.${lv}</span>` : ''}${inD ? '<span class="ins">✓</span>' : ''}<img src="${tIcon(t.id)}"><div class="nm">${t.name}</div><div class="role">${t.role}</div>${(() => { const c = calc(t, lv || 1, 1); return c.sup ? `<div class="dps">+${c.give} 💵/волна</div>` : `<div class="dps">⚡ ${hpN(c.dps)} DPS${c.aoe ? ' · <em>💥' + (c.aoe.startsWith('Сплеш') ? 'Сплеш' : c.aoe.startsWith('Цепь') ? 'Цепь' : 'Круг') + '</em>' : ''}</div>`; })()}${detIcons(t)}
+      ${lv ? (lv < MAXLV ? `<div class="price">⬆ 🥈 ${upCost(t, lv)}</div>` : '<div class="price">МАКС</div>') : `<div class="price">${t.price ? priceTxt(t.price) : t.limited ? (t.gems ? '💎 ' + num(t.gems) : '✨ Только из боя') : ''}</div>`}</button>`;
+  }
+  return h + `</div>` + supHTML();
+}
+function supHTML() {
+  const own = S.sup || Object.fromEntries(SDEF.map(k => [k, 1])), L = S.sdeck || SDEF;
+  return `<div class="panel" style="margin-top:12px"><div style="font-size:17px;text-align:center">🎒 Поддержка в бою (${L.length}/${SDECK})</div><div class="muted" style="text-align:center;margin-top:4px">В бою кнопка 🎒 внизу меняет танки на эти предметы</div></div><div class="grid2">` +
+    SUPS.map(d => { const has = own[d.id], inD = L.includes(d.id);
+      return `<button class="tc ${has ? '' : 'lockd'}" style="--rc:${RAR[d.rar].c}" data-act="sup" data-id="${d.id}"><div class="band">${RAR[d.rar].n}</div>${inD ? '<span class="ins">✓</span>' : ''}${supIco(d.id, 1)}<div class="nm">${d.n}</div><div class="role">${d.cd ? '⏱ ' + d.cd + ' с' : '×' + d.uses + ' за бой'}</div><div class="price">${has ? (inD ? 'В наборе' : 'Взять') : priceTxt(d.price)}</div></button>`; }).join('') + '</div>';
+}
+function supModal(id) {
+  const d = supById(id), own = (S.sup || {})[id] || SDEF.includes(id), inD = (S.sdeck || SDEF).includes(id), p = d.price || {};
+  const poor = (p.silver && S.silver < p.silver) || (p.gold && S.gold < p.gold) || (p.gems && (S.gems || 0) < p.gems);
+  modal(`<button class="x" data-act="close">✕</button><div class="rays" style="--rc:${RAR[d.rar].hex}">${supIco(id, 1)}</div>
+    <div style="font-size:24px">${d.n}</div><div class="rar" style="--rc:${RAR[d.rar].c}">${RAR[d.rar].n} · ${d.cd ? 'перезарядка ' + d.cd + ' с' : d.uses + ' раз за бой'}</div>
+    <p style="margin:8px 0;font-weight:700;font-size:14px">${d.desc}</p>
+    <div class="row c">${own ? `<button class="btn ${inD ? 'gray' : 'blue'}" data-act="supSet" data-id="${id}">${inD ? 'Убрать из набора' : 'В набор'}</button>` : `<button class="btn ${p.gems ? 'purple' : 'green'}" data-act="supBuy" data-id="${id}" ${poor ? 'disabled' : ''}>Купить ${priceTxt(p)}</button>`}</div>`);
+}
+function tankModal(id) {
+  const t = tankById(id), lv = S.owned[id], s = calc(t, lv || 1, 1), nx = lv && lv < MAXLV ? calc(t, lv + 1, 1) : null, inD = S.deck.includes(id), R = Math.round;
+  let btns;
+  if (!lv) btns = t.limited ? ''
+    : `<button class="btn green" data-act="buy" data-id="${id}" ${(t.price.silver && S.silver < t.price.silver) || (t.price.gold && S.gold < t.price.gold) ? 'disabled' : ''}>Купить ${priceTxt(t.price)}</button>`;
+  else btns = `<button class="btn ${inD ? 'gray' : 'blue'}" data-act="squad" data-id="${id}">${inD ? 'Убрать из отряда' : 'В отряд'}</button>` +
+    (lv < MAXLV ? `<button class="btn green" data-act="up" data-id="${id}" ${S.silver < upCost(t, lv) ? 'disabled' : ''}>⬆ ур.${lv + 1} · 🥈 ${upCost(t, lv)}</button>` : '<span class="chip">Макс. уровень</span>');
+  const tiers = [1, 2, 3, 4].map(k => {
+    const c = calc(t, lv || 1, k), p = k > 1 ? calc(t, lv || 1, k - 1).det : {}, nw = k > 1 ? Object.keys(c.det).filter(x => c.det[x] && !p[x]) : [];
+    const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === MAXT ? ['⭐ ' + t.perk] : [])].join(' · ');
+    return `<div class="tr"><b>${'★' + k}</b><span>${k === 1 ? t.cost : '+' + R(t.cost * TIER.up[k - 2])} 💵</span>` +
+      (c.sup ? `<span style="grid-column:span 3">+${c.give} 💵 за волну</span>` : `<span>💥 ${hpN(c.dmg)}</span><span>⚡ ${hpN(c.dps)}</span><span>📏 ${c.range.toFixed(1)}</span>`) +
+      (extra ? `<div class="nw">${extra}</div>` : '') + `</div>`;
+  }).join('');
+  modal(`<button class="x" data-act="close">✕</button><div class="rays" style="--rc:${RAR[t.rar].hex}"><img src="${icon('t', id, 120)}"></div>
+    <div style="font-size:24px">${t.name} ${lv ? `<span class="chip">ур.${lv}</span>` : ''}</div>
+    <div class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n} · ${t.role} · ${t.cost} 💵 в бою</div>
+    <p style="margin:6px 0;font-weight:700;font-size:14px">${t.desc}</p>
+    ${s.sup ? '' : `<div class="dets">${detHTML(s.det)}</div>`}
+    <div class="stats">${statRows(s, nx)}</div>
+    ${nx ? `<div class="muted" style="font-size:12px">Зелёным — что станет на ур.${lv + 1} (+20% урона)</div>` : ''}
+    <div style="font-size:15px;margin-top:8px;text-align:left">Улучшения в бою ★ <span class="muted" style="font-size:12px">— цены в 💵 матча</span></div>
+    <div class="tiers">${tiers}</div>
+    <div class="row c">${btns}</div>${t.limited ? limSection(t) : ''}`);
+}
+async function usePromo() {
+  const code = ($('#promo') || {}).value || ''; if (!code.trim()) return toast('Введи промокод');
+  const r = await api('promo', { code }); if (r.err) return toast(r.err);
+  hapticN('success'); const d = r.drop;
+  modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', d.model, 140, d.attrs, d.serial)}"></div><div style="font-size:24px">${tankById(d.model).name} #${d.serial}</div><div class="muted">${nftBest(d)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${d.id}">Открыть</button></div>`);
+  render();
+}
+function shopHTML() {
+  const left = BOXCD - (Date.now() - S.boxTs);
+  let h = `<div class="sect ttl">Контейнеры</div><div class="grid2">`;
+  for (const b of BOXES) {
+    const free = b.price.free, dis = free ? left > 0 : b.price.silver ? S.silver < b.price.silver : b.price.gold ? S.gold < b.price.gold : b.price.gems ? (S.gems || 0) < b.price.gems : false;
+    h += `<div class="boxc"><img src="${icon('b', b.id, 90)}"><div class="nm">${b.n}</div><div class="odds">${b.odds.map(o => `${o[2]} — ${o[1]}%`).join('<br>')}<br>✨ Лимитка — ${String(b.lim).replace('.', ',')}%</div>
+      <button class="btn sm ${b.price.gems ? 'purple' : free ? 'green' : ''}" data-act="box" data-id="${b.id}" ${dis ? 'disabled' : ''}>${free && left > 0 ? '⏱ ' + fmt(left) : priceTxt(b.price)}</button></div>`;
+  }
+  h += `</div><div class="muted" style="margin-top:8px">Гарантия: каждый 10-й Золотой контейнер — Легенда (осталось ${10 - (S.pity || 0)}). Повторный танк превращается в 🥈/🥇.</div>`;
+  if (ON) h += `<div class="sect ttl">🎟 Промокод</div><div class="row" style="gap:8px"><input id="promo" maxlength="24" placeholder="Введи промокод" autocomplete="off" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:3px solid #2b2118;font:inherit;font-weight:800;text-transform:uppercase"><button class="btn sm green" data-act="promo">Активировать</button></div>`;
+  h += `<div class="sect ttl">Танки</div>`;
+  for (const t of TANKS.filter(t => t.price)) {
+    const own = S.owned[t.id];
+    h += `<div class="shopt"><img src="${icon('t', t.id, 72)}"><div class="i"><b>${t.name}</b> <span class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n}</span><br>${t.role} · ${(() => { const c = calc(t, 1, 1); return c.sup ? '+' + c.give + ' 💵/волна' : `⚡ ${hpN(c.dps)} DPS · 💥 ${hpN(c.dmg)}${c.shots > 1 ? '×' + c.shots : ''} · ${c.aoe || 'одна цель'}`; })()}${detIcons(t).replace('justify-content:center', '')}</div>
+      ${own ? '<span class="chip">✓ Есть</span>' : `<button class="btn sm ${t.price.stars ? 'purple' : 'green'}" data-act="tank" data-id="${t.id}">${priceTxt(t.price)}</button>`}</div>`;
+  }
+  h += `<div class="sect ttl" id="gemShop">💎 Гемы</div><div class="grid2">`;
+  for (const p of GEMPACKS) h += `<div class="boxc"><div style="font-size:44px">💎</div><div class="nm">${p.g} гемов</div><button class="btn sm purple" data-act="stars" data-k="gems" data-i="${GEMPACKS.indexOf(p)}">⭐ ${p.st}</button></div>`;
+  h += `</div><div class="muted" style="margin-top:8px">Гемы нужны для Космического контейнера, лимиток и рынка.<br>Бесплатно: 10 гемов каждый 10-й день входа и 20 — за первую победу над каждым боссом.</div>`;
+  h += `<div class="sect ttl">Золото</div><div class="grid2">`;
+  for (const p of GOLDPACKS) h += `<div class="boxc"><div style="font-size:44px">🥇</div><div class="nm">${p.g} золота</div><button class="btn sm purple" data-act="stars" data-i="${GOLDPACKS.indexOf(p)}">⭐ ${p.st}</button></div>`;
+  return h + `</div><div class="muted" style="margin-top:8px">⭐ — Telegram Stars. ${ON && IN_TG ? 'Оплата в окне Telegram, покупка придёт сразу после платежа.' : 'Оплата работает только в Telegram-версии.'}</div>`;
+}
+function questsHTML() {
+  const now = new Date(), nxt = new Date(now); nxt.setHours(24, 0, 0, 0);
+  let h = `<div class="sect ttl">Задания дня</div><div class="muted" id="qNext" style="margin:-4px 2px 10px">Новые через ${fmt(nxt - now)}</div>`;
+  for (const q of quests()) {
+    const d = QPOOL.find(x => x.id === q.id), ok = q.p >= d.g;
+    h += `<div class="panel q"><div class="i"><div>${d.t}</div><div class="prog"><i style="width:${q.p / d.g * 100}%"></i></div><div class="muted">${q.p}/${d.g} · награда ${rewTxt(d.r)}</div></div>
+      ${q.c ? '<span class="chip">✓</span>' : `<button class="btn sm green ${ok ? 'pulse' : ''}" data-act="claim" data-id="${q.id}" ${ok ? '' : 'disabled'}>Забрать</button>`}</div>`;
+  }
+  h += `<div class="sect ttl">Как играть</div><div class="panel" style="font-weight:700;font-size:14px">
+    1. Тапни по клетке у дороги → выбери танк из отряда.<br>2. Нажми «В бой!» — враги поедут к базе.<br>3. За уничтоженных врагов — 💵, на них ставь и улучшай танки до ★4.<br>4. Смотри обнаружение: ✈ авиация летит напрямую, 👁 скрытых видят не все, по 🛡 броне без бронебойности урон всего 30%.<br>5. Проиграл? Прокачай танки в гараже или купи новые за 🥈/🥇.</div>
+    <button class="reset" data-act="reset">Сбросить прогресс (для теста)</button>`;
+  return h;
+}
+
+/* ---------- Лимитки (NFT) и рынок ---------- */
+const tIcon = (id, size) => { const it = ON && tankById(id).limited && eqItem(id); return icon('t', id, size, it ? it.attrs : undefined); };
+/* Самый редкий атрибут экземпляра — его «фишка» в списках */
+function nftBest(i) {
+  let best = null; for (const k in NFT.attrs) { const p = nftPct(k, i.attrs[k]); if (!best || p < best.p) best = { k, p }; }
+  return `${NFT.attrs[best.k].n}: ${NFT.attrs[best.k].v[i.attrs[best.k]][0]} · ${best.p}%`;
+}
+const pctCls = (p) => p <= 2 ? 'r4' : p <= 6 ? 'r3' : p <= 15 ? 'r2' : 'r1';
+function nftCard(i, sub = '') {
+  const eq = eqItem(i.model) === i;
+  return `<button class="nftc" data-act="item" data-id="${i.id}"><img src="${icon('t', i.model, 64, i.attrs, i.serial)}"><b>${tankById(i.model).name} #${i.serial}</b><small>${sub || nftBest(i)}</small>${eq ? '<span class="eqb">В бою</span>' : ''}</button>`;
+}
+function limSection(t) {
+  let h = `<div class="tipbox" style="text-align:left">✨ <b>Лимитка.</b> Тираж: <b>${num(t.limited)}</b><br>У каждой свой номер и случайные атрибуты: камуфляж, эффекты, снаряжение. Атрибуты — только внешний вид.<br>Как получить: босс или сундук — шанс 0,1–5%, покупка за гемы или на Рынке.</div>`;
+  if (!ON) return h + '<div class="muted">Лимитки работают только в Telegram-версии с сервером игры.</div>';
+  const my = myItems(t.id);
+  if (my.length) h += `<div class="nftl">${my.map(i => nftCard(i)).join('')}</div>`;
+  return h + `<div class="row c">${t.gems ? `<button class="btn purple" data-act="nftBuy" data-id="${t.id}">Купить · 💎 ${num(t.gems)}</button>` : ''}<button class="btn blue" data-act="mkf" data-id="${t.id}" onclick="closeModal();setTab('market')">✨ На рынке</button>${DEVMODE ? `<button class="btn gray sm" data-act="devdrop" data-id="${t.id}">+ тест (dev)</button>` : ''}</div>`;
+}
+const LIMS = () => TANKS.filter(t => t.limited);
+const left = (ts) => fmt(ts - Date.now());
+async function itemModal(id) {
+  const r = await api('item', { id }); if (r.err) return toast(r.err);
+  const i = r.item, t = tankById(i.model), mine = ME && i.owner === ME.id, L = r.listing;
+  const rows = Object.keys(NFT.attrs).map(k => { const v = NFT.attrs[k].v[i.attrs[k]], p = nftPct(k, i.attrs[k]); return `<div class="st"><span>${NFT.attrs[k].n}</span><b>${v[0]} <i class="pct ${pctCls(p)}">${p}%</i></b></div>`; }).join('');
+  let act = '';
+  if (mine) {
+    const eq = (eqItem(i.model) || {}).id === i.id;
+    act += `<div class="row c">${eq || myItems(i.model).length < 2 ? '<span class="chip ok">Этот экземпляр в бою</span>' : `<button class="btn blue" data-act="equip" data-m="${i.model}" data-id="${i.id}">Взять в бой</button>`}</div>`;
+    if (L) act += `<div class="panel mkbox">${L.kind === 'auction' ? `🔨 Аукцион: ${L.top ? 'ставка ' + tonTxt(L.top) : 'старт ' + tonTxt(L.price)} · до конца ${left(L.ends)}` : `🏷 Выставлено за ${tonTxt(L.price)}`}
+      ${L.kind === 'fixed' || !L.top ? `<button class="btn gray sm" data-act="unlist" data-l="${L.id}" data-id="${i.id}">Снять</button>` : ''}</div>`;
+    else if (i.lock > Date.now()) act += `<div class="muted">🔒 Продать можно через ${left(i.lock)} (защита от перепродаж и мошенников)</div>`;
+    else act += `<div class="panel mkbox"><div class="row c" style="gap:6px"><input id="inPrice" type="number" min="1" step="1" placeholder="Цена в гемах"><select id="inHours"><option value="1">1 ч</option><option value="6">6 ч</option><option value="24" selected>24 ч</option></select></div>
+      <div class="row c"><button class="btn green sm" data-act="sell" data-id="${i.id}">🏷 Продать</button><button class="btn purple sm" data-act="auction" data-id="${i.id}">🔨 Аукцион</button></div>
+      <div class="muted" style="font-size:11px">Комиссия рынка ${NFT.fee * 100}%. Для аукциона цена — стартовая ставка, срок — справа.</div></div>`;
+    if (r.offers.length) act += `<div class="sect" style="font-size:15px">Предложения тебе</div>` + r.offers.map(o => `<div class="panel hrow mkrow"><div class="grow"><b>${tonTxt(o.price)}</b> <span class="muted">от ${o.name} · ещё ${left(o.expires)}</span></div><button class="btn green sm" data-act="offAccept" data-o="${o.id}">Принять</button></div>`).join('');
+  } else {
+    act += `<div class="muted">Владелец: ${i.ownerName}</div>`;
+    if (L && L.kind === 'fixed') act += `<div class="row c"><button class="btn green big" data-act="buyL" data-l="${L.id}" data-id="${i.id}" data-p="${tonTxt(L.price)}">Купить за ${tonTxt(L.price)}</button></div>`;
+    if (L && L.kind === 'auction') act += `<div class="panel mkbox">🔨 ${L.top ? `Ставка ${tonTxt(L.top)} (${L.topName})` : `Старт ${tonTxt(L.price)}`} · до конца <b>${left(L.ends)}</b>
+      <div class="row c" style="gap:6px"><input id="inBid" type="number" step="1" value="${L.top ? Math.max(L.top + 1, Math.ceil(L.top * 1.05)) : L.price}"><button class="btn purple sm" data-act="bid" data-l="${L.id}" data-id="${i.id}">Ставка</button></div>
+      <div class="muted" style="font-size:11px">Шаг +5%. Ставка в последние 2 минуты продлевает аукцион — снайпинг не работает.</div></div>`;
+    if (!L || L.kind === 'fixed') act += `<div class="panel mkbox"><div class="row c" style="gap:6px"><input id="inOffer" type="number" min="1" step="1" placeholder="Твоя цена в гемах"><button class="btn blue sm" data-act="offer" data-id="${i.id}">Предложить</button></div><div class="muted" style="font-size:11px">Гемы замораживаются на 48 ч. Не примут — вернутся.</div></div>`;
+  }
+  const hist = r.history.length ? `<div class="sect" style="font-size:15px">Сделки</div><div class="muted" style="text-align:left">${r.history.map(h => `${new Date(h.ts).toLocaleDateString(LOCALE)} — ${tonTxt(h.price)}`).join('<br>')}</div>` : '';
+  modal(`<button class="x" data-act="close">✕</button><div class="rays" style="--rc:${RAR.limited.hex}"><img src="${icon('t', i.model, 120, i.attrs, i.serial)}"></div>
+    <div style="font-size:22px">${t.name} <span class="chip">#${i.serial} / ${t.limited}</span></div>
+    <div class="rar" style="--rc:${RAR.limited.c}">💎 Лимитка · ${t.role}</div>
+    <div class="stats">${rows}<div class="st"><span>📜 Происхождение</span><b>${i.origin}</b></div></div>
+    ${act}${hist}`);
+}
+/* Рынок */
+const mk = { ts: 0, loading: false, model: '', data: null, sort: 'cheap', f: {} };
+/* Рынок: сортировка и фильтры по атрибутам (как в Getgems). mk.f = { camo: [индексы], shot: [...], ... } */
+const MKSORT = [['cheap', '⬆ Дешевле'], ['exp', '⬇ Дороже'], ['new', '🆕 Свежие'], ['rare', '💎 Редкие']];
+const MKG = { camo: '🎨 Камуфляж', fx: '✨ Эффекты', gear: '🎒 Снаряжение' }; // группы атрибутов — NFT.groups в core.js
+const grpOf = (k) => Object.keys(NFT.groups).find((g) => NFT.groups[g].includes(k));
+const mkPrice = (x) => x.kind === 'auction' && x.top ? x.top : x.price;
+const nftScore = (i) => { let s = 0; for (const k in NFT.attrs) s -= Math.log(nftPct(k, i.attrs[k] || 0)); return s; };
+const mkPass = (x, skip) => Object.entries(mk.f).every(([k, v]) => k === skip || !v.length || v.includes(x.item.attrs[k] || 0));
+const mkCnt = (ks) => ks.reduce((a, k) => a + (mk.f[k] || []).length, 0);
+function mkSorted(a) {
+  const f = { cheap: (p, q) => mkPrice(p) - mkPrice(q), exp: (p, q) => mkPrice(q) - mkPrice(p), new: (p, q) => q.id - p.id, rare: (p, q) => nftScore(q.item) - nftScore(p.item) }[mk.sort];
+  return a.filter((x) => mkPass(x)).sort(f);
+}
+function mkFilterModal(grp) {
+  const ks = NFT.groups[grp], L = (mk.data && mk.data.listings) || [];
+  modal(`<button class="x" data-act="close">✕</button><div class="ribbon b">${MKG[grp]}</div>` + ks.map((k) => `${ks.length > 1 ? `<div class="fsect">${NFT.attrs[k].n}</div>` : ''}<div class="chips" style="margin-top:8px">` + NFT.attrs[k].v.map((v, i) => {
+    const on = (mk.f[k] || []).includes(i), n = L.filter((x) => (x.item.attrs[k] || 0) === i && mkPass(x, k)).length;
+    return `<button class="chip fchip ${on ? 'ok' : ''} ${n ? '' : 'none'}" data-act="mkattr" data-k="${k}" data-i="${i}">${k === 'camo' && v[1] ? `<i class="sw" style="background:${v[4] ? `linear-gradient(135deg,${v[1]} 50%,${v[4]} 50%)` : v[1]}"></i>` : ''}${v[0]}<small>${nftPct(k, i)}%</small><b>${n}</b></button>`;
+  }).join('') + '</div>').join('') + `<div class="row c" style="margin-top:14px"><button class="btn gray" data-act="mkreset" data-g="${grp}">Сбросить</button><button class="btn green" data-act="close">Готово</button></div>`);
+}
+async function loadMarket() {
+  if (!ON || mk.loading || Date.now() - mk.ts < 5000) return;
+  mk.loading = true; const r = await api('market', { model: mk.model }); mk.loading = false; mk.ts = Date.now();
+  if (!r.err) { mk.data = r; if (tab === 'market' && !$('#modal').classList.contains('on')) render(); }
+}
+function mkRow(x) {
+  const t = tankById(x.item.model), auc = x.kind === 'auction';
+  return `<button class="panel hrow mkrow" data-act="item" data-id="${x.item.id}"><img src="${icon('t', x.item.model, 54, x.item.attrs, x.item.serial)}"><div class="grow" style="text-align:left"><b>${t.name} #${x.item.serial}</b><div class="muted" style="font-size:12px">${nftBest(x.item)}</div></div>
+    <div style="text-align:right"><b>${tonTxt(auc && x.top ? x.top : x.price)}</b><div class="muted" style="font-size:11px">${auc ? '🔨 ' + left(x.ends) : '🏷 Купить'}</div></div></button>`;
+}
+function marketHTML() {
+  if (!ON) return `<div class="panel" style="text-align:center"><div style="font-size:48px">💎</div><b>Рынок лимиток</b><p class="muted">Работает в Telegram-версии игры: там сервер проверяет каждую сделку. Здесь игра запущена без сервера.</p></div>`;
+  const d = mk.data;
+  let h = `<div class="panel hrow"><div class="grow"><div class="muted">Баланс</div><div style="font-size:20px">${tonTxt(S.gems || 0)}</div></div><button class="btn purple sm" data-act="gemShop">+ 💎</button>${DEVMODE ? '<button class="btn gray sm" data-act="faucet">+1000 тест</button>' : ''}</div>`;
+  h += `<div class="chips"><button class="chip ${mk.model ? '' : 'ok'}" data-act="mkf" data-id="">Все</button>${LIMS().map(t => `<button class="chip ${mk.model === t.id ? 'ok' : ''}" data-act="mkf" data-id="${t.id}">${t.name}${d && d.floor[t.id] ? ' · от ' + tonTxt(d.floor[t.id]) : ''}</button>`).join('')}</div>`;
+  const nf = mkCnt(Object.keys(NFT.attrs));
+  h += `<div class="chips">${MKSORT.map(([k, n]) => `<button class="chip ${mk.sort === k ? 'ok' : ''}" data-act="mksort" data-id="${k}">${n}</button>`).join('')}</div>
+    <div class="row" style="gap:6px;margin:8px 0 2px;flex-wrap:wrap">${Object.entries(MKG).map(([g, n]) => { const c = mkCnt(NFT.groups[g]); return `<button class="btn sm ${c ? 'blue' : 'gray'}" data-act="mkfilt" data-id="${g}">${n}${c ? ' · ' + c : ''}</button>`; }).join('')}${nf ? '<button class="btn sm red" data-act="mkreset">✕</button>' : ''}</div>`;
+  if (nf) h += `<div class="chips">${Object.entries(mk.f).flatMap(([k, v]) => v.map((i) => `<button class="chip ok" data-act="mkattr" data-k="${k}" data-i="${i}">${NFT.attrs[k].v[i][0]} ✕</button>`)).join('')}</div>`;
+  if (!d) return h + '<div class="muted" style="text-align:center">Загрузка...</div>';
+  const auc = mkSorted(d.listings.filter(x => x.kind === 'auction')), fix = mkSorted(d.listings.filter(x => x.kind === 'fixed'));
+  if (auc.length) h += `<div class="sect ttl">🔨 Аукционы</div>` + auc.map(mkRow).join('');
+  h += `<div class="sect ttl">🏷 Продаются</div>` + (fix.length ? fix.map(mkRow).join('') : nf ? '<div class="muted" style="text-align:center">Ничего не найдено — сбрось фильтры</div>' : '<div class="muted" style="text-align:center">Пока никто не продаёт. Выбей лимитку в бою с боссом — и стань первым!</div>');
+  if (d.myOffers.length) h += `<div class="sect ttl">Мои предложения</div>` + d.myOffers.map(o => `<div class="panel hrow mkrow"><img src="${icon('t', o.item.model, 44, o.item.attrs, o.item.serial)}"><div class="grow"><b>#${o.item.serial}</b> — ${tonTxt(o.price)}<div class="muted" style="font-size:11px">ещё ${left(o.expires)}</div></div><button class="btn gray sm" data-act="offCancel" data-o="${o.id}">Отменить</button></div>`).join('');
+  h += `<div class="sect ttl">Мои лимитки</div>` + (ITEMS.length ? `<div class="nftl">${ITEMS.map(i => nftCard(i)).join('')}</div>` : '<div class="muted" style="text-align:center">Пока нет. Они падают с боссов (ур. 8, 16, 24) и за 3★.</div>');
+  return h + `<div class="muted" style="margin-top:10px;font-size:12px">Все сделки проверяет сервер, комиссия ${NFT.fee * 100}%. После покупки танк можно перепродать через 24 ч.</div>`;
+}
+/* Золото за Telegram Stars: сервер создаёт счёт, оплата в окне Telegram, золото начисляет сервер после платежа */
+async function buyStars(k, arg) {
+  if (!ON || !IN_TG || !TG.openInvoice) return toast('Оплата ⭐ работает в Telegram-версии');
+  const r = await api('stars/invoice', { k, arg: String(arg) }); if (r.err) return toast(r.err);
+  TG.openInvoice(r.link, async (st) => { if (st === 'paid') { hapticN('success'); closeModal(); setTimeout(async () => { await api('hello'); render(); toast('Покупка зачислена!'); }, 1200); } });
+}
+
+/* ---------- Предбоевой экран ---------- */
+function preBattle(n) {
+  if (n > maxUnlocked()) return toast('Сначала пройди предыдущий уровень');
+  const L = LVL(n), wv = makeWaves(n, L.paths.length), types = [...new Set(wv.flat().map(q => q.type))];
+  const fresh = types.filter(k => ENEMY[k].from === n || k === 'boss');
+  const first = !(S.stars[n] > 0), sil = first ? levelSilver(n) : Math.round(levelSilver(n) * .4);
+  modal(`<button class="x" data-act="close">✕</button><div class="ribbon ${L.boss ? '' : 'b'}">${L.boss ? '💀 Босс' : 'Уровень ' + n}</div>
+    <div class="muted">${L.loc.icon} ${L.loc.name} · волн: ${wv.length}${L.paths.length > 1 ? ' · <b style="color:#c43a30">2 входа!</b>' : ''}</div>
+    <div class="enl">${types.map(k => `<div class="en ${fresh.includes(k) ? 'new' : ''}"><img src="${icon('e', k, 56)}">${ENEMY[k].n} <small class="ehp">❤${hpN(ENEMY[k].hp * L.scale)}</small>${ENEMY[k].fly ? ' ✈' : ''}${ENEMY[k].hid ? ' 👁' : ''}${ENEMY[k].arm ? ' 🛡' : ''}${fresh.includes(k) ? '<i>НОВЫЙ</i>' : ''}</div>`).join('')}</div>
+    ${fresh.length ? `<div class="tipbox">💡 <b>${ENEMY[fresh[0]].n}:</b> ${ENEMY[fresh[0]].desc}</div>` : ''}
+    ${(() => { const has = k => S.deck.some(id => (tankById(id).det || {})[k] != null), w = [];
+      if (types.some(k => ENEMY[k].fly) && !has('a')) w.push('✈ авиацию');
+      if (types.some(k => ENEMY[k].hid) && !has('h')) w.push('👁 скрытых');
+      if (types.some(k => ENEMY[k].arm) && !has('l')) w.push('🛡 броню');
+      return w.length ? `<div class="tipbox" style="background:#ffd0c8">⚠️ Твой отряд не берёт ${w.join(', ')}! Поменяй состав.</div>` : ''; })()}
+    <div class="sq">${S.deck.map(id => `<img src="${icon('t', id, 50)}">`).join('')}<button class="btn sm blue" data-act="tab" data-tab="garage">Отряд</button></div>
+    <div class="muted">Награда: 🥈 ${sil}${first ? ' (первая победа)' : ''} · за 3★ впервые: 🥇 ${L.boss ? 15 : 5}</div>
+    <div class="row c"><button class="btn green big" data-act="go" data-n="${n}">В бой! ⛽${FCOST}</button></div>`);
+}
+
+/* ---------- Контейнеры ---------- */
+async function openBox(id) {
+  const r = await doAct('box', { id }); if (r.err) return toast(r.err);
+  const res = { t: r.res.tid && tankById(r.res.tid), dup: r.res.dup, txt: r.res.txt }, drop = r.drop;
+  modal(`<div style="height:180px;display:grid;place-items:center"><img class="shake" src="${icon('b', id, 150)}" style="width:150px"></div><div class="muted">Открываем...</div>`);
+  haptic('medium');
+  setTimeout(() => {
+    hapticN('success');
+    if (r.res.lim && drop) modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', drop.model, 140, drop.attrs, drop.serial)}"></div><div style="font-size:24px">${tankById(drop.model).name} #${drop.serial}</div><div class="muted">${nftBest(drop)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${drop.id}">Открыть</button></div>`);
+    else if (res.t) modal(`<div class="ribbon ${res.dup ? 'b' : 'g'}">${res.dup ? 'Повтор' : 'Новый танк!'}</div><div class="rays" style="--rc:${RAR[res.t.rar].hex}"><img src="${icon('t', res.t.id, 140)}"></div>
+      <div style="font-size:24px">${res.t.name}</div><div class="rar" style="--rc:${RAR[res.t.rar].c}">${RAR[res.t.rar].n} · ${res.t.role}</div>
+      <p style="font-weight:700">${res.dup ? `Уже есть в гараже → ${res.dup}` : res.t.desc}</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`);
+    else modal(`<div class="ribbon g">Награда</div><div class="rays" style="--rc:#ffd23f"><img src="${icon('bo', id, 140)}"></div><div class="rew"><div>${res.txt}</div></div><div class="row c"><button class="btn green" data-act="close">Забрать</button></div>`);
+    render();
+  }, 1200);
+}
+
+
+/* Конец боя. Онлайн: отправляем лог действий, сервер сам переигрывает бой и выдаёт награду. Офлайн: считаем сами */
+async function finish(win) {
+  const n = G.n, g = G, t0 = Date.now();
+  closeRadial();
+  win ? hapticN('success') : hapticN('error');
+  let rew, drop = null, warn = '';
+  if (ON) {
+    const r = await api('match/end', { ticket: G.ticket, log: G.log });
+    if (r.err) { rew = { silver: 0, gold: 0, stars: 0 }; warn = r.err; }
+    else { rew = r.rew; drop = r.drop; if (r.res.win !== win) { win = r.res.win; warn = 'Сервер посчитал бой иначе — засчитан его результат.'; } }
+  } else { rew = matchRewards(n, G.result); save(); }
+  const { silver, gold, stars } = rew;
+  setTimeout(() => {
+    if (!g.running || G !== g) return;
+    const dropH = drop ? `<div class="drop" data-act="item" data-id="${drop.id}"><img src="${icon('t', drop.model, 84, drop.attrs, drop.serial)}"><div><div class="ribbon g" style="font-size:15px;margin:0">✨ ТРОФЕЙ!</div><b>${tankById(drop.model).name} #${drop.serial}</b><div class="muted">${nftBest(drop)}</div></div></div>` : '';
+    const warnH = warn ? `<div class="tipbox" style="background:#ffd0c8">⚠️ ${warn}</div>` : '';
+    if (win) modal(`<div class="ribbon g">ПОБЕДА!</div><div class="stars">${[0, 1, 2].map(k => `<span class="${k < stars ? 'on' : ''}" style="animation-delay:${.2 + k * .25}s">★</span>`).join('')}</div>
+      <div class="muted">${stars < 3 ? 'Для 3★ не пропусти ни одного врага' : 'Идеально — база цела!'} · уничтожено: ${G.kills}</div>${warnH}
+      <div class="rew"><div>🥈 ${silver}</div>${gold ? `<div>🥇 ${gold}</div>` : ''}${rew.gems ? `<div>💎 ${rew.gems}</div>` : ''}</div>${dropH}
+      <div class="row c"><button class="btn gray" data-act="map">Карта</button><button class="btn gray" data-act="retry">↻</button>${n < LEVELS ? `<button class="btn green" data-act="next">Дальше ▶</button>` : ''}</div>`);
+    else modal(`<div class="ribbon">База потеряна</div><div style="font-size:60px">💥</div><div class="muted">Волна ${G.wave} из ${G.waves.length} · уничтожено: ${G.kills}</div>
+      ${warnH}<div class="tipbox">💡 ${lossTip()}</div><div class="rew"><div>🥈 ${silver}</div></div>
+      <div class="row c"><button class="btn gray" data-act="map">Карта</button><button class="btn blue" data-act="garageFromBattle">Гараж</button><button class="btn green" data-act="retry">Ещё раз</button></div>`);
+  }, Math.max(0, 900 - (Date.now() - t0)));
+}
+function lossTip() {
+  const air = (G.leak.heli || 0) + (G.leak.bomber || 0), hasAir = G.deck.some(id => (tankById(id).det || {}).a);
+  if (air && !hasAir) return 'Авиация пролетает напрямую к базе! Возьми танк с ✈: Шмель, Мороз, Вихрь, Тесла или Град.';
+  if (air >= 3) return 'Авиация летит по прямой от входа к базе — ставь танки с ✈ на этой линии. Зенитка Вихрь рвёт вертолёты.';
+  if (G.leak.scout) return 'Камуфляж 👁 скрытый — его видят только Сокол, Вихрь, Тесла и Шмель/Мороз/Град на ★3.';
+  if ((G.leak.tank || 0) + (G.leak.heavy || 0) + (G.leak.boss || 0)) return 'Прорвалась 🛡 броня. Без бронебойности урон всего 30% — ставь Бобра, Сокола, Жара или улучши Шмеля до ★4.';
+  if (G.leak.medic) return 'Ремонтники чинят врагов — уничтожай их первыми (режим цели «Сильный»).';
+  return 'Прокачай танки в гараже (+20% урона за уровень) или купи новые в магазине. И улучшай танки в бою до ★4!';
+}
+
+/* ======================= Бой: экран ======================= */
+const cv = $('#cv'), ctx = cv.getContext('2d'), bg = document.createElement('canvas'), bgc = bg.getContext('2d');
+let W = 0, H = 0, T = 40, OX = 0, OY = 0, DPR = 1, last = 0, hudT = 0, acc = 0;
+const PX = (x) => OX + (x + .5) * T, PY = (y) => OY + (y + .5) * T;
+function resize() {
+  const r = $('#stage').getBoundingClientRect(); DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = r.width; H = r.height;
+  cv.width = bg.width = Math.round(W * DPR); cv.height = bg.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); bgc.setTransform(DPR, 0, 0, DPR, 0, 0);
+  T = Math.floor(Math.min(W / COLS, H / (ROWS + 1.1)));
+  OX = Math.round((W - COLS * T) / 2); OY = Math.round((H - (ROWS + 1.1) * T) / 2 + .55 * T);
+  drawBG();
+}
+window.addEventListener('resize', () => { if (G.running) resize(); });
+
+function drawObstacle(c, o) {
+  const x = PX(o.x), y = PY(o.y), s = T; c.lineWidth = Math.max(1.5, T * .05); c.strokeStyle = OL; c.lineJoin = 'round';
+  c.fillStyle = 'rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(x + s * .05, y + s * .28, s * .36, s * .14, 0, 0, 7); c.fill();
+  const im = DECOIMG[o.kind]; if (im && im.complete && im.naturalWidth) { const d = s * 1.08; c.drawImage(im, x - d / 2, y + s * .36 - d, d, d); return; }
+  switch (o.kind) {
+    case 'tree': rr(c, x - s * .06, y, s * .12, s * .3, 3); fs(c, '#8a5a32'); for (const [dx, dy, r] of [[-.15, -.02, .22], [.15, -.02, .22], [0, -.2, .26]]) { circ(c, x + dx * s, y + dy * s, r * s); fs(c, '#4fa63a'); } c.fillStyle = '#7fd05a'; circ(c, x - s * .06, y - s * .27, s * .09); c.fill(); break;
+    case 'bush': for (const [dx, r] of [[-.14, .18], [.14, .18], [0, .22]]) { circ(c, x + dx * s, y + s * .05 - (r > .2 ? s * .08 : 0), r * s); fs(c, '#5bb544'); } c.fillStyle = '#ff6b8b'; circ(c, x + s * .1, y - s * .05, s * .04); c.fill(); circ(c, x - s * .12, y + s * .05, s * .04); c.fill(); break;
+    case 'rock': case 'bones': case 'ice': {
+      const col = o.kind === 'rock' ? '#a2a7ad' : o.kind === 'ice' ? '#a9e2f7' : '#efe2c4';
+      c.beginPath(); c.moveTo(x - s * .34, y + s * .25); c.lineTo(x - s * .28, y - s * .1); c.lineTo(x - s * .05, y - s * .3); c.lineTo(x + s * .25, y - s * .18); c.lineTo(x + s * .35, y + s * .25); c.closePath(); fs(c, col);
+      c.fillStyle = 'rgba(255,255,255,.45)'; c.beginPath(); c.moveTo(x - s * .2, y - s * .05); c.lineTo(x - s * .05, y - s * .22); c.lineTo(x + s * .05, y - s * .1); c.closePath(); c.fill(); break;
+    }
+    case 'cactus': rr(c, x - s * .1, y - s * .35, s * .2, s * .62, s * .1); fs(c, '#4fae4a'); rr(c, x - s * .3, y - s * .15, s * .14, s * .25, s * .07); fs(c, '#4fae4a'); rr(c, x + s * .16, y - s * .25, s * .14, s * .22, s * .07); fs(c, '#4fae4a'); c.fillStyle = '#ff7aa8'; circ(c, x, y - s * .36, s * .05); c.fill(); break;
+    case 'pine': rr(c, x - s * .05, y + s * .1, s * .1, s * .18, 2); fs(c, '#7a5232'); for (const [dy, w] of [[.12, .34], [-.08, .27], [-.27, .18]]) { c.beginPath(); c.moveTo(x - w * s, y + dy * s); c.lineTo(x, y + (dy - .3) * s); c.lineTo(x + w * s, y + dy * s); c.closePath(); fs(c, '#2f8a55'); c.fillStyle = '#fff'; c.beginPath(); c.moveTo(x - w * s * .4, y + (dy - .18) * s); c.lineTo(x, y + (dy - .3) * s); c.lineTo(x + w * s * .4, y + (dy - .18) * s); c.closePath(); c.fill(); } break;
+    case 'snowman': circ(c, x, y + s * .1, s * .2); fs(c, '#fff'); circ(c, x, y - s * .18, s * .14); fs(c, '#fff'); c.fillStyle = '#ff8a2a'; c.beginPath(); c.moveTo(x, y - s * .2); c.lineTo(x + s * .14, y - s * .17); c.lineTo(x, y - s * .14); c.fill(); c.fillStyle = OL; circ(c, x - s * .05, y - s * .23, s * .02); c.fill(); circ(c, x + s * .04, y - s * .23, s * .02); c.fill(); break;
+  }
+}
+function drawBG() {
+  const c = bgc, L = G.L.loc, r = rng(G.seed);
+  c.fillStyle = L.g1; c.fillRect(0, 0, W, H);
+  for (let y = -3; y < ROWS + 3; y++) for (let x = -3; x < COLS + 3; x++) { c.fillStyle = ((x + y) % 2 + 2) % 2 ? L.g1 : L.g2; c.fillRect(OX + x * T, OY + y * T, T, T); }
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+    if (G.road.has(x + ',' + y)) continue;
+    for (let i = 0; i < 2; i++) {
+      const dx = OX + x * T + r() * T, dy = OY + y * T + r() * T, k = r();
+      if (L === LOCS[0]) { if (k < .5) { c.strokeStyle = '#6fb447'; c.lineWidth = 2; c.beginPath(); c.moveTo(dx - 3, dy); c.lineTo(dx - 4, dy - 6); c.moveTo(dx, dy); c.lineTo(dx, dy - 8); c.moveTo(dx + 3, dy); c.lineTo(dx + 4, dy - 6); c.stroke(); } else if (k < .7) { c.fillStyle = ['#fff', '#ffd84a', '#ff7aa8'][Math.floor(r() * 3)]; circ(c, dx, dy, 2.5); c.fill(); } }
+      else if (L === LOCS[1]) { if (k < .4) { c.fillStyle = '#d9b26a'; circ(c, dx, dy, 2); c.fill(); } else if (k < .55) { c.strokeStyle = '#b8a05a'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(dx - 3, dy); c.lineTo(dx, dy - 5); c.lineTo(dx + 3, dy); c.stroke(); } }
+      else { if (k < .4) { c.fillStyle = '#d5e6f2'; c.beginPath(); c.ellipse(dx, dy, 6, 2.5, 0, 0, 7); c.fill(); } else if (k < .5) { c.fillStyle = '#fff'; circ(c, dx, dy, 1.6); c.fill(); } }
+    }
+  }
+  const top = -OY / T - 1;
+  for (const [w, col] of [[1.02, L.edge], [.84, L.road]]) {
+    c.strokeStyle = col; c.lineWidth = T * w; c.lineJoin = 'round'; c.lineCap = 'butt';
+    for (const P of G.paths) { c.beginPath(); P.wp.forEach(([x, y], i) => { const yy = i === 0 ? top : y; i ? c.lineTo(PX(x), PY(yy)) : c.moveTo(PX(x), PY(yy)); }); c.stroke(); }
+  }
+  c.strokeStyle = 'rgba(0,0,0,.1)'; c.lineWidth = T * .07; c.setLineDash([T * .22, T * .22]);
+  for (const P of G.paths) { c.beginPath(); P.wp.forEach(([x, y], i) => { const yy = i === 0 ? top : y; i ? c.lineTo(PX(x), PY(yy)) : c.moveTo(PX(x), PY(yy)); }); c.stroke(); }
+  c.setLineDash([]);
+  for (const k of G.road) { const [x, y] = k.split(',').map(Number); if (r() < .5) { c.fillStyle = 'rgba(0,0,0,.1)'; circ(c, OX + x * T + r() * T, OY + y * T + r() * T, 1.5 + r() * 2); c.fill(); } }
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+    const k = x + ',' + y; if (G.road.has(k) || G.obs.has(k)) continue;
+    rr(c, OX + x * T + 3, OY + y * T + 3, T - 6, T - 6, T * .18); c.fillStyle = 'rgba(255,255,255,.13)'; c.fill(); c.strokeStyle = 'rgba(0,0,0,.07)'; c.lineWidth = 1.5; c.stroke();
+  }
+  for (const o of G.obs.values()) drawObstacle(c, o);
+  c.lineWidth = Math.max(1.5, T * .05); c.strokeStyle = OL;
+  for (const P of G.paths) {
+    const x = PX(P.wp[0][0]), y = Math.max(T * .45, OY - T * .1);
+    for (const sx of [-1, 1]) { rr(c, x + sx * T * .5 - T * .07, y - T * .3, T * .14, T * .5, 3); fs(c, '#6b4a2e'); }
+    rr(c, x - T * .55, y - T * .3, T * 1.1, T * .14, 3); fs(c, '#fff');
+    c.fillStyle = '#e8463c'; for (let i = 0; i < 4; i++) c.fillRect(x - T * .5 + i * T * .28, y - T * .28, T * .13, T * .1);
+  }
+  const bx = PX(G.paths[0].wp[G.paths[0].wp.length - 1][0]), by = OY + ROWS * T + T * .05;
+  rr(c, bx - T * .8, by - T * .45, T * 1.6, T * .8, T * .2); fs(c, '#8d9aa6');
+  rr(c, bx - T * .8, by - T * .45, T * 1.6, T * .25, T * .12); fs(c, '#6f7c88');
+  rr(c, bx - T * .18, by - T * .1, T * .36, T * .45, T * .08); fs(c, '#4b443c');
+  for (const sx of [-1, 1]) { c.beginPath(); c.ellipse(bx + sx * T * .95, by + T * .15, T * .2, T * .14, 0, 0, 7); fs(c, '#c7a46a'); }
+}
+function draw(fdt) {
+  const c = ctx, L = G.L.loc;
+  c.save();
+  if (G.shake) c.translate((Math.random() - .5) * G.shake, (Math.random() - .5) * G.shake);
+  c.drawImage(bg, -2, -2, W + 4, H + 4); c.drawImage(bg, 0, 0, W, H);
+  c.lineJoin = 'round';
+  for (const d of G.decals) { c.fillStyle = `rgba(40,30,20,${d.a * .35})`; c.beginPath(); c.ellipse(PX(d.x), PY(d.y), d.r * T, d.r * T * .75, 0, 0, 7); c.fill(); }
+  const bx = PX(G.paths[0].wp[G.paths[0].wp.length - 1][0]), by = OY + ROWS * T + T * .05;
+  c.strokeStyle = OL; c.lineWidth = 2; c.beginPath(); c.moveTo(bx + T * .55, by - T * .4); c.lineTo(bx + T * .55, by - T * 1.3); c.stroke();
+  c.beginPath(); c.moveTo(bx + T * .55, by - T * 1.3); for (let i = 0; i <= 6; i++) c.lineTo(bx + T * .55 + i * T * .09, by - T * 1.3 + Math.sin(G.t * 6 + i) * T * .04); for (let i = 6; i >= 0; i--) c.lineTo(bx + T * .55 + i * T * .09, by - T * .98 + Math.sin(G.t * 6 + i) * T * .04); c.closePath(); c.fillStyle = '#5fcb45'; c.fill(); c.lineWidth = 1.5; c.stroke();
+  c.fillStyle = '#ff5b4f'; c.font = `900 ${Math.round(T * .45)}px Nunito,system-ui`; c.textAlign = 'center'; c.textBaseline = 'middle';
+  for (const P of G.paths) c.fillText('▼', PX(P.wp[0][0]), OY + T * .1 + Math.sin(G.t * 5) * T * .08);
+  for (const m of G.mines) { c.lineWidth = 1.5; c.strokeStyle = OL; circ(c, PX(m.x), PY(m.y), T * .16); fs(c, '#4b443c'); c.fillStyle = Math.sin(G.t * 8) > 0 ? '#ff5b4f' : '#7a2a24'; circ(c, PX(m.x), PY(m.y), T * .06); c.fill(); }
+  if (G.tut === 1 && G.tutTile) { const p = .5 + Math.sin(G.t * 6) * .5; c.strokeStyle = `rgba(255,210,63,${.5 + p * .5})`; c.lineWidth = 4; rr(c, OX + G.tutTile.x * T + 2, OY + G.tutTile.y * T + 2, T - 4, T - 4, T * .2); c.stroke(); c.font = `${Math.round(T * .6)}px system-ui`; c.fillText('👇', PX(G.tutTile.x), PY(G.tutTile.y) - T * (.75 + p * .2)); }
+  const sel = G.sel;
+  if (sel) {
+    const tw = towerAt(sel.x, sel.y); let rng2 = 0;
+    if (tw && tw.t.range) rng2 = tstats(tw).range;
+    else if (G.prev && tankById(G.prev)) rng2 = tankById(G.prev).range;
+    if (rng2) { c.fillStyle = 'rgba(255,255,255,.18)'; c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 2; c.setLineDash([6, 5]); circ(c, PX(sel.x), PY(sel.y), rng2 * T); c.fill(); c.stroke(); c.setLineDash([]); }
+    c.strokeStyle = '#fff'; c.lineWidth = 3; rr(c, OX + sel.x * T + 2, OY + sel.y * T + 2, T - 4, T - 4, T * .2); c.stroke();
+    if (G.prev && !tw && tankById(G.prev)) { c.globalAlpha = .6; drawUnit(c, tankById(G.prev), PX(sel.x), PY(sel.y), T * .78, -Math.PI / 2, -Math.PI / 2, {}); c.globalAlpha = 1; }
+  }
+  for (const tw of G.towers) {
+    const x = PX(tw.x), y = PY(tw.y);
+    c.lineWidth = Math.max(1.5, T * .05); c.strokeStyle = OL;
+    rr(c, x - T * .44, y - T * .44, T * .88, T * .88, T * .2); fs(c, ['#b7b0a2', '#b7b0a2', '#d6c6a0', '#e8c35a'][tw.tier - 1]);
+    c.fillStyle = 'rgba(255,255,255,.3)'; rr(c, x - T * .38, y - T * .38, T * .76, T * .2, T * .1); c.fill();
+    if (tw.skin) drawTank(c, x, y, T * .78, skinLook(tw.t, tw.skin), -Math.PI / 2, tw.ang, { recoil: tw.rec, flash: tw.flash, tier: tw.tier, gear: tw.skin.gr, num: tw.skin.n, beam: tw.beam, spin: tw.cd * 3 });
+    else drawUnit(c, tw.t, x, y, T * .78, -Math.PI / 2, tw.ang, { recoil: tw.rec, flash: tw.flash, tier: tw.tier, beam: tw.beam, spin: tw.cd * 3 });
+    if (tw.skin && tw.skin.fl) { c.font = `${Math.round(T * .3)}px system-ui`; c.fillText(tw.skin.fl, x - T * .42, y - T * .22); }
+  }
+  const gr = G.enemies.filter(e => !e.d.fly).sort((a, b) => a.y - b.y), ai = G.enemies.filter(e => e.d.fly);
+  for (const e of gr.concat(ai)) {
+    const x = PX(e.x), y = PY(e.y), s = T * e.d.size * (e.sc || 1);
+    if (e.mod) { const M = MODS[e.mod]; c.fillStyle = M.col + '55'; c.beginPath(); c.ellipse(x, y + (e.d.fly ? 0 : s * .1), s * .62, s * .38, 0, 0, 7); c.fill(); }
+    if (e.slowT > 0) { c.fillStyle = 'rgba(159,230,255,.55)'; c.beginPath(); c.ellipse(x, y + (e.d.fly ? 0 : s * .1), s * .6, s * .35, 0, 0, 7); c.fill(); }
+    drawEnemy(c, e.type, x, y, s, e.ang, G.t + e.maxHp, e);
+    const yy = e.d.fly ? y - s * .45 : y;
+    if (e.hitT > 0) { c.fillStyle = 'rgba(255,255,255,.55)'; circ(c, x, yy, s * .45); c.fill(); }
+    if (e.burnT > 0 && G.vis) { c.fillStyle = 'rgba(255,122,26,.35)'; circ(c, x, yy, s * .4); c.fill(); }
+    if (e.stunT > 0) { c.fillStyle = '#ffd23f'; for (let i = 0; i < 3; i++) { const a = G.t * 6 + i * 2.1; circ(c, x + Math.cos(a) * s * .4, yy - s * .55 + Math.sin(a) * s * .12, 2.5); c.fill(); } }
+    const bw = Math.max(T * .55, s * .9), bh = Math.max(5, T * .11), hy = yy - s * .6 - bh - 2;
+    c.lineWidth = 1.5; c.strokeStyle = OL; rr(c, x - bw / 2, hy, bw, bh, bh / 2); c.fillStyle = '#3b2f26'; c.fill();
+    const hp = Math.max(0, e.hp / e.maxHp); if (hp > 0) { rr(c, x - bw / 2, hy, Math.max(bh, bw * hp), bh, bh / 2); c.fillStyle = e.d.boss ? '#ff7a1a' : hp > .5 ? '#5fcb45' : hp > .25 ? '#ffc83a' : '#ff5b4f'; c.fill(); }
+    rr(c, x - bw / 2, hy, bw, bh, bh / 2); c.stroke();
+    if (e.mod) { const M = MODS[e.mod], f = Math.max(9, T * .2); c.font = `900 ${f}px Nunito,system-ui,sans-serif`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.lineWidth = 3; c.strokeStyle = OL; c.strokeText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); c.fillStyle = M.col; c.fillText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); }
+    if (e.d.arm) { c.beginPath(); c.moveTo(x - bw / 2 - 7, hy - 2); c.lineTo(x - bw / 2 + 1, hy - 2); c.lineTo(x - bw / 2 + 1, hy + bh - 1); c.lineTo(x - bw / 2 - 3, hy + bh + 3); c.lineTo(x - bw / 2 - 7, hy + bh - 1); c.closePath(); fs(c, e.shredT > 0 ? '#ff9a8a' : '#c9d1d9'); }
+  }
+  for (const a of G.allies || []) {
+    const x = PX(a.x), y = PY(a.y), s = T * a.sz;
+    drawTank(c, x, y, s, ALLY_LOOK[a.kind], a.ang, a.tur, { tread: a.tread });
+    const bw = s * .9, bh = Math.max(4, T * .08), hy = y - s * .6 - bh;
+    rr(c, x - bw / 2, hy, bw, bh, bh / 2); c.fillStyle = '#1d2a3a'; c.fill();
+    rr(c, x - bw / 2, hy, Math.max(bh, bw * Math.max(0, a.hp / a.maxHp)), bh, bh / 2); c.fillStyle = '#4fb3ff'; c.fill();
+  }
+  for (const tw of G.towers) {
+    const e = tw.beam; if (!e || e.dead) continue;
+    const m = muzzle(tw, tw.t.look.bl * .7 + .1), sc = tw.skin && tw.skin.sc, col = sc === 'rainbow' ? `hsl(${(G.t * 220) % 360},100%,62%)` : sc || tw.t.look.core || '#d27bff', yy = PY(e.y) - (e.d.fly ? T * e.d.size * .45 : 0);
+    const wob = 1 + Math.sin(G.t * 40) * .25;
+    c.lineCap = 'round';
+    c.globalAlpha = .45; c.strokeStyle = col; c.lineWidth = T * .2 * wob; c.beginPath(); c.moveTo(PX(m.x), PY(m.y)); c.lineTo(PX(e.x), yy); c.stroke();
+    c.globalAlpha = 1; c.lineWidth = T * .08 * wob; c.stroke();
+    c.strokeStyle = '#fff'; c.lineWidth = T * .03; c.stroke();
+    c.fillStyle = col; circ(c, PX(e.x), yy, T * .14 * wob); c.fill(); c.fillStyle = '#fff'; circ(c, PX(e.x), yy, T * .06); c.fill();
+    c.lineCap = 'butt';
+  }
+  for (const sh of G.shots) {
+    if (sh.delay > 0) continue;
+    c.lineWidth = 1.5; c.strokeStyle = OL;
+    if (sh.k === 'lob') {
+      const p = Math.min(1, sh.t / sh.dur), x = sh.sx + (sh.tx - sh.sx) * p, y = sh.sy + (sh.ty - sh.sy) * p, h = Math.sin(p * Math.PI) * 1.6;
+      c.fillStyle = 'rgba(0,0,0,.2)'; circ(c, PX(x), PY(y), T * .1); c.fill();
+      circ(c, PX(x), PY(y - h), T * (.12 + h * .04)); fs(c, '#4b443c');
+      if (p > .6) { c.strokeStyle = 'rgba(255,91,79,.7)'; c.lineWidth = 2; circ(c, PX(sh.tx), PY(sh.ty), sh.splash * T * (1.4 - p * .4)); c.stroke(); }
+    } else if (sh.k === 'rocket') {
+      c.save(); c.translate(PX(sh.x), PY(sh.y)); c.rotate(sh.a || 0); rr(c, -T * .14, -T * .045, T * .28, T * .09, T * .04); fs(c, '#eee'); c.fillStyle = '#ff5b4f'; c.fillRect(T * .08, -T * .045, T * .06, T * .09); c.fillStyle = '#ffb02e'; circ(c, -T * .17, 0, T * .05); c.fill(); c.restore();
+    } else { circ(c, PX(sh.x), PY(sh.y), T * sh.r); fs(c, sh.col); }
+  }
+  for (const p of G.parts) {
+    const k = p.t / p.life;
+    c.globalAlpha = Math.max(0, 1 - k);
+    c.fillStyle = p.flame ? (k < .3 ? '#ffe36b' : k < .6 ? '#ff9a2a' : '#c94a2a') : p.col;
+    circ(c, PX(p.x), PY(p.y), T * p.r * (p.smoke || p.flame ? 1 + k * 1.5 : 1)); c.fill();
+  }
+  c.globalAlpha = 1;
+  for (const f of G.fx) {
+    const k = f.t / f.life; c.globalAlpha = Math.max(0, 1 - k);
+    if (f.k === 'boom') {
+      c.fillStyle = '#ff7a1a'; circ(c, PX(f.x), PY(f.y), T * f.r * (.5 + k * .8)); c.fill();
+      c.fillStyle = '#ffe36b'; circ(c, PX(f.x), PY(f.y), T * f.r * (.3 + k * .4)); c.fill();
+      c.strokeStyle = '#fff'; c.lineWidth = 3; circ(c, PX(f.x), PY(f.y), T * f.r * (.6 + k * 1.1)); c.stroke();
+    } else if (f.k === 'hit') { c.fillStyle = f.col; circ(c, PX(f.x), PY(f.y), T * .14 * (1 + k)); c.fill(); }
+    else if (f.k === 'line') { c.strokeStyle = f.col; c.lineWidth = T * f.w; c.beginPath(); c.moveTo(PX(f.x), PY(f.y)); c.lineTo(PX(f.x2), PY(f.y2)); c.stroke(); }
+    else if (f.k === 'ring') { c.strokeStyle = f.col; c.lineWidth = 4; circ(c, PX(f.x), PY(f.y), T * f.r * (.3 + k * .7)); c.stroke(); }
+    else if (f.k === 'zap') {
+      for (const [col, w] of [['#7fd6ff', 6], ['#fff', 2]]) { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); f.pts.forEach(([x, y], i) => { if (!i) { c.moveTo(PX(x), PY(y)); return; } const [px, py] = f.pts[i - 1]; for (let j = 1; j <= 4; j++) { const q = j / 4, jit = j < 4 ? (Math.random() - .5) * T * .3 : 0; c.lineTo(PX(px + (x - px) * q) + jit, PY(py + (y - py) * q) + jit); } }); c.stroke(); }
+    } else if (f.k === 'txt') {
+      c.font = `900 ${Math.round(T * (f.big ? .5 : .34))}px Nunito,system-ui`; c.textAlign = 'center'; c.textBaseline = 'middle';
+      const y = PY(f.y) - k * T * .7; c.strokeStyle = OL; c.lineWidth = 4; const ft = tr(f.txt); c.strokeText(ft, PX(f.x), y); c.fillStyle = f.col; c.fillText(ft, PX(f.x), y);
+    } else if (f.k === 'emp') { c.strokeStyle = `rgba(120,200,255,${1 - k})`; c.lineWidth = 5; circ(c, PX(f.x), PY(f.y), T * f.r * k); c.stroke();
+    } else if (f.k === 'plane') {
+      c.globalAlpha = 1; const x = -T * 2 + (W + T * 4) * k, y = PY(f.y);
+      c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.moveTo(x + T * .9, y + T * .5); c.lineTo(x - T * .5, y - T * .3); c.lineTo(x - T * .2, y + T * .5); c.lineTo(x - T * .5, y + T * 1.3); c.closePath(); c.fill();
+      c.save(); c.translate(x, y - T * 1.2); c.lineWidth = 2; c.strokeStyle = OL; c.beginPath(); c.moveTo(T * .9, 0); c.lineTo(-T * .2, -T * .8); c.lineTo(0, 0); c.lineTo(-T * .2, T * .8); c.closePath(); fs(c, '#5f9e4f'); c.beginPath(); c.ellipse(0, 0, T * .7, T * .15, 0, 0, 7); fs(c, '#86b84c'); c.restore();
+    }
+    c.globalAlpha = 1;
+  }
+  for (const b of G.bombs) { c.fillStyle = b.big ? 'rgba(255,60,40,.3)' : 'rgba(0,0,0,.25)'; circ(c, PX(b.x), PY(b.y), T * (b.big ? b.r : .2) * (1 - Math.min(1, b.delay))); c.fill(); }
+  if (L.part && fdt) {
+    if (G.amb.length < (L.part === 'snow' ? 60 : 25) && Math.random() < .5) G.amb.push({ x: Math.random() * W, y: -5, v: L.part === 'snow' ? 25 + Math.random() * 30 : 8, h: L.part === 'snow' ? Math.random() * 10 - 5 : 40 + Math.random() * 30, r: L.part === 'snow' ? 1.5 + Math.random() * 2 : 1.2, ph: Math.random() * 6 });
+    if (L.part === 'dust') for (const a of G.amb) if (a.y < 0) { a.y = Math.random() * H; a.x = -5; }
+    c.fillStyle = L.part === 'snow' ? 'rgba(255,255,255,.9)' : 'rgba(255,240,200,.5)';
+    for (const a of G.amb) { a.y += a.v * fdt; a.x += (a.h + Math.sin(G.t + a.ph) * 10) * fdt; circ(c, a.x, a.y, a.r); c.fill(); }
+    G.amb = G.amb.filter(a => a.y < H + 5 && a.x < W + 5);
+  }
+  if (G.arm) { c.fillStyle = supById(G.arm).tgt === 'road' ? 'rgba(255,200,58,.12)' : 'rgba(255,91,79,.12)'; c.fillRect(0, 0, W, H); }
+  if (G.pick && !G.arm) { c.fillStyle = 'rgba(255,255,255,.13)'; for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (freeTile(x, y)) { rr(c, OX + x * T + 3, OY + y * T + 3, T - 6, T - 6, T * .18); c.fill(); } }
+  for (const z of G.zones) { const a = Math.min(1, z.t / 1.2) * .55; c.fillStyle = `rgba(200,205,210,${a})`; for (let i = 0; i < 7; i++) { const q = i * .9 + G.t * .4; circ(c, PX(z.x + Math.cos(q) * z.r * .55), PY(z.y + Math.sin(q) * z.r * .45), T * z.r * .45); c.fill(); } }
+  if (G.frozeT > 0) { G.frozeT -= fdt; c.fillStyle = `rgba(160,220,255,${Math.min(.25, G.frozeT * .1)})`; c.fillRect(0, 0, W, H); }
+  c.restore();
+}
+
+/* ---------- Старт / выход ---------- */
+let starting = false;
+async function startLevel(n) {
+  if (starting) return; starting = true;
+  let seed, ticket = null, r;
+  /* онлайн сервер списывает топливо и выдаёт одноразовый билет на бой с сидом — без билета награды не будет */
+  if (ON) { r = await api('match/start', { n }); seed = r.seed; ticket = r.ticket; }
+  else { r = ECON.start({ n }); if (r.ok) save(); seed = (Math.random() * 2147483647) | 0; }
+  starting = false;
+  if (r.err) { if (r.err === 'fuel') { closeModal(); fuelModal(); } else toast(r.err); return; }
+  closeModal();
+  makeMatch(n, S.deck, S.owned, true, seed, S.sdeck || SDEF); G.ticket = ticket; acc = 0; barMode = 't'; G.pick = null; buildSlots();
+  for (const id of S.deck) { const it = tankById(id).limited && eqItem(id); if (it) G.skin[id] = nftSkin(it.attrs, it.serial); }
+  G.running = true;
+  $('#battle').classList.add('on');
+  closeRadial();
+  $('#bSpeed').innerHTML = '<span><i class="mi speed x1"></i></span><small>x1</small>';
+  resize(); wavePreview(); hud();
+  if (n === 1 && !S.tut) {
+    G.tut = 1;
+    const P = G.paths[0], pts = []; for (let d = 0; d < P.total; d += .25) pts.push(posAt(P, d));
+    let best = null, bc = -1;
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) { const k = x + ',' + y; if (G.road.has(k) || G.obs.has(k)) continue; const cnt = pts.filter(p => Math.hypot(p.x - x, p.y - y) <= 2.6).length; if (cnt > bc) { bc = cnt; best = { x, y }; } }
+    G.tutTile = best; tip('Выбери танк внизу, потом тапни по подсвеченной клетке 👇', 6000);
+  } else tip(G.L.paths.length > 1 ? 'Осторожно: у врагов 2 входа!' : 'Ставь танки у поворотов дороги', 3000);
+  if (IN_TG && TG.BackButton) { try { TG.BackButton.show(); } catch (e) {} }
+  last = performance.now(); requestAnimationFrame(loop);
+}
+function exitBattle() {
+  if (G.running && !G.over && !ON) { qAdd('kill', G.kills); qAdd('build', G.built); qAdd('air', G.airKills); save(); }
+  G.running = false; closeModal(); closeRadial();
+  $('#battle').classList.remove('on');
+  if (IN_TG && TG.BackButton) { try { TG.BackButton.hide(); } catch (e) {} }
+  render();
+}
+function tip(t, ms = 2500) { const el = $('#bTip'); el.textContent = t; el.style.opacity = 1; clearTimeout(tip.t); tip.t = setTimeout(() => el.style.opacity = 0, ms); }
+function wavePreview() {
+  const el = $('#wprev');
+  if (G.wave >= G.waves.length) { el.innerHTML = '<b>Это последняя волна — держись!</b>'; return; }
+  const cnt = {}; for (const q of G.waves[G.wave]) cnt[q.type] = (cnt[q.type] || 0) + 1;
+  el.innerHTML = `<b>Волна ${G.wave + 1}:</b>` + Object.entries(cnt).map(([k, v]) => `<img src="${icon('e', k, 26)}" title="${ENEMY[k].n}">×${v}`).join(' ') +
+    Object.keys(MODS).map(m => { const n = G.waves[G.wave].filter(q => q.mod === m).length; return n ? ` <span class="chip" style="background:${MODS[m].col};color:#fff;font-size:11px">${MODS[m].n} ×${MODS[m].hp} ХП: ${n}</span>` : ''; }).join('');
+}
+function hud() {
+  $('#bLives').textContent = G.lives; { const hb = $('#bHp'), k = G.lives / G.L.lives; $('#bHpF').style.width = Math.max(0, k * 100) + '%'; hb.classList.toggle('mid', k <= .6 && k > .3); hb.classList.toggle('low', k <= .3); hb.querySelector('small').textContent = '/' + G.L.lives; if (hb._v != null && G.lives < hb._v) { hb.classList.remove('hit'); void hb.offsetWidth; hb.classList.add('hit'); } hb._v = G.lives; } $('#bCash').textContent = G.cash;
+  $('#bWaveN').textContent = `Волна ${G.wave}/${G.waves.length}`; $('#bWaveP').style.width = (G.wave / G.waves.length * 100) + '%';
+  const bw = $('#bWave'), done = G.wave >= G.waves.length;
+  bw.disabled = done || G.over;
+  bw.classList.toggle('pulse', G.wave === 0 && G.tut !== 1);
+  const bh = done ? 'Последняя волна' : G.wave === 0 ? '▶ В бой!' : G.nextT != null ? `⏩ Волна ${G.wave + 1} <small>+${Math.ceil(G.nextT * 1.5)}💵</small>` : `⏩ Волна ${G.wave + 1}`;
+  if (bw._h !== bh) { bw._h = bh; bw.innerHTML = bh; }
+  updSlots();
+  if ($('#radial').classList.contains('on')) document.querySelectorAll('#radial [data-cost]').forEach(b => b.disabled = G.cash < +b.dataset.cost);
+}
+function loop(now) {
+  if (!G.running) return;
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  /* фиксированный шаг: бой считается одинаково на любом телефоне и на сервере */
+  if (!G.paused) { acc = Math.min(acc + dt * G.speed, .25); while (acc >= DT) { step(); acc -= DT; } }
+  draw(G.paused ? 0 : dt);
+  if ((hudT += dt) > .1) { hudT = 0; hud(); }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- Кольцевое меню постройки ---------- */
+function closeRadial() { $('#radial').classList.remove('on'); $('#tinfo').classList.remove('on'); if (G) { G.sel = null; G.prev = null; } }
+function infoTank(t, lv, extra = '') {
+  const s = calc(t, lv, 1);
+  return `<b>${t.name}</b> <span class="rar" style="--rc:${RAR[t.rar].c}">${t.role}</span> <span class="muted">ур.${lv} · ${t.cost} 💵</span>` +
+    `<div class="stats">${statRows(s)}</div>` + (s.sup ? '' : `<div class="dets">${detHTML(s.det)}</div>`) + extra;
+}
+function openRadial(x, y) {
+  G.sel = { x, y }; G.prev = null;
+  const tw = towerAt(x, y), ob = G.obs.get(x + ',' + y), R = Math.max(54, T * 1.25);
+  let items, ang;
+  if (tw) {
+    items = [];
+    if (tw.tier < MAXT) items.push({ act: 'rup', html: '<span class="ri">⬆️</span>', pr: `${upPrice(tw)} 💵`, cost: upPrice(tw) }); else items.push({ act: 'none', html: '<span class="ri">👑</span>', pr: 'Макс' });
+    items.push({ act: 'rsell', html: '<span class="ri">💰</span>', pr: `+${Math.floor(tw.spent * .6)}` });
+    if (tw.t.kind !== 'supply') items.push({ act: 'rmode', html: '<span class="ri">🎯</span>', pr: MODES[tw.mode] });
+    ang = [-90, 90, 180];
+  } else {
+    items = G.deck.map(id => ({ act: 'rb', id, html: `<img src="${icon('t', id, 48)}">`, pr: `${tankById(id).cost} 💵`, cost: tankById(id).cost }));
+    ang = [[-90], [-135, -45], [-150, -90, -30], [-135, -45, 45, 135]][items.length - 1];
+  }
+  const cx = Math.min(W - R - 30, Math.max(R + 30, PX(x))), cy = Math.min(H - R - 34, Math.max(R + 30, PY(y)));
+  const rd = $('#radial');
+  rd.style.left = cx + 'px'; rd.style.top = cy + 'px';
+  rd.innerHTML = items.map((it, i) => { const a = ang[i] * Math.PI / 180; return `<button class="rb" data-act="${it.act}" ${it.id ? `data-id="${it.id}"` : ''} ${it.cost ? `data-cost="${it.cost}"` : ''} style="left:${Math.cos(a) * R}px;top:${Math.sin(a) * R}px">${it.html}<span class="pr">${it.pr}</span></button>`; }).join('');
+  rd.classList.add('on');
+  showInfo();
+  hud();
+}
+/* Завод: какие танки выпускает на каждой ★ (как в makeAllies: ★1–2 лёгкий ×1, ★3 средний ×2, ★4 тяжёлый ×2) */
+function spawnHTML(tier) {
+  const cur = tier >= 4 ? 2 : tier >= 3 ? 1 : 0, R = [['★1–2', 'Лёгкий танк', 1], ['★3', 'Средний танк', 2], ['★4', 'Тяжёлый танк', 2]];
+  return '<div class="muted" style="font-size:12px;margin-top:4px">🏭 Выпускает:</div><div class="dets">' + R.map(([k, n, x], i) =>
+    `<span class="chip${i === cur ? ' ok' : ''}" style="${i > cur ? 'opacity:.5' : ''}">${i > cur ? '🔒 ' : ''}${k} ${n}${x > 1 ? ' ×' + x : ''}</span>`).join(' ') + '</div>';
+}
+function showInfo() {
+  const el = $('#tinfo'), s = G.sel;
+  if (!s && G.arm) { const d = supById(G.arm); el.innerHTML = `<b>${d.n}</b> <span class="rar" style="--rc:${RAR[d.rar].c}">${RAR[d.rar].n}</span><br>${d.desc}<br><b style="color:#2d8a1f">${d.tgt === 'road' ? 'Тапни по дороге' : 'Тапни по карте'}</b>`; return el.classList.add('on'); }
+  if (!s && G.pick) { el.innerHTML = infoTank(tankById(G.pick), G.lvOf[G.pick], '<br><b style="color:#2d8a1f">Тапни по свободной клетке, чтобы поставить</b>'); return el.classList.add('on'); }
+  if (!s) return el.classList.remove('on');
+  const tw = towerAt(s.x, s.y), ob = G.obs.get(s.x + ',' + s.y);
+  let h = '';
+  if (tw) {
+    const st = calc(tw.t, tw.lv, tw.tier), nx = tw.tier < MAXT ? calc(tw.t, tw.lv, tw.tier + 1) : null;
+    h = `<b>${tw.t.name} ${'★'.repeat(tw.tier)}<span style="opacity:.3">${'★'.repeat(MAXT - tw.tier)}</span></b> <span class="muted">${tw.t.role}${st.sup ? '' : ' · цель: ' + MODES[tw.mode]}</span>` +
+      (nx ? ` <span class="chip" style="background:#ffe36b">⬆ ★${tw.tier + 1} за ${upPrice(tw)} 💵</span>` : ' <span class="chip ok">👑 Максимум</span>') + ` <span class="chip">Вложено: ${tw.spent} 💵</span>` +
+      `<div class="stats">${statRows(st, nx)}</div>` + (tw.t.kind === 'spawner' ? spawnHTML(tw.tier) : '') + (st.sup ? '' : `<div class="dets">${detHTML(nx ? nx.det : st.det, nx ? st.det : null)}</div>`) +
+      `<span class="muted">${tw.tier === MAXT ? '✅ Перк: ' : `⭐ На ★${MAXT}: `}${tw.t.perk}</span>`;
+    if (G.prev === 'sell') h += '<br><b style="color:#c43a30">Нажми 💰 ещё раз, чтобы продать</b>';
+  } else if (G.prev) h = infoTank(tankById(G.prev), G.lvOf[G.prev], '<br><b style="color:#2d8a1f">Нажми ещё раз, чтобы поставить</b>');
+  else h = '<b>Выбери танк</b><br>Нажми на иконку, чтобы увидеть радиус и описание';
+  el.innerHTML = h; el.classList.add('on');
+}
+function radialAct(ra, btn) {
+  const s = G.sel; if (!s || G.over) return;
+  if (ra === 'rb') {
+    const id = btn.dataset.id, t = tankById(id);
+    if (G.prev !== id) { G.prev = id; document.querySelectorAll('#radial .rb').forEach(b => b.classList.toggle('sel', b === btn)); showInfo(); return; }
+    if (G.cash < t.cost) return toast('Не хватает 💵');
+    if (!act('b', id, s.x, s.y)) return; towerAt(s.x, s.y).skin = G.skin[id];
+    if (G.vis) { G.fx.push({ k: 'ring', x: s.x, y: s.y, r: .8, t: 0, life: .35, col: '#fff' }); for (let i = 0; i < 8; i++) { const a = i * .8; G.parts.push({ x: s.x, y: s.y + .3, vx: Math.cos(a) * 1.5, vy: Math.sin(a) * .8, t: 0, life: .5, r: .1, col: 'rgba(200,180,140,.7)', smoke: 1 }); } }
+    haptic('medium'); closeRadial();
+    if (G.tut === 1) { G.tut = 2; G.tutTile = null; tip('Отлично! Теперь жми «В бой!»', 5000); }
+  } else if (ra === 'rup') {
+    const tw = towerAt(s.x, s.y), c = upPrice(tw);
+    if (G.cash < c) return toast('Не хватает 💵');
+    if (!act('u', s.x, s.y)) return; haptic('medium');
+    if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: '★'.repeat(tw.tier), t: 0, life: .9, col: '#ffd23f', big: 1 });
+    if (tw.tier === MAXT) tip(`Перк открыт: ${tw.t.perk}`, 3000);
+    else { const a = calc(tw.t, tw.lv, tw.tier - 1).det, b = calc(tw.t, tw.lv, tw.tier).det, nw = Object.keys(b).filter(k => b[k] && !a[k]); if (nw.length) tip('Новое: ' + nw.map(k => k === 'g' ? '🛞 Земля' : DETS[k].join(' ')).join(', '), 2500); }
+    openRadial(s.x, s.y);
+  } else if (ra === 'rsell') {
+    if (G.prev !== 'sell') { G.prev = 'sell'; btn.classList.add('sel'); showInfo(); return; }
+    act('s', s.x, s.y); closeRadial();
+  } else if (ra === 'rmode') {
+    const tw = towerAt(s.x, s.y), ks = Object.keys(MODES); if (!act('m', s.x, s.y, ks[(ks.indexOf(tw.mode) + 1) % ks.length])) return; btn.querySelector('.pr').textContent = MODES[tw.mode]; showInfo();
+  }
+}
+cv.addEventListener('pointerdown', (ev) => {
+  if (G.over || G.paused) return;
+  const r = cv.getBoundingClientRect(), fx = (ev.clientX - r.left - OX) / T - .5, fy = (ev.clientY - r.top - OY) / T - .5;
+  const x = Math.round(fx), y = Math.round(fy), k = x + ',' + y;
+  if (G.arm) {
+    const d = supById(G.arm);
+    if (d.tgt === 'road') { if (!G.road.has(k)) return tip('Только на дорогу', 1500); if (act('p', d.id, x, y)) haptic('light'); }
+    else if (act('p', d.id, fx, fy)) haptic('medium');
+    G.arm = null; showInfo(); hud(); return;
+  }
+  if (G.pick && freeTile(x, y)) {
+    if (G.tut === 1 && G.tutTile && (x !== G.tutTile.x || y !== G.tutTile.y)) return tip('Поставь на подсвеченную клетку', 2000);
+    const id = G.pick, t = tankById(id);
+    if (G.cash < t.cost) return toast('Не хватает 💵');
+    if (!act('b', id, x, y)) return; towerAt(x, y).skin = G.skin[id];
+    if (G.vis) { G.fx.push({ k: 'ring', x, y, r: .8, t: 0, life: .35, col: '#fff' }); for (let i = 0; i < 8; i++) { const a = i * .8; G.parts.push({ x, y: y + .3, vx: Math.cos(a) * 1.5, vy: Math.sin(a) * .8, t: 0, life: .5, r: .1, col: 'rgba(200,180,140,.7)', smoke: 1 }); } }
+    haptic('medium'); G.pick = null; closeRadial(); hud();
+    if (G.tut === 1) { G.tut = 2; G.tutTile = null; tip('Отлично! Теперь жми «В бой!»', 5000); }
+    return;
+  }
+  if (G.pick && !towerAt(x, y)) { G.pick = null; closeRadial(); hud(); return; }
+  G.pick = null;
+  if (x < 0 || y < 0 || x >= COLS || y >= ROWS) return closeRadial();
+  if (G.road.has(k)) { closeRadial(); return; }
+  if (G.obs.has(k)) { closeRadial(); return tip('Это декорация — строить можно на свободной траве', 1400); }
+  if (G.sel && G.sel.x === x && G.sel.y === y) return closeRadial();
+  if (!towerAt(x, y)) { closeRadial(); return tip(G.tut === 1 ? 'Сначала выбери танк внизу 👇' : 'Выбери танк внизу 👇', 1500); }
+  openRadial(x, y); haptic('light');
+});
+/* pointerdown, а не click: подпись кнопки меняется каждую секунду (бонус за ранний вызов), и click терялся, если узел под пальцем успевал смениться */
+$('#bWave').addEventListener('pointerdown', (ev) => { ev.preventDefault(); if ($('#bWave').disabled) return; if (G.tut === 1) return tip('Сначала поставь танк 👇', 2000); act('w'); hud(); });
+/* Нижняя панель (как в TDS): 4 слота — танки отряда или предметы поддержки; 🎒/🛡 переключает. pointerdown — чтобы нажатие не терялось при обновлении HUD */
+let barMode = 't';
+function supIco(id, big) { const d = supById(id), img = { strike: 'strike', mine: 'mine' }[id], em = { smoke: '💨', repair: '🔧', barrage: '💥', emp: '⚡', orbital: '☄️', freeze: '⏳' }[id];
+  return `<span class="sic${big ? ' big' : ''}" style="--rc:${RAR[d.rar].hex}">${img ? `<i class="mi ${img}"></i>` : em}</span>`; }
+function buildSlots() {
+  const L = barMode === 't' ? G.deck : G.sdeck, el = $('#slots');
+  el.innerHTML = [0, 1, 2, 3].map(i => { const id = L[i]; if (!id) return '<button class="ab sl empty" disabled><span>＋</span><small>&nbsp;</small></button>';
+    return barMode === 't' ? `<button class="ab sl" data-sl="${id}"><img src="${tIcon(id, 40)}"><small>${tankById(id).cost} 💵</small></button>`
+      : `<button class="ab sl" data-sl="${id}">${supIco(id)}<small>${supById(id).n}</small><b class="n"></b><i class="cd"></i></button>`; }).join('');
+  const sw = $('#bSwap'); sw.classList.toggle('sup', barMode === 's'); sw.innerHTML = barMode === 't' ? '<span>🎒</span><small>Поддержка</small>' : '<span>🛡</span><small>Танки</small>';
+  updSlots();
+}
+function updSlots() {
+  for (const b of document.querySelectorAll('#slots [data-sl]')) {
+    const id = b.dataset.sl;
+    if (barMode === 't') { b.classList.toggle('poor', G.cash < tankById(id).cost); b.classList.toggle('on', G.pick === id); b.disabled = !!G.over; continue; }
+    const d = supById(id), st = G.sup[id], cd = st.cd > 0 ? Math.ceil(st.cd) + '' : '', out = d.uses && st.left <= 0;
+    b.disabled = !!G.over || !!cd || out; b.classList.toggle('on', G.arm === id);
+    const ci = b.querySelector('.cd'), nn = b.querySelector('.n'), nt = d.uses ? '×' + st.left : '';
+    if (ci.textContent !== (out ? '✕' : cd)) ci.textContent = out ? '✕' : cd;
+    if (nn.textContent !== nt) nn.textContent = nt;
+  }
+}
+$('#bSwap').addEventListener('pointerdown', (ev) => { ev.preventDefault(); if (G.over) return; barMode = barMode === 't' ? 's' : 't'; G.pick = null; G.arm = null; closeRadial(); buildSlots(); });
+$('#slots').addEventListener('pointerdown', (ev) => {
+  const b = ev.target.closest('[data-sl]'); if (!b || b.disabled || G.over) return; ev.preventDefault();
+  const id = b.dataset.sl; closeRadial();
+  if (barMode === 't') { G.arm = null; G.pick = G.pick === id ? null : id; if (G.pick) haptic('light'); }
+  else {
+    const d = supById(id); G.pick = null;
+    if (d.tgt === 'now') { G.arm = null; if (act('p', id)) { haptic('heavy'); tip(d.n + '!', 1200); } else if (id === 'repair') tip('База и так целая', 1500); }
+    else { G.arm = G.arm === id ? null : id; if (G.arm) tip(d.tgt === 'road' ? 'Тапни по дороге' : 'Тапни, куда ударить', 2000); }
+  }
+  showInfo(); hud();
+});
+$('#bSpeed').addEventListener('click', () => { G.speed = G.speed === 1 ? 2 : 1; $('#bSpeed').innerHTML = G.speed === 1 ? '<span><i class="mi speed x1"></i></span><small>x1</small>' : '<span><i class="mi speed"></i></span><small>x2</small>'; });
+if (IN_TG && TG.BackButton) { try { TG.BackButton.onClick(() => { if (G.running) pauseMenu(); }); } catch (e) {} }
+function pauseMenu() {
+  if (G.over) return;
+  G.paused = true;
+  modal(`<div class="ribbon b">Пауза</div><div class="muted">Уровень ${G.n} · волна ${G.wave}/${G.waves.length}</div><div class="row c" style="flex-direction:column"><button class="btn green big" data-act="resume">Продолжить</button><button class="btn" data-act="retry">Заново (⛽${FCOST})</button><button class="btn gray" data-act="quit">Выйти на карту</button></div>`);
+}
+/* Окно ежедневных подарков: 7 коробок недели, серия заходов и бонус топлива каждые 10 дней */
+function dailyModal(got) {
+  const ds = dailyState(), base = Math.floor((Math.max(1, ds.next) - 1) / DAILY.length) * DAILY.length;
+  const cells = DAILY.map((d, i) => { const n = base + i + 1, st = n < ds.next || (!ds.ready && n === ds.next) ? 'done' : n === ds.next ? 'now' : '';
+    return `<div class="gday ${st}"><small>День ${n}</small><img src="${icon('g', d.c, 52)}"><b>${rewTxt(dailyRew(n))}</b></div>`; }).join('');
+  const toTen = STREAK_EVERY - (Math.max(ds.streak, 0) % STREAK_EVERY);
+  modal(`<button class="x" data-act="close">✕</button><div class="ribbon g">Подарки</div>
+    ${got ? `<div class="rays" style="--rc:#ffd23f"><img src="${icon('g', DAILY[(got.streak - 1) % DAILY.length].c, 120)}"></div><div class="rew"><div>${rewTxt(got.r)}</div></div>` : ''}
+    <div class="muted">🔥 Серия заходов: <b>${ds.streak}</b> дн. · бонус +${STREAK_FUEL} ⛽ через ${toTen} дн.</div>
+    <div class="gweek">${cells}</div>
+    <div class="muted" style="font-size:12px">Заходи каждый день — пропуск обнуляет серию.</div>
+    <div class="row c">${ds.ready ? '<button class="btn green big" data-act="dailyGet">🎁 Забрать</button>' : '<button class="btn gray" data-act="close">Приходи завтра</button>'}</div>`);
+}
+function fuelModal() {
+  modal(`<button class="x" data-act="close">✕</button><div style="font-size:56px">⛽</div><div class="ribbon b">Топливо</div><p class="muted">1 бой = ${FCOST} ⛽. Восстанавливается 1 ⛽ каждые 5 минут до ${MAXF}. Купленное и подаренное топливо не ограничено.</p>
+    <div class="row c"><button class="btn" data-act="stars" data-k="fuel" data-i="0">+${FUELPACK.f} ⛽ · ⭐ ${FUELPACK.st}</button><button class="btn blue" data-act="fuelAd">Реклама → ⛽ ${MAXF}</button></div><p class="muted" style="font-size:11px">Реклама в прототипе — заглушка.</p>`);
+}
+
+/* ======================= Клики ======================= */
+const RACTS = ['rb', 'rup', 'rsell', 'rmode'];
+document.addEventListener('click', (ev) => {
+  const nb = ev.target.closest('nav button'); if (nb) { setTab(nb.dataset.tab); return; }
+  const a = ev.target.closest('[data-act]'); if (!a || a.disabled) return;
+  const act = a.dataset.act, id = a.dataset.id;
+  if (RACTS.includes(act)) return radialAct(act, a);
+  switch (act) {
+    case 'tab': closeModal(); setTab(a.dataset.tab); break;
+    case 'lvl': preBattle(+a.dataset.n); break;
+    case 'go': startLevel(+a.dataset.n); break;
+    case 'tank': tankModal(id); break;
+    case 'squad': doAct('squad', { id }).then(r => { if (r.err) return toast(r.err); tankModal(id); render(); }); break;
+    case 'sup': supModal(id); break;
+    case 'supBuy': doAct('supBuy', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(supById(id).n + ' — куплено!'); supModal(id); render(); }); break;
+    case 'supSet': doAct('supSet', { id }).then(r => { if (r.err) return toast(r.err); supModal(id); render(); }); break;
+    case 'up': doAct('up', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(`${tankById(id).name} → ур. ${r.lv}!`); keepScroll(() => tankModal(id)); render(); }); break;
+    case 'buy': doAct('buy', { id }).then(r => {
+      if (r.err) return toast(r.err);
+      const t = tankById(id); hapticN('success');
+      modal(`<div class="ribbon g">Новый танк!</div><div class="rays" style="--rc:${RAR[t.rar].hex}"><img src="${icon('t', id, 140)}"></div><div style="font-size:24px">${t.name}</div><p style="font-weight:700">${t.desc}</p><p class="muted">${S.deck.includes(id) ? 'Уже в отряде — пробуй в бою!' : 'Добавь его в отряд в гараже.'}</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`);
+      render(); }); break;
+    case 'box': openBox(id); break;
+    case 'promo': usePromo(); break;
+    case 'stars': buyStars(a.dataset.k || 'gold', a.dataset.i); break;
+    case 'claim': doAct('claim', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(`Получено: ${rewTxt(r.r)}`); render(); }); break;
+    case 'fuel': fuelModal(); break;
+    case 'daily': dailyModal(); break;
+    case 'dailyGet': doAct('daily').then(r => { if (r.err) return toast(r.err); hapticN('success'); dailyModal(r); render(); }); break;
+    case 'fuelAd': doAct('fuelAd').then(r => { if (r.err) return toast(r.err); closeModal(); renderHeader(); }); break;
+    /* лимитки и рынок */
+    case 'item': itemModal(+id); break;
+    case 'mkf': mk.model = id || ''; mk.ts = 0; render(); break;
+    case 'mksort': mk.sort = id; render(); break;
+    case 'mkfilt': mkFilterModal(id); break;
+    case 'mkattr': { const k = a.dataset.k, i = +a.dataset.i, s = mk.f[k] || (mk.f[k] = []); s.includes(i) ? s.splice(s.indexOf(i), 1) : s.push(i);
+      render(); if ($('#modal').classList.contains('on')) mkFilterModal(grpOf(k)); break; }
+    case 'mkreset': if (a.dataset.g) { NFT.groups[a.dataset.g].forEach((k) => delete mk.f[k]); render(); mkFilterModal(a.dataset.g); } else { mk.f = {}; render(); } break;
+    case 'equip': api('equip', { model: a.dataset.m, item: +id }).then(r => { if (r.err) return toast(r.err); toast('Этот экземпляр теперь в бою'); itemModal(+id); render(); }); break;
+    case 'sell': case 'auction': {
+      const price = parseFloat(($('#inPrice') || {}).value), hours = +(($('#inHours') || {}).value || 0);
+      if (!(price > 0)) return toast('Укажи цену');
+      api('market/list', { item: +id, price, kind: act === 'auction' ? 'auction' : 'fixed', hours }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(act === 'auction' ? 'Аукцион запущен' : 'Выставлено на продажу'); mk.ts = 0; itemModal(+id); }); break;
+    }
+    case 'unlist': api('market/cancel', { listing: +a.dataset.l }).then(r => { if (r.err) return toast(r.err); toast('Снято с продажи'); mk.ts = 0; itemModal(+id); }); break;
+    case 'buyL': modal(`<div class="ribbon b">Покупка</div><p style="font-weight:800">Купить за ${a.dataset.p}? Гемы спишутся с баланса в игре.</p><div class="row c"><button class="btn green" data-act="doBuyL" data-l="${a.dataset.l}" data-id="${id}">Купить</button><button class="btn gray" data-act="item" data-id="${id}">Отмена</button></div>`); break;
+    case 'doBuyL': api('market/buy', { listing: +a.dataset.l }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast('Куплено! Танк уже в гараже'); mk.ts = 0; itemModal(+id); render(); }); break;
+    case 'bid': { const v = parseFloat(($('#inBid') || {}).value); if (!(v > 0)) return toast('Укажи ставку');
+      api('market/bid', { listing: +a.dataset.l, amount: v }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast('Ставка принята — гемы заморожены до конца аукциона'); mk.ts = 0; itemModal(+id); }); break; }
+    case 'offer': { const v = parseFloat(($('#inOffer') || {}).value); if (!(v > 0)) return toast('Укажи цену');
+      api('market/offer', { item: +id, price: v }).then(r => { if (r.err) return toast(r.err); toast('Предложение отправлено владельцу'); mk.ts = 0; itemModal(+id); }); break; }
+    case 'offAccept': api('market/accept', { offer: +a.dataset.o }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast('Продано!'); mk.ts = 0; closeModal(); render(); }); break;
+    case 'offCancel': api('market/offer-cancel', { offer: +a.dataset.o }).then(r => { if (r.err) return toast(r.err); toast('Предложение отменено, гемы вернулись'); mk.ts = 0; closeModal(); render(); }); break;
+    case 'gemShop': closeModal(); setTab('shop'); setTimeout(() => { const g = $('#gemShop'); if (g) g.scrollIntoView({ block: 'start' }); }, 150); break;
+    case 'nftBuy': { const t = tankById(id); modal(`<div class="ribbon b">Покупка</div><div class="rays" style="--rc:${RAR.limited.hex}"><img src="${icon('t', id, 110)}"></div><div style="font-size:22px">${t.name}</div><div style="font-size:20px;margin:6px 0">💎 ${num(t.gems)}</div><div class="row c"><button class="btn green" data-act="doNftBuy" data-id="${id}">Купить</button><button class="btn gray" data-act="close">Отмена</button></div>`); break; }
+    case 'doNftBuy': api('nft/buy', { model: id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); const d = r.drop;
+      modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', d.model, 140, d.attrs, d.serial)}"></div><div style="font-size:24px">${tankById(d.model).name} #${d.serial}</div><div class="muted">${nftBest(d)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${d.id}">Открыть</button></div>`); render(); }); break;
+    case 'faucet': api('dev/faucet').then(r => { if (r.err) return toast(r.err); toast('+1000 тестовых гемов'); mk.ts = 0; render(); }); break;
+    case 'devdrop': api('dev/drop', { model: id }).then(r => { if (r.err) return toast(r.err); toast('Тестовая лимитка выдана'); render(); }); break;
+    case 'close': closeModal(); render(); break;
+    case 'lang': modal(`<div class="ribbon">🌐 Language</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
+    case 'setLang': setLang(a.dataset.l); break;
+    case 'reset': modal(`<div class="ribbon">Сбросить?</div><p class="muted">Все танки, серебро и звёзды удалятся.</p><div class="row c"><button class="btn red" data-act="doReset">Сбросить</button><button class="btn gray" data-act="close">Отмена</button></div>`); break;
+    case 'doReset': if (ON) { api('reset').then(() => { closeModal(); setTab('home'); }); break; } S = DEF(); save(); closeModal(); setTab('home'); break;
+    case 'pause': pauseMenu(); break;
+    case 'resume': G.paused = false; closeModal(); break;
+    case 'quit': exitBattle(); break;
+    case 'retry': G.running = false; startLevel(G.n); break;
+    case 'next': { const n = G.n + 1; exitBattle(); preBattle(n); break; }
+    case 'map': exitBattle(); break;
+    case 'garageFromBattle': exitBattle(); setTab('garage'); break;
+  }
+});
+
+/* ======================= Старт ======================= */
+(async () => {
+  /* есть сервер игры — работаем онлайн, иначе офлайн-прототип */
+  const h = await api('hello');
+  if (h.ok && h.state) { ON = true; DEVMODE = !!h.dev; }
+  else S = await loadState();
+  if (!S.tut && S.stars[1]) S.tut = true;
+  render();
+  if (S.tut && dailyState().ready) setTimeout(dailyModal, 400);
+  setInterval(() => { if (!G.running) { renderHeader(); tickUI(); } }, 1000);
+})();
+</script>
+</body>
+</html>
