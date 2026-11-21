@@ -104,11 +104,11 @@ const ELOOK = {
 
 /* Локации и уровни */
 const LOCS = [
-  { name: 'Зелёные луга', icon: '🌳', from: 1, to: 8, g1: '#93d65f', g2: '#89cd56', road: '#e4c189', edge: '#b28a53', obs: ['tree', 'tree', 'bush', 'rock'],
+  { name: 'Зелёные луга', rb: '#4caf3f', icon: '🌳', from: 1, to: 8, g1: '#93d65f', g2: '#89cd56', road: '#e4c189', edge: '#b28a53', obs: ['tree', 'tree', 'bush', 'rock'],
     bg: 'linear-gradient(#b5ea8a,#7fca5b)', path: '#f3dca8', dec: ['🌳', '🌲', '🌼', '🍄', '🌷', '🪨'] },
-  { name: 'Жаркая пустыня', icon: '🏜️', from: 9, to: 16, g1: '#f4d48f', g2: '#eecb80', road: '#cfa064', edge: '#9d7240', obs: ['cactus', 'rock', 'cactus', 'bones'],
+  { name: 'Жаркая пустыня', rb: '#e8862a', icon: '🏜️', from: 9, to: 16, g1: '#f4d48f', g2: '#eecb80', road: '#cfa064', edge: '#9d7240', obs: ['cactus', 'rock', 'cactus', 'bones'],
     bg: 'linear-gradient(#ffe3a6,#f0c071)', path: '#fff0cc', dec: ['🌵', '🪨', '🦂', '🐫', '🌴'], part: 'dust' },
-  { name: 'Ледяной перевал', icon: '❄️', from: 17, to: 24, g1: '#eef6fb', g2: '#e2eef6', road: '#bdd0de', edge: '#8ea7bc', obs: ['pine', 'pine', 'snowman', 'ice'],
+  { name: 'Ледяной перевал', rb: '#3d9be0', icon: '❄️', from: 17, to: 24, g1: '#eef6fb', g2: '#e2eef6', road: '#bdd0de', edge: '#8ea7bc', obs: ['pine', 'pine', 'snowman', 'ice'],
     bg: 'linear-gradient(#f1f9ff,#c3e1f4)', path: '#ffffff', dec: ['🌲', '⛄', '❄️', '🏔️', '🐧'], part: 'snow' }
 ];
 const PATHS = [
@@ -395,13 +395,13 @@ function fire(tw, s, L) {
   }
   for (let i = n0; i < G.shots.length; i++) { const q = G.shots[i]; q.o.pen = pen; if (G.vis && tw.skin) { if (tw.skin.sc) q.col = tw.skin.sc === 'rainbow' ? `hsl(${(G.t * 220 + i * 40) % 360},100%,62%)` : tw.skin.sc; q.hc = tw.skin.hc; q.ke = tw.skin.ke; } }
 }
-/* Награда за волну: волна зачищена — следующая стартует сама через WAVE_GAP с и даёт waveRew(). Позвал сам во время отсчёта — ×1.5.
+/* Награда за волну: волна зачищена — следующая стартует сама через WAVE_GAP с и даёт waveRew(). Можно вызвать раньше — та же награда.5.
    Пока враги волны на поле, вызвать следующую нельзя (иначе можно проскипать все волны и забрать все деньги) */
-const waveRew = () => 10 + 2 * G.wave, earlyRew = () => Math.ceil(waveRew() * 1.5);
+const waveRew = () => 10 + 2 * G.wave;
 const waveBusy = () => G.spawnQ.length > 0 || G.enemies.length > 0;
 function callWave(manual) {
   if (G.over || G.wave >= G.waves.length) return;
-  if (G.wave > 0) { const early = manual, b = early ? earlyRew() : waveRew(); G.cash += b; if (G.vis) G.fx.push({ k: 'txt', x: COLS / 2, y: 1, txt: `${early ? 'Рано!' : 'Волна пройдена!'} +${b} 💵`, t: 0, life: 1.2, col: '#ffe36b', big: 1 }); }
+  if (G.wave > 0) { const b = waveRew(); G.cash += b; if (G.vis) G.fx.push({ k: 'txt', x: COLS / 2, y: 1, txt: `Волна пройдена! +${b} 💵`, t: 0, life: 1.2, col: '#ffe36b', big: 1 }); }
   G.spawnQ.push(...G.waves[G.wave]); if (G.spawnT <= 0) G.spawnT = .2;
   G.wave++; G.nextT = null;
   for (const tw of G.towers) if (tw.t.kind === 'supply') { const g = Math.round(tw.t.give[tw.tier - 1] * (1 + .1 * (tw.lv - 1))); G.cash += g; if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: `+${g} 💵`, t: 0, life: 1.1, col: '#ffe36b' }); }

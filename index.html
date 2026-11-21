@@ -96,8 +96,15 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .reg{position:relative;overflow:hidden}
 .reg+.reg{border-top:3px dashed rgba(43,33,24,.4)}
 .reg .rd{position:absolute;inset:0;width:100%;height:100%}
-.reg .rbn{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:max-content;z-index:4;display:flex;flex-direction:column;align-items:center;background:linear-gradient(#fbecc4,#e9cf92);border:3px solid var(--ink);padding:4px 26px 3px;font-size:19px;white-space:nowrap;box-shadow:0 4px 0 rgba(43,33,24,.35);clip-path:polygon(0 0,100% 0,94% 50%,100% 100%,0 100%,6% 50%)}
-.reg .rbn small{font-size:12px;color:#6b5434}
+.reg .rbn{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;width:max-content;filter:drop-shadow(0 4px 0 rgba(43,33,24,.35))}
+.rbn .md{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-style:normal;background:radial-gradient(circle at 35% 30%,#fff7d6,#ffd25a 55%,#d99a1e);border:3px solid var(--ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);position:relative;z-index:2;margin-bottom:-14px}
+.rbn .rbb{position:relative;padding:12px 30px 5px;background:linear-gradient(color-mix(in srgb,var(--rb) 70%,#fff),var(--rb) 55%,color-mix(in srgb,var(--rb) 80%,#000));border:3px solid var(--ink);border-radius:8px;text-align:center}
+.rbn .rbb::before,.rbn .rbb::after{content:'';position:absolute;top:9px;width:26px;height:100%;z-index:-1;background:color-mix(in srgb,var(--rb) 65%,#000);border:3px solid var(--ink)}
+.rbn .rbb::before{left:-20px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,38% 50%)}
+.rbn .rbb::after{right:-20px;clip-path:polygon(0 0,100% 0,62% 50%,100% 100%,0 100%)}
+.rbn .rbb b{display:block;font-size:21px;line-height:1.1;color:#fff;-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;letter-spacing:.5px}
+.rbn .rbb small{display:inline-flex;align-items:center;gap:4px;margin-top:3px;padding:1px 10px;border-radius:99px;background:rgba(43,33,24,.55);color:#fff;font-size:12px}
+.rbn .rbb small img{width:14px;height:14px}
 .reg.fog::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.35),transparent 60%),linear-gradient(rgba(70,80,100,.45),rgba(70,80,100,.55))}
 .dec svg,.dec img{width:100%;height:100%;overflow:visible;display:block}
 .dec.fort{width:92px;height:92px;z-index:0}
@@ -350,7 +357,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="toast"></div>
 
 <script src="i18n.js?v=3"></script>
-<script src="core.js?v=7"></script>
+<script src="core.js?v=8"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -722,7 +729,7 @@ function mapHTML() {
     const pl = pts.map(p => p.join(',')).join(' '), fog = L.from > un, got = Array.from({ length: cnt }, (_, i) => S.stars[L.from + i] || 0).reduce((a, b) => a + b, 0);
     let hills = []; for (let i = 0; i < 7; i++) { const w = 90 + r() * 140; hills.push(`radial-gradient(${w}px ${w * .45}px at ${r() * 100}% ${r() * H}px,${r() < .5 ? 'rgba(255,255,255,.2)' : 'rgba(40,30,10,.07)'} 64%,transparent 66%)`); }
     h += `<section class="reg ${fog ? 'fog' : ''}" style="height:${H}px;background:${hills.join(',')},${L.bg}">
-      <div class="rbn"><span>${L.icon} ${L.name}</span><small>${fog ? `🔒 после ур. ${L.from - 1}` : `★ ${got}/${cnt * 3}`}</small></div>
+      <div class="rbn" style="--rb:${L.rb}"><i class="md">${L.icon}</i><div class="rbb"><b>${L.name}</b><small>${fog ? `<img src="img/ui/lock.webp" alt="">после ур. ${L.from - 1}` : `<span style="color:#ffd23f">★</span> ${got}/${cnt * 3}`}</small></div></div>
       <svg class="rd" viewBox="0 0 100 ${H}" preserveAspectRatio="none"><polyline points="${pl}" fill="none" stroke="${OL}" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".3"/><polyline points="${pl}" fill="none" stroke="${L.road}" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><polyline points="${pl}" fill="none" stroke="${L.path}" stroke-width="4" stroke-dasharray="10 12" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
     const DS = MAPDEC[li] || MAPDEC[0];
     for (let i = 0; i < 12; i++) { const side = r() < .5, sz = 30 + r() * 26; h += `<i class="dec" style="left:${side ? 3 + r() * 13 : 84 + r() * 13}%;top:${30 + r() * (H - 50)}px;width:${sz}px;height:${sz}px">${MAPSPR[DS[Math.floor(r() * DS.length)]]}</i>`; }
@@ -1277,7 +1284,7 @@ function hud() {
   const busy = G.wave > 0 && waveBusy();
   bw.disabled = done || G.over || busy;
   bw.classList.toggle('pulse', G.wave === 0 && G.tut !== 1);
-  const bh = done ? 'Последняя волна' : G.wave === 0 ? '▶ В бой!' : busy ? `⏳ Волна ${G.wave + 1}` : `⏩ ${Math.max(1, Math.ceil(G.nextT || WAVE_GAP))} с <small>+${earlyRew()}💵</small>`;
+  const bh = done ? 'Последняя волна' : G.wave === 0 ? '▶ В бой!' : busy ? `⏳ Волна ${G.wave + 1}` : `⏩ ${Math.max(1, Math.ceil(G.nextT || WAVE_GAP))} с <small>+${waveRew()}💵</small>`;
   if (bw._h !== bh) { bw._h = bh; bw.innerHTML = bh; }
   updSlots();
   if ($('#radial').classList.contains('on')) document.querySelectorAll('#radial [data-cost]').forEach(b => b.disabled = G.cash < +b.dataset.cost);
