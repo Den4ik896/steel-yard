@@ -24,7 +24,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--ink:#2b2118;--cream:#fff6e2;--cream2:#f1dfba;--y:#ffc83a;--g:#5fcb45;--r:#ff5b4f;--b:#45a6ff;--p:#b06bff;
---common:#a3adb8;--rare:#3d9bff;--epic:#b45cff;--legendary:#ffae1a;--limited:#ff4f9a}
+--common:#a3adb8;--rare:#3d9bff;--epic:#b45cff;--legendary:#ffae1a;--limited:#ff3b3b}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;user-select:none;-webkit-user-select:none;font:800 15px/1.3 Nunito,system-ui,sans-serif;color:var(--ink);background:#5bb8ea}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
@@ -349,8 +349,8 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js"></script>
-<script src="core.js"></script>
+<script src="i18n.js?v=2"></script>
+<script src="core.js?v=3"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -788,7 +788,7 @@ function tankModal(id) {
   const t = tankById(id), lv = S.owned[id], s = calc(t, lv || 1, 1), nx = lv && lv < MAXLV ? calc(t, lv + 1, 1) : null, inD = S.deck.includes(id), R = Math.round;
   let btns;
   if (!lv) btns = t.limited ? ''
-    : `<button class="btn green" data-act="buy" data-id="${id}" ${(t.price.silver && S.silver < t.price.silver) || (t.price.gold && S.gold < t.price.gold) ? 'disabled' : ''}>Купить ${priceTxt(t.price)}</button>`;
+    : `<button class="btn green" data-act="buy" data-id="${id}" ${(t.price.silver && S.silver < t.price.silver) || (t.price.gold && S.gold < t.price.gold) || (t.price.gems && (S.gems || 0) < t.price.gems) ? 'disabled' : ''}>Купить ${priceTxt(t.price)}</button>`;
   else btns = `<button class="btn ${inD ? 'gray' : 'blue'}" data-act="squad" data-id="${id}">${inD ? 'Убрать из отряда' : 'В отряд'}</button>` +
     (lv < MAXLV ? `<button class="btn green" data-act="up" data-id="${id}" ${S.silver < upCost(t, lv) ? 'disabled' : ''}>⬆ ур.${lv + 1} · 🥈 ${upCost(t, lv)}</button>` : '<span class="chip">Макс. уровень</span>');
   const tiers = [1, 2, 3, 4].map(k => {
@@ -821,7 +821,7 @@ function shopHTML() {
   let h = `<div class="sect ttl">Контейнеры</div><div class="grid2">`;
   for (const b of BOXES) {
     const free = b.price.free, dis = free ? left > 0 : b.price.silver ? S.silver < b.price.silver : b.price.gold ? S.gold < b.price.gold : b.price.gems ? (S.gems || 0) < b.price.gems : false;
-    h += `<div class="boxc"><img src="${icon('b', b.id, 90)}"><div class="nm">${b.n}</div><div class="odds">${b.odds.map(o => `${o[2]} — ${o[1]}%`).join('<br>')}<br>✨ Лимитка — ${String(b.lim).replace('.', ',')}%</div>
+    h += `<div class="boxc"><img src="${icon('b', b.id, 90)}"><div class="nm">${b.n}</div><div class="odds">${b.odds.map(o => `${o[2]} — ${o[1]}%`).join('<br>')}<br>✨ Мифический танк — ${String(b.lim).replace('.', ',')}%</div>
       <button class="btn sm ${b.price.gems ? 'purple' : free ? 'green' : ''}" data-act="box" data-id="${b.id}" ${dis ? 'disabled' : ''}>${free && left > 0 ? '⏱ ' + fmt(left) : priceTxt(b.price)}</button></div>`;
   }
   h += `</div><div class="muted" style="margin-top:8px">Гарантия: каждый 10-й Золотой контейнер — Легенда (осталось ${10 - (S.pity || 0)}). Повторный танк превращается в 🥈/🥇.</div>`;
@@ -936,7 +936,7 @@ function mkRow(x) {
     <div style="text-align:right"><b>${tonTxt(auc && x.top ? x.top : x.price)}</b><div class="muted" style="font-size:11px">${auc ? '🔨 ' + left(x.ends) : '🏷 Купить'}</div></div></button>`;
 }
 function marketHTML() {
-  if (!ON) return `<div class="panel" style="text-align:center"><div style="font-size:48px">💎</div><b>Рынок лимиток</b><p class="muted">Работает в Telegram-версии игры: там сервер проверяет каждую сделку. Здесь игра запущена без сервера.</p></div>`;
+  if (!ON) return `<div class="panel" style="text-align:center"><div style="font-size:48px">🛒</div><b>Рынок</b><p class="muted">Скоро откроется!</p></div>`;
   const d = mk.data;
   let h = `<div class="panel hrow"><div class="grow"><div class="muted">Баланс</div><div style="font-size:20px">${tonTxt(S.gems || 0)}</div></div><button class="btn purple sm" data-act="gemShop">+ 💎</button>${DEVMODE ? '<button class="btn gray sm" data-act="faucet">+1000 тест</button>' : ''}</div>`;
   h += `<div class="chips"><button class="chip ${mk.model ? '' : 'ok'}" data-act="mkf" data-id="">Все</button>${LIMS().map(t => `<button class="chip ${mk.model === t.id ? 'ok' : ''}" data-act="mkf" data-id="${t.id}">${t.name}${d && d.floor[t.id] ? ' · от ' + tonTxt(d.floor[t.id]) : ''}</button>`).join('')}</div>`;

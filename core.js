@@ -12,7 +12,7 @@ const OL = '#2b2118';
 const RAR = {
   common: { n: 'Обычный', c: 'var(--common)', hex: '#a3adb8' }, rare: { n: 'Редкий', c: 'var(--rare)', hex: '#3d9bff' },
   epic: { n: 'Эпический', c: 'var(--epic)', hex: '#b45cff' }, legendary: { n: 'Легендарный', c: 'var(--legendary)', hex: '#ffae1a' },
-  limited: { n: 'Лимитка', c: 'var(--limited)', hex: '#ff4f9a' }
+  limited: { n: 'Мифический', c: 'var(--limited)', hex: '#ff3b3b' }
 };
 const UPC = [60, 110, 180, 270, 400, 560, 760, 1000, 1300];
 const RM = { common: 1, rare: 1.5, epic: 2.2, legendary: 3, limited: 3 };
@@ -54,24 +54,24 @@ const TANKS = [
   { id: 'mamont', name: 'Мамонт', kind: 'mammoth', rar: 'legendary', dmg: 55, rate: 1.5, range: 3, cost: 230, det: { g: 1, l: 1, h: 2, a: 4 },
     role: 'Сверхтяж', desc: 'Двуствольный монстр. Каждое попадание срывает с врага броню — остальные танки бьют его в полную силу.', perk: 'Бьёт и по авиации',
     look: { h: '#3f6e8c', tur: 'circle', ts: .31, bar: 2, bl: .7, bw: .12, brake: 1 }, price: { gold: 260 } },
-  { id: 'polar', name: 'Полярная ночь', kind: 'polar', rar: 'limited', dmg: 30, rate: 2.2, range: 2.4, cost: 200, slow: 0.5, det: { g: 1, a: 1, h: 1, l: 1 },
+  { id: 'polar', name: 'Полярная ночь', kind: 'polar', rar: 'legendary', dmg: 30, rate: 2.2, range: 2.4, cost: 200, slow: 0.5, det: { g: 1, a: 1, h: 1, l: 1 },
     role: 'Ледяной импульс', desc: 'Волна холода бьёт всех вокруг и замедляет на 50%.', perk: 'Полная заморозка на 0.8с',
-    look: { h: '#e3eef6', tur: 'dome', ts: .27, bar: 0, extra: 'crystal' }, limited: 500, gems: 500 },
+    look: { h: '#e3eef6', tur: 'dome', ts: .27, bar: 0, extra: 'crystal' }, price: { gold: 260 } },
+  { id: 'zavod', name: 'Завод', kind: 'spawner', rar: 'legendary', dmg: 70, rate: 5.5, range: 0, cost: 230, det: { g: 1, l: 1 },
+    role: 'Танковый завод', desc: 'Выпускает свои танки: они едут по дороге навстречу врагам, стреляют и таранят их. С ★ танки сильнее и их больше.', perk: 'Тяжёлые танки по 2 за раз',
+    look: { h: '#4a6fa5', tur: 'box', ts: .33, bar: 0, extra: 'hangar' }, price: { gold: 280 } },
   { id: 'grom', name: 'Гром', kind: 'tesla', rar: 'limited', dmg: 40, rate: 1.1, range: 2.7, cost: 210, chain: 3, det: { g: 1, a: 1, h: 1, l: 1 },
-    role: 'Грозовая башня', desc: 'Лимитка: молния бьёт сильнее Теслы и дальше прыгает.', perk: 'Цепь из 5 целей',
-    look: { h: '#3a4166', tur: 'dome', ts: .27, bar: 0, extra: 'coil' }, limited: 300, gems: 1000 },
+    role: 'Грозовая башня', desc: 'Молния бьёт сильнее Теслы и дальше прыгает.', perk: 'Цепь из 5 целей',
+    look: { h: '#3a4166', tur: 'dome', ts: .27, bar: 0, extra: 'coil' }, price: { gems: 1000 } },
   { id: 'baraban', name: 'Барабан', kind: 'drum', rar: 'limited', dmg: 30, rate: 2.2, range: 2.8, cost: 200, det: { g: 1, l: 1, a: 3, h: 4 },
     role: 'Барабанная пушка', desc: 'Три ствола: выпускает 3 снаряда подряд, потом перезаряжает барабан.', perk: 'Барабан на 5 снарядов',
-    look: { h: '#8a5a33', tur: 'box', ts: .28, bar: 3, bl: .6, bw: .085, brake: 1, extra: 'drum' }, limited: 1000, gems: 300 },
+    look: { h: '#8a5a33', tur: 'box', ts: .28, bar: 3, bl: .6, bw: .085, brake: 1, extra: 'drum' }, price: { gems: 300 } },
   { id: 'relsa', name: 'Рельса', kind: 'rail', rar: 'limited', dmg: 75, rate: 2.6, range: 3.8, cost: 220, det: { g: 1, l: 1, h: 1, a: 3 },
     role: 'Рельсотрон', desc: 'Разгоняет снаряд магнитами и прошивает насквозь всех врагов на линии.', perk: 'Без потери урона на каждой цели',
-    look: { h: '#2f3a4a', tur: 'dome', ts: .26, bar: 2, bl: .9, bw: .05, extra: 'core', core: '#4fe3ff' }, limited: 750, gems: 500 },
-  { id: 'zavod', name: 'Завод', kind: 'spawner', rar: 'limited', dmg: 70, rate: 5.5, range: 0, cost: 230, det: { g: 1, l: 1 },
-    role: 'Танковый завод', desc: 'Выпускает свои танки: они едут по дороге навстречу врагам, стреляют и таранят их. С ★ танки сильнее и их больше.', perk: 'Тяжёлые танки по 2 за раз',
-    look: { h: '#4a6fa5', tur: 'box', ts: .33, bar: 0, extra: 'hangar' }, limited: 400, gems: 750 },
+    look: { h: '#2f3a4a', tur: 'dome', ts: .26, bar: 2, bl: .9, bw: .05, extra: 'core', core: '#4fe3ff' }, price: { gems: 500 } },
   { id: 'uskor', name: 'Ускоритель', kind: 'beam', rar: 'limited', dmg: .5, rate: .01, range: 2.6, cost: 260, det: { g: 1, l: 1, a: 1, h: 2 },
     role: 'Лучевая пушка', desc: 'Непрерывный луч бьёт каждые 0.01с. Держит цель, пока она жива, и сразу переключается на следующую.', perk: 'Перегрев: урон по одной цели растёт до ×2',
-    look: { h: '#5a3a8a', tur: 'dome', ts: .27, bar: 1, bl: .7, bw: .15, extra: 'core', core: '#d27bff' }, limited: 150, gems: 1500 }
+    look: { h: '#5a3a8a', tur: 'dome', ts: .27, bar: 1, bl: .7, bw: .15, extra: 'core', core: '#d27bff' }, price: { gems: 1500 } }
 ];
 const tankById = (id) => TANKS.find(t => t.id === id);
 
@@ -138,7 +138,7 @@ const BOXES = [
   { id: 'gold', n: 'Золотой', col: '#ffcf40', band: '#b07d10', price: { gold: 80 }, lim: 1, odds: [['rare', 45, 'Редкий танк'], ['epic', 43, 'Эпик танк'], ['legendary', 12, 'Легенда']] },
   { id: 'star', n: 'Космический', col: '#b06bff', band: '#6a3aa8', price: { gems: 50 }, lim: 5, odds: [['epic', 75, 'Эпик танк'], ['legendary', 25, 'Легенда']] }
 ];
-const DUPC = { rare: { silver: 250 }, epic: { gold: 40 }, legendary: { gold: 120 } };
+const DUPC = { rare: { silver: 250 }, epic: { gold: 40 }, legendary: { gold: 120 }, limited: { gold: 300 } };
 const GOLDPACKS = [{ g: 100, st: 50 }, { g: 550, st: 250 }, { g: 1200, st: 500 }];
 const FUELPACK = { f: 10, st: 50 };
 /* Гемы 💎 — валюта рынка, лимиток и Космического контейнера. За Stars продаются только в магазине */
@@ -234,6 +234,7 @@ function rollBox(id, rnd = Math.random) {
   if (id === 'gold') { S.pity = (S.pity || 0) + 1; if (S.pity >= 10) odds = [['legendary', 100]]; }
   let x = rnd() * 100, k = odds[odds.length - 1][0];
   for (const o of odds) { if (x < o[1]) { k = o[0]; break; } x -= o[1]; }
+  if (b.lim && rnd() * 100 < b.lim) k = 'limited'; // мифик: шанс поверх обычных призов
   if (id === 'gold' && k === 'legendary') S.pity = 0;
   if (k === 'silver') { const a = id === 'wood' ? 50 + Math.floor(rnd() * 101) : 200 + Math.floor(rnd() * 301); S.silver += a; return { txt: `🥈 ${a}` }; }
   if (k === 'gold') { const a = id === 'wood' ? 2 + Math.floor(rnd() * 5) : 8 + Math.floor(rnd() * 13); S.gold += a; return { txt: `🥇 ${a}` }; }
@@ -637,8 +638,8 @@ const ECON = {
     const t = tankById(id), p = t && t.price;
     if (!p || t.limited || p.stars) return { err: 'Этот танк так не купить' };
     if (S.owned[id]) return { err: 'Уже есть' };
-    if (p.silver && S.silver < p.silver) return { err: 'Не хватает серебра' }; if (p.gold && S.gold < p.gold) return { err: 'Не хватает золота' };
-    if (p.silver) S.silver -= p.silver; if (p.gold) S.gold -= p.gold;
+    if (p.silver && S.silver < p.silver) return { err: 'Не хватает серебра' }; if (p.gold && S.gold < p.gold) return { err: 'Не хватает золота' }; if (p.gems && (S.gems || 0) < p.gems) return { err: 'Не хватает гемов' };
+    if (p.silver) S.silver -= p.silver; if (p.gold) S.gold -= p.gold; if (p.gems) S.gems -= p.gems;
     S.owned[id] = 1; if (S.deck.length < DECK) S.deck.push(id); return { ok: 1 };
   },
   box({ id }, rnd, lim) {   // lim — сервер уже выбил лимитку: она и есть приз, обычный не выдаём
