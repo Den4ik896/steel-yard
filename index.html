@@ -357,7 +357,8 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="toast"></div>
 
 <script src="i18n.js?v=3"></script>
-<script src="core.js?v=8"></script>
+<script src="sfx.js?v=1"></script>
+<script src="core.js?v=9"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -374,10 +375,11 @@ function shade(hex, k) {
   return `rgb(${Math.round(r + (t - r) * p)},${Math.round(g + (t - g) * p)},${Math.round(b + (t - b) * p)})`;
 }
 function prep(L) { if (!L.hl) { L.hl = shade(L.h, .28); L.hd = shade(L.h, -.25); L.t = L.t || shade(L.h, .1); } return L; }
-function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2000); }
+function toast(t) { sfx(/Не хватает|Недостаточно/i.test(t) ? 'nomoney' : /куплен|Покупка зачислена/i.test(t) ? 'buy' : /^Продано/.test(t) ? 'sell' : /^Получено/.test(t) ? 'coin' : ''); const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2000); }
 /* перерисовать открытое окно, не сбрасывая прокрутку и без повторной анимации картинки */
 function keepScroll(fn) { const b = $('#mbox'), y = b.scrollTop; fn(); b.querySelectorAll('.rays img').forEach(i => i.style.animation = 'none'); b.scrollTop = y; requestAnimationFrame(() => { b.scrollTop = y; }); }
-function modal(html) { $('#mbox').innerHTML = html; $('#modal').classList.add('on'); }
+function modal(html) { if (!$('#modal').classList.contains('on')) sfx('open', { soft: 1 }); $('#mbox').innerHTML = html; $('#modal').classList.add('on'); }
+const sndTxt = () => SFX.on ? '🔊 Звук: вкл' : '🔇 Звук: выкл';
 function closeModal() { $('#modal').classList.remove('on'); }
 
 /* ======================= Отрисовка (cartoon) ======================= */
@@ -856,6 +858,7 @@ function questsHTML() {
   }
   h += `<div class="sect ttl">Как играть</div><div class="panel" style="font-weight:700;font-size:14px">
     1. Тапни по клетке у дороги → выбери танк из отряда.<br>2. Нажми «В бой!» — враги поедут к базе.<br>3. За уничтоженных врагов — 💵, на них ставь и улучшай танки до ★4.<br>4. Смотри обнаружение: ✈ авиация летит напрямую, 👁 скрытых видят не все, по 🛡 броне без бронебойности урон всего 30%.<br>5. Проиграл? Прокачай танки в гараже или купи новые за 🥈/🥇.</div>
+    <div class="row c" style="margin-top:14px"><button class="btn gray" data-act="snd">${sndTxt()}</button></div>
     <button class="reset" data-act="reset">Сбросить прогресс (для теста)</button>`;
   return h;
 }
@@ -991,9 +994,9 @@ async function openBox(id) {
   const r = await doAct('box', { id }); if (r.err) return toast(r.err);
   const res = { t: r.res.tid && tankById(r.res.tid), dup: r.res.dup, txt: r.res.txt }, drop = r.drop;
   modal(`<div style="height:180px;display:grid;place-items:center"><img class="shake" src="${icon('b', id, 150)}" style="width:150px"></div><div class="muted">Открываем...</div>`);
-  haptic('medium');
+  haptic('medium'); sfx('latch');
   setTimeout(() => {
-    hapticN('success');
+    hapticN('success'); sfx('reveal');
     if (r.res.lim && drop) modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', drop.model, 140, drop.attrs, drop.serial)}"></div><div style="font-size:24px">${tankById(drop.model).name} #${drop.serial}</div><div class="muted">${nftBest(drop)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${drop.id}">Открыть</button></div>`);
     else if (res.t) modal(`<div class="ribbon ${res.dup ? 'b' : 'g'}">${res.dup ? 'Повтор' : 'Новый танк!'}</div><div class="rays" style="--rc:${RAR[res.t.rar].hex}"><img src="${icon('t', res.t.id, 140)}"></div>
       <div style="font-size:24px">${res.t.name}</div><div class="rar" style="--rc:${RAR[res.t.rar].c}">${RAR[res.t.rar].n} · ${res.t.role}</div>
@@ -1008,7 +1011,7 @@ async function openBox(id) {
 async function finish(win) {
   const n = G.n, g = G, t0 = Date.now();
   closeRadial();
-  win ? hapticN('success') : hapticN('error');
+  win ? hapticN('success') : hapticN('error'); sfx(win ? 'win' : 'lose');
   let rew, drop = null, warn = '';
   if (ON) {
     const r = await api('match/end', { ticket: G.ticket, log: G.log });
@@ -1360,7 +1363,7 @@ function radialAct(ra, btn) {
     const id = btn.dataset.id, t = tankById(id);
     if (G.prev !== id) { G.prev = id; document.querySelectorAll('#radial .rb').forEach(b => b.classList.toggle('sel', b === btn)); showInfo(); return; }
     if (G.cash < t.cost) return toast('Не хватает 💵');
-    if (!act('b', id, s.x, s.y)) return; towerAt(s.x, s.y).skin = G.skin[id];
+    if (!act('b', id, s.x, s.y)) return; towerAt(s.x, s.y).skin = G.skin[id]; sfx('place');
     if (G.vis) { G.fx.push({ k: 'ring', x: s.x, y: s.y, r: .8, t: 0, life: .35, col: '#fff' }); for (let i = 0; i < 8; i++) { const a = i * .8; G.parts.push({ x: s.x, y: s.y + .3, vx: Math.cos(a) * 1.5, vy: Math.sin(a) * .8, t: 0, life: .5, r: .1, col: 'rgba(200,180,140,.7)', smoke: 1 }); } }
     haptic('medium'); closeRadial();
     if (G.tut === 1) { G.tut = 2; G.tutTile = null; tip('Отлично! Теперь жми «В бой!»', 5000); }
@@ -1374,7 +1377,7 @@ function radialAct(ra, btn) {
     openRadial(s.x, s.y);
   } else if (ra === 'rsell') {
     if (G.prev !== 'sell') { G.prev = 'sell'; btn.classList.add('sel'); showInfo(); return; }
-    act('s', s.x, s.y); closeRadial();
+    if (act('s', s.x, s.y)) sfx('sell'); closeRadial();
   } else if (ra === 'rmode') {
     const tw = towerAt(s.x, s.y), ks = Object.keys(MODES); if (!act('m', s.x, s.y, ks[(ks.indexOf(tw.mode) + 1) % ks.length])) return; btn.querySelector('.pr').textContent = MODES[tw.mode]; showInfo();
   }
@@ -1393,12 +1396,13 @@ cv.addEventListener('pointerdown', (ev) => {
     if (G.tut === 1 && G.tutTile && (x !== G.tutTile.x || y !== G.tutTile.y)) return tip('Поставь на подсвеченную клетку', 2000);
     const id = G.pick, t = tankById(id);
     if (G.cash < t.cost) return toast('Не хватает 💵');
-    if (!act('b', id, x, y)) return; towerAt(x, y).skin = G.skin[id];
+    if (!act('b', id, x, y)) return; towerAt(x, y).skin = G.skin[id]; sfx('place');
     if (G.vis) { G.fx.push({ k: 'ring', x, y, r: .8, t: 0, life: .35, col: '#fff' }); for (let i = 0; i < 8; i++) { const a = i * .8; G.parts.push({ x, y: y + .3, vx: Math.cos(a) * 1.5, vy: Math.sin(a) * .8, t: 0, life: .5, r: .1, col: 'rgba(200,180,140,.7)', smoke: 1 }); } }
     haptic('medium'); G.pick = null; closeRadial(); hud();
     if (G.tut === 1) { G.tut = 2; G.tutTile = null; tip('Отлично! Теперь жми «В бой!»', 5000); }
     return;
   }
+  if (G.pick && towerAt(x, y)) sfx('busy');   // клетка уже занята танком
   if (G.pick && !towerAt(x, y)) { G.pick = null; closeRadial(); hud(); return; }
   G.pick = null;
   if (x < 0 || y < 0 || x >= COLS || y >= ROWS) return closeRadial();
@@ -1450,7 +1454,7 @@ if (IN_TG && TG.BackButton) { try { TG.BackButton.onClick(() => { if (G.running)
 function pauseMenu() {
   if (G.over) return;
   G.paused = true;
-  modal(`<div class="ribbon b">Пауза</div><div class="muted">Уровень ${G.n} · волна ${G.wave}/${G.waves.length}</div><div class="row c" style="flex-direction:column"><button class="btn green big" data-act="resume">Продолжить</button><button class="btn" data-act="retry">Заново (⛽${FCOST})</button><button class="btn gray" data-act="quit">Выйти на карту</button></div>`);
+  modal(`<div class="ribbon b">Пауза</div><div class="muted">Уровень ${G.n} · волна ${G.wave}/${G.waves.length}</div><div class="row c" style="flex-direction:column"><button class="btn green big" data-act="resume">Продолжить</button><button class="btn" data-act="retry">Заново (⛽${FCOST})</button><button class="btn gray" data-act="quit">Выйти на карту</button><button class="btn gray" data-act="snd">${sndTxt()}</button></div>`);
 }
 /* Окно ежедневных подарков: 7 коробок недели, серия заходов и бонус топлива каждые 10 дней */
 function dailyModal(got) {
@@ -1536,6 +1540,7 @@ document.addEventListener('click', (ev) => {
     case 'doReset': if (ON) { api('reset').then(() => { closeModal(); setTab('home'); }); break; } S = DEF(); save(); closeModal(); setTab('home'); break;
     case 'pause': pauseMenu(); break;
     case 'resume': G.paused = false; closeModal(); break;
+    case 'snd': SFX.toggle(); a.textContent = sndTxt(); break;
     case 'quit': exitBattle(); break;
     case 'retry': G.running = false; startLevel(G.n); break;
     case 'next': { const n = G.n + 1; exitBattle(); preBattle(n); break; }

@@ -394,6 +394,7 @@ function fire(tw, s, L) {
     case 'polar': for (const x of L) hurt(x, s.dmg, { pen, slow: .5, stun: s.perk ? .8 : 0 }); if (G.vis) G.fx.push({ k: 'ring', x: tw.x, y: tw.y, r: s.range, t: 0, life: .45, col: '#9fe6ff' }); break;
   }
   for (let i = n0; i < G.shots.length; i++) { const q = G.shots[i]; q.o.pen = pen; if (G.vis && tw.skin) { if (tw.skin.sc) q.col = tw.skin.sc === 'rainbow' ? `hsl(${(G.t * 220 + i * 40) % 360},100%,62%)` : tw.skin.sc; q.hc = tw.skin.hc; q.ke = tw.skin.ke; } }
+  if (G.vis && typeof sfx === 'function') sfx('fire', t.kind);   // звук выстрела (только в клиенте)
 }
 /* Награда за волну: волна зачищена — следующая стартует сама через WAVE_GAP с и даёт waveRew(). Можно вызвать раньше — та же награда.5.
    Пока враги волны на поле, вызвать следующую нельзя (иначе можно проскипать все волны и забрать все деньги) */
@@ -401,7 +402,7 @@ const waveRew = () => 10 + 2 * G.wave;
 const waveBusy = () => G.spawnQ.length > 0 || G.enemies.length > 0;
 function callWave(manual) {
   if (G.over || G.wave >= G.waves.length) return;
-  if (G.wave > 0) { const b = waveRew(); G.cash += b; if (G.vis) G.fx.push({ k: 'txt', x: COLS / 2, y: 1, txt: `Волна пройдена! +${b} 💵`, t: 0, life: 1.2, col: '#ffe36b', big: 1 }); }
+  if (G.wave > 0) { const b = waveRew(); G.cash += b; if (G.vis) G.fx.push({ k: 'txt', x: COLS / 2, y: 1, txt: `Волна пройдена! +${b} 💵`, t: 0, life: 1.2, col: '#ffe36b', big: 1 }); if (G.vis && typeof sfx === 'function') sfx('coin'); }
   G.spawnQ.push(...G.waves[G.wave]); if (G.spawnT <= 0) G.spawnT = .2;
   G.wave++; G.nextT = null;
   for (const tw of G.towers) if (tw.t.kind === 'supply') { const g = Math.round(tw.t.give[tw.tier - 1] * (1 + .1 * (tw.lv - 1))); G.cash += g; if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: `+${g} 💵`, t: 0, life: 1.1, col: '#ffe36b' }); }
@@ -490,7 +491,7 @@ function update(dt) {
     if (e.dist >= e.P.total) {
       /* Как в TDS: дошедший враг бьёт базу на весь свой оставшийся HP */
       const hit = Math.max(1, Math.ceil(e.hp / HPU)); e.dead = true; G.lives -= hit; G.leak[e.type] = (G.leak[e.type] || 0) + 1;
-      if (G.vis) { G.shake = Math.min(14, 5 + hit / 4); G.fx.push({ k: 'txt', x: e.x, y: e.y - 1, txt: `−${hit} ❤️`, t: 0, life: 1, col: '#ff5b4f' }); hapticN('warning'); }
+      if (G.vis) { G.shake = Math.min(14, 5 + hit / 4); G.fx.push({ k: 'txt', x: e.x, y: e.y - 1, txt: `−${hit} ❤️`, t: 0, life: 1, col: '#ff5b4f' }); hapticN('warning'); if (typeof sfx === 'function') sfx('base'); }
     }
   }
   for (const m of G.mines) for (const e of G.enemies) if (!e.dead && !e.d.fly && Math.hypot(e.x - m.x, e.y - m.y) < .45) { m.done = 1; explode(m.x, m.y, .9, m.dmg, { pen: 1 }); break; }
