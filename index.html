@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '33';
+const VER = '34';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,7 +371,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=16"></script>
+<script src="core.js?v=17"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -894,7 +894,7 @@ function tankModal(id) {
   const tiers = [1, 2, 3, 4].map(k => {
     const c = calc(t, lv || 1, k), p = k > 1 ? calc(t, lv || 1, k - 1).det : {}, nw = k > 1 ? Object.keys(c.det).filter(x => c.det[x] && !p[x]) : [];
     const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === MAXT ? ['⭐ ' + t.perk] : [])].join(' · ');
-    return `<div class="tr"><b>${'★' + k}</b><span>${k === 1 ? t.cost : '+' + R(t.cost * TIER.up[k - 2])} 💵</span>` +
+    return `<div class="tr"><b>${'★' + k}</b><span>${k === 1 ? t.cost : '+' + tierUp(t, k)} 💵</span>` +
       (c.sup ? `<span style="grid-column:span 3">+${c.give} 💵 за волну</span>` : `<span>💥 ${hpN(c.dmg)}</span><span>⚡ ${hpN(c.dps)}</span><span>📏 ${c.range.toFixed(1)}</span>`) +
       (extra ? `<div class="nw">${extra}</div>` : '') + `</div>`;
   }).join('');
@@ -1480,6 +1480,7 @@ function radialAct(ra, btn) {
   if (ra === 'rb') {
     const id = btn.dataset.id, t = tankById(id);
     if (G.prev !== id) { G.prev = id; document.querySelectorAll('#radial .rb').forEach(b => b.classList.toggle('sel', b === btn)); showInfo(); return; }
+    if (buildLimit(id)) return toast(buildLimit(id));
     if (G.cash < t.cost) return toast('Не хватает 💵');
     if (!act('b', id, s.x, s.y)) return; towerAt(s.x, s.y).skin = G.skin[id]; sfx('place');
     if (G.vis) { G.fx.push({ k: 'ring', x: s.x, y: s.y, r: .8, t: 0, life: .35, col: '#fff' }); for (let i = 0; i < 8; i++) { const a = i * .8; G.parts.push({ x: s.x, y: s.y + .3, vx: Math.cos(a) * 1.5, vy: Math.sin(a) * .8, t: 0, life: .5, r: .1, col: 'rgba(200,180,140,.7)', smoke: 1 }); } }
@@ -1513,6 +1514,7 @@ cv.addEventListener('pointerdown', (ev) => {
   if (G.pick && freeTile(x, y)) {
     if (G.tut === 1 && G.tutTile && (x !== G.tutTile.x || y !== G.tutTile.y)) return tip('Поставь на подсвеченную клетку', 2000);
     const id = G.pick, t = tankById(id);
+    if (buildLimit(id)) return toast(buildLimit(id));
     if (G.cash < t.cost) return toast('Не хватает 💵');
     if (!act('b', id, x, y)) return; towerAt(x, y).skin = G.skin[id]; sfx('place');
     if (G.vis) { G.fx.push({ k: 'ring', x, y, r: .8, t: 0, life: .35, col: '#fff' }); for (let i = 0; i < 8; i++) { const a = i * .8; G.parts.push({ x, y: y + .3, vx: Math.cos(a) * 1.5, vy: Math.sin(a) * .8, t: 0, life: .5, r: .1, col: 'rgba(200,180,140,.7)', smoke: 1 }); } }

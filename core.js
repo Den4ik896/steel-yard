@@ -73,6 +73,31 @@ const TANKS = [
     role: 'Лучевая пушка', desc: 'Непрерывный луч бьёт каждые 0.01с. Держит цель, пока она жива, и сразу переключается на следующую.', perk: 'Перегрев: урон по одной цели растёт до ×2',
     look: { h: '#5a3a8a', tur: 'dome', ts: .27, bar: 1, bl: .7, bw: .15, extra: 'core', core: '#d27bff' }, price: { gems: 1500 } }
 ];
+/* Ручной баланс (страница «Арсенал»): cost — постройка, up — доплата за ★2–★4, dps — DPS на 1-м уровне прокачки (в единицах игры),
+   rg — радиус, slow/slowB — замедление % (обычные / боссы и мини-боссы), spl — сплеш, lim — сколько таких танков можно поставить в бою. null — как было */
+const MAXTW = 20;
+const TUNE = {
+  shmel:   { lim: 5, up: [30, 60, 110], rg: [2.5, 3, 3.5, 4.35] },
+  bobr:    { lim: 5, up: [null, null, 200], dps: [5, 7, 9, 20], rg: [null, 3, 4, 4] },
+  zhar:    { lim: 2, dps: [10, 13, 20, 25], rg: [2, 2.5, 2.7, 3] },
+  sokol:   { lim: 2, cost: 150, up: [150, 300, 500], dps: [12, 18, 38, 60], rg: [null, 6, 8, 8.5] },
+  moroz:   { lim: 2, cost: 50, up: [150, 175, 325], dps: [2, 3, 5, 8], slow: [20, 25, 35, 50], slowB: [10, 15, 17.5, 20], spl: [.3, .4, .5, .6], rg: [3, 4, 4, 4.25] },
+  vihr:    { lim: 6, cost: 80, up: [25, 100, 200], dps: [9, 10, 17, 25], rg: [3, 3.5, 3.5, 4] },
+  oboz:    { lim: 5, cost: 85, up: [35, 50, 75] },
+  kuvalda: { lim: 2, up: [200, 335, 595], dps: [8, 20, 28, 80], rg: [3, 3.5, 4.5, 4.5] },
+  tesla:   { lim: 3, cost: 135, up: [100, 140, 200], dps: [8, 11, 18, 27], rg: [2.65, 2.95, 3.5, 4] },
+  grad:    { lim: 2, cost: 150, up: [75, 250, 500], dps: [6, 8, 20, 45] },
+  mamont:  { lim: 2, dps: [null, null, null, 33] },
+  polar:   { lim: 3, dps: [3, 5, 8, 10], slow: [30, 33, 38, 45], slowB: [15, 20, 22.5, 25], rg: [3, 3.2, 3.6, 3.7] },
+  zavod:   { lim: 3, up: [125, 200, 333] },
+  grom:    { lim: 2, up: [null, null, 500], dps: [null, null, null, 25], rg: [null, null, 3.45, null] },
+  baraban: { lim: 2, dps: [6.5, 9, 15, null] },
+  relsa:   { lim: 3 },
+  uskor:   { lim: 3, cost: 350, up: [360, 500, 900], dps: [24, 39, 57, 90], rg: [3, 3.3, 3.8, 5] },
+};
+for (const [id, o] of Object.entries(TUNE)) { const t = TANKS.find(x => x.id === id); if (!t) continue; if (o.cost) t.cost = o.cost; t.tune = o; }
+const tierUp = (t, k) => { const u = t.tune && t.tune.up && t.tune.up[k - 2]; return u != null ? u : Math.round(t.cost * TIER.up[k - 2]); }; /* доплата за ★k */
+const tv = (t, key, i) => { const a = t.tune && t.tune[key]; return a && a[i] != null ? a[i] : null; };
 const tankById = (id) => TANKS.find(t => t.id === id);
 
 /* Враги. HP в бою считается во внутренних единицах; игроку показываем /HPU: лёгкий танк ≈ 5 ❤ */
@@ -225,7 +250,7 @@ function maxUnlocked() { let n = 1; while (n < LEVELS && S.stars[n] > 0) n++; re
 function calc(t, lv = 1, tier = 1) {
   const i = tier - 1, g = 1 + 0.2 * (lv - 1), det = t.det || {}, has = k => det[k] != null && tier >= det[k], perk = tier === MAXT;
   if (t.kind === 'supply') return { sup: 1, give: Math.round(t.give[i] * (1 + .1 * (lv - 1))), det: {}, perk, range: 0 };
-  const dmg = (t.dmgT ? t.dmgT[i] : (t.dmg || 0) * TIER.d[i]) * g, rate = +(t.rate * TIER.r[i]).toFixed(2), range = +(t.range + TIER.rg[i]).toFixed(2);
+  let dmg = (t.dmgT ? t.dmgT[i] : (t.dmg || 0) * TIER.d[i]) * g; const rate = +(t.rate * TIER.r[i]).toFixed(2), range = tv(t, 'rg', i) ?? +(t.range + TIER.rg[i]).toFixed(2);
   const k = t.kind;
   if (k === 'spawner') { const n = tier >= 3 ? 2 : 1; return { dmg, rate, range: 0, dps: dmg * n / rate, shots: n, aoe: 'Свои танки', perk, ally: 1, det: { g: has('g'), a: false, h: false, l: has('l') } }; }
   const shots = k === 'drum' ? (perk ? 5 : 3) : k === 'aa' || k === 'mammoth' || (k === 'cannon' && perk) ? 2 : k === 'rockets' ? (perk ? 6 : t.salvo) : 1;
@@ -233,8 +258,10 @@ function calc(t, lv = 1, tier = 1) {
   if (k === 'flame') dps += dmg * 2 * (perk ? 2 : 1);
   if (k === 'sniper' && perk) dps *= 1.375;
   if (k === 'beam' && perk) dps *= 1.5;
-  const aoe = k === 'kv2' || k === 'rockets' ? `Сплеш ${t.splash}` : k === 'flame' || k === 'polar' ? 'Все в радиусе' : k === 'tesla' ? `Цепь ${perk ? 5 : 3}` : k === 'rail' ? 'Насквозь' : '';
-  return { dmg, rate, range, dps, shots, aoe, perk, det: { g: has('g'), a: has('a'), h: has('h'), l: has('l') } };
+  const want = tv(t, 'dps', i); if (want != null && dps > 0) { const f = want * HPU * g / dps; dmg *= f; dps *= f; } /* DPS из ручного баланса */
+  const sl = tv(t, 'slow', i), slow = sl != null ? sl / 100 : k === 'cryo' ? (perk ? .6 : .4) : k === 'polar' ? .5 : 0, sb = tv(t, 'slowB', i), slowB = sb != null ? sb / 100 : slow / 2, spl = tv(t, 'spl', i) || 0;
+  const aoe = k === 'kv2' || k === 'rockets' ? `Сплеш ${t.splash}` : spl ? `Сплеш ${spl}` : k === 'flame' || k === 'polar' ? 'Все в радиусе' : k === 'tesla' ? `Цепь ${perk ? 5 : 3}` : k === 'rail' ? 'Насквозь' : '';
+  return { dmg, rate, range, dps, shots, aoe, perk, slow, slowB, spl, det: { g: has('g'), a: has('a'), h: has('h'), l: has('l') } };
 }
 function rollBox(id, rnd = Math.random) {
   const b = BOXES.find(x => x.id === id);
@@ -317,7 +344,7 @@ function tstats(tw) {
   const s = calc(tw.t, tw.lv, tw.tier);
   return Object.assign(s, { air: s.det.a, ground: s.det.g, hid: s.det.h, pen: s.det.l });
 }
-const upPrice = (tw) => Math.round(tw.t.cost * TIER.up[tw.tier - 1]);
+const upPrice = (tw) => tierUp(tw.t, tw.tier + 1);
 const towerAt = (x, y) => G.towers.find(t => t.x === x && t.y === y);
 /* ✈ Налёт: самолёт летит слева направо над случайным танком и оглушает его на 3–8 с */
 function spawn(type, pi, dist = 0, mod) {
@@ -350,7 +377,7 @@ function hurt(e, dmg, o = {}) {
   if (e.dead || e.under) return;
   const blocked = e.d.arm && !o.pen && !(e.shredT > 0), v = blocked ? dmg * ARMK : dmg;
   e.hp -= e.shU > G.time ? v / 2 : v; if (!o.quiet) e.hitT = .08;
-  if (o.slow && !e.d.noslow) { const k = e.d.boss || e.d.mini ? o.slow / 2 : o.slow; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = 2; }
+  if (o.slow && !e.d.noslow) { const k = e.d.boss || e.d.mini ? (o.slowB != null ? o.slowB : o.slow / 2) : o.slow; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = 2; }
   if (o.stun) e.stunT = Math.max(e.stunT, e.d.boss ? o.stun / 3 : e.d.mini ? o.stun / 2 : o.stun);
   if (o.shred) e.shredT = o.shred;
   if (blocked && !o.quiet && G.vis && Math.random() < .15) G.fx.push({ k: 'txt', x: e.x, y: e.y - .55, txt: '🛡', t: 0, life: .6, col: '#c9d1d9' });
@@ -372,6 +399,7 @@ function kill(e) {
 function explode(x, y, r, dmg, o) {
   for (const e of G.enemies) if (!e.dead && (!!e.d.fly === !!o.fly) && Math.hypot(e.x - x, e.y - y) < r + e.d.size * .3) hurt(e, dmg, o);
   if (!G.vis) return;
+  if (o.ice) { G.fx.push({ k: 'ring', x, y: y - (o.fly ? .4 : 0), r, t: 0, life: .35, col: '#9fe6ff' }); return; }
   G.fx.push({ k: 'boom', x, y: y - (o.fly ? .4 : 0), r, t: 0, life: .45 });
   for (let i = 0; i < 6; i++) { const a = Math.random() * 7; G.parts.push({ x, y, vx: Math.cos(a) * 1.5, vy: Math.sin(a) * 1.5 - .5, t: 0, life: .8, r: .12, col: 'rgba(90,85,80,.5)', smoke: 1 }); }
   if (!o.fly) G.decals.push({ x, y, r: r * .6, a: .7 });
@@ -391,7 +419,7 @@ function fire(tw, s, L) {
       if (G.vis) for (let i = 0; i < 3; i++) { const a = tw.ang + (Math.random() - .5) * .5, v = 3 + Math.random() * 2; G.parts.push({ x: m.x, y: m.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: .3 + Math.random() * .15, r: .12, col: '#ff7a1a', flame: 1 }); }
       break;
     case 'sniper': { const crit = s.perk && G.rnd() < .25; hurt(e, s.dmg * (crit ? 2.5 : 1), { show: 1, crit, pen }); if (G.vis) G.fx.push({ k: 'line', x: m.x, y: m.y, x2: e.x, y2: e.y, t: 0, life: .18, col: '#fff6b0', w: .07 }); G.shake = Math.max(G.shake, 2); break; }
-    case 'cryo': shot({ k: 'ice', tgt: e, spd: 9, dmg: s.dmg, o: { slow: s.perk ? .6 : .4 }, r: .09, col: '#9fe6ff' }); break;
+    case 'cryo': shot({ k: 'ice', tgt: e, spd: 9, dmg: s.dmg, splash: s.spl, o: { slow: s.slow, slowB: s.slowB, ice: 1 }, r: .09, col: '#9fe6ff' }); break;
     case 'aa': for (const off of [-.08, .08]) G.shots.push({ k: 'bul', x: m.x + off, y: m.y - off, tgt: e, spd: 16, dmg: e.d.fly || s.perk ? s.dmg : s.dmg / 2, o: {}, r: .05, col: '#ffe36b', delay: off > 0 ? .05 : 0 }); tw.rec = .5; break;
     case 'kv2': { const sp = e.d.speed * (e.slowT > 0 ? 1 - e.slowK : 1), p = posAt(e.P, e.dist + (e.stunT > 0 ? 0 : sp * 1.1)); G.shots.push({ k: 'lob', sx: m.x, sy: m.y, tx: p.x, ty: p.y, t: 0, dur: 1.1, dmg: s.dmg, splash: t.splash, o: { stun: s.perk ? .6 : 0, fly: 0 }, delay: 0 }); G.shake = Math.max(G.shake, 3); break; }
     case 'tesla': {
@@ -415,7 +443,7 @@ function fire(tw, s, L) {
       if (G.vis) { const sc = tw.skin && tw.skin.sc, col = sc === 'rainbow' ? `hsl(${(G.t * 220) % 360},100%,62%)` : sc || '#4fe3ff'; G.fx.push({ k: 'line', x: m.x, y: m.y, x2: m.x + cx * len, y2: m.y + cy * len, t: 0, life: .28, col, w: .2 }, { k: 'line', x: m.x, y: m.y, x2: m.x + cx * len, y2: m.y + cy * len, t: 0, life: .2, col: '#fff', w: .06 }); }
       G.shake = Math.max(G.shake, 2); break;
     }
-    case 'polar': for (const x of L) hurt(x, s.dmg, { pen, slow: .5, stun: s.perk ? .8 : 0 }); if (G.vis) G.fx.push({ k: 'ring', x: tw.x, y: tw.y, r: s.range, t: 0, life: .45, col: '#9fe6ff' }); break;
+    case 'polar': for (const x of L) hurt(x, s.dmg, { pen, slow: s.slow, slowB: s.slowB, stun: s.perk ? .8 : 0 }); if (G.vis) G.fx.push({ k: 'ring', x: tw.x, y: tw.y, r: s.range, t: 0, life: .45, col: '#9fe6ff' }); break;
   }
   for (let i = n0; i < G.shots.length; i++) { const q = G.shots[i]; q.o.pen = pen; if (G.vis && tw.skin) { if (tw.skin.sc) q.col = tw.skin.sc === 'rainbow' ? `hsl(${(G.t * 220 + i * 40) % 360},100%,62%)` : tw.skin.sc; q.hc = tw.skin.hc; q.ke = tw.skin.ke; } }
   if (G.vis && typeof sfx === 'function') sfx('fire', t.kind);   // звук выстрела (только в клиенте)
@@ -483,6 +511,8 @@ function allyTick(dt) {
   }
   G.allies = G.allies.filter(a => !a.dead);
 }
+/* лимит башен в бою: всего MAXTW и не больше lim одного вида; возвращает текст причины или '' */
+function buildLimit(id) { const t = tankById(id), lim = t && t.tune && t.tune.lim; if (G.towers.length >= MAXTW) return `Максимум ${MAXTW} танков в бою`; if (lim && G.towers.filter(q => q.t.id === id).length >= lim) return `${t.name}: не больше ${lim} в бою`; return ''; }
 function newTower(t, x, y, lv) { return { x, y, t, lv, tier: 1, cd: 0, ang: -Math.PI / 2, spent: t.cost, mode: t.mode || 'first', rec: 0, flash: 0 }; }
 
 function update(dt) {
@@ -578,7 +608,7 @@ function step() { update(DT); G.tick++; }
 const okXY = (x, y) => Number.isInteger(x) && Number.isInteger(y) && x >= 0 && y >= 0 && x < COLS && y < ROWS;
 const freeTile = (x, y) => okXY(x, y) && !G.road.has(x + ',' + y) && !G.obs.has(x + ',' + y) && !towerAt(x, y);
 const ACT = {
-  b(id, x, y) { const t = tankById(id); if (!t || !G.deck.includes(id) || !G.lvOf[id] || !freeTile(x, y) || G.cash < t.cost) return false; G.cash -= t.cost; G.towers.push(newTower(t, x, y, G.lvOf[id])); G.built++; G.used[id] = 1; return true; },
+  b(id, x, y) { const t = tankById(id); if (!t || !G.deck.includes(id) || !G.lvOf[id] || !freeTile(x, y) || G.cash < t.cost || buildLimit(id)) return false; G.cash -= t.cost; G.towers.push(newTower(t, x, y, G.lvOf[id])); G.built++; G.used[id] = 1; return true; },
   u(x, y) { const tw = okXY(x, y) && towerAt(x, y); if (!tw || tw.tier >= MAXT) return false; const c = upPrice(tw); if (G.cash < c) return false; G.cash -= c; tw.spent += c; tw.tier++; return true; },
   s(x, y) { const tw = okXY(x, y) && towerAt(x, y); if (!tw) return false; G.cash += Math.floor(tw.spent * .6); G.towers = G.towers.filter(q => q !== tw); return true; },
   m(x, y, mode) { const tw = okXY(x, y) && towerAt(x, y); if (!tw || !MODES[mode] || tw.t.kind === 'supply') return false; tw.mode = mode; return true; },
