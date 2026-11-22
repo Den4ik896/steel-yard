@@ -249,6 +249,7 @@ nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45e
 .ab.sl .n{position:absolute;top:2px;right:4px;font-size:11px;font-weight:900;background:var(--ink);color:#fff;border-radius:8px;padding:0 4px}
 .ab.swp{width:52px;flex:none;background:#ffe36b}.ab.swp.sup{background:#b9e3ff}
 .sic{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(#fff,color-mix(in srgb,var(--rc) 55%,#fff));border:2px solid var(--ink);font-size:24px;line-height:1}
+.shopt .sic.big{width:62px;height:62px;font-size:36px;margin:0}.shopt .sic.big .mi{width:46px;height:46px}
 .sic .mi{width:30px;height:30px}.sic.big{width:84px;height:84px;font-size:50px;margin:6px auto 2px}.sic.big .mi{width:62px;height:62px}
 .pulse{animation:pls 1s infinite}
 @keyframes pls{50%{transform:scale(1.06);filter:brightness(1.15)}}
@@ -356,9 +357,9 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=3"></script>
+<script src="i18n.js?v=4"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=9"></script>
+<script src="core.js?v=10"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -841,6 +842,13 @@ function shopHTML() {
     h += `<div class="shopt"><img src="${icon('t', t.id, 72)}"><div class="i"><b>${t.name}</b> <span class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n}</span><br>${t.role} · ${(() => { const c = calc(t, 1, 1); return c.sup ? '+' + c.give + ' 💵/волна' : `⚡ ${hpN(c.dps)} DPS · 💥 ${hpN(c.dmg)}${c.shots > 1 ? '×' + c.shots : ''} · ${c.aoe || 'одна цель'}`; })()}${detIcons(t).replace('justify-content:center', '')}</div>
       ${own ? '<span class="chip">✓ Есть</span>' : `<button class="btn sm ${t.price.stars ? 'purple' : 'green'}" data-act="tank" data-id="${t.id}">${priceTxt(t.price)}</button>`}</div>`;
   }
+  h += `<div class="sect ttl">🎒 Поддержка в бою</div>`;
+  for (const d of SUPS.filter(d => d.price && !d.price.free)) {
+    const own = (S.sup || {})[d.id] || SDEF.includes(d.id), p = d.price;
+    h += `<div class="shopt"><div style="flex:0 0 72px;display:grid;place-items:center" data-act="sup" data-id="${d.id}">${supIco(d.id, 1)}</div><div class="i"><b>${d.n}</b> <span class="rar" style="--rc:${RAR[d.rar].c}">${RAR[d.rar].n}</span><br>${d.desc}<br>${d.cd ? '⏱ перезарядка ' + d.cd + ' с' : '×' + d.uses + ' за бой'}</div>
+      ${own ? '<span class="chip">✓ Есть</span>' : `<button class="btn sm ${p.gems ? 'purple' : 'green'}" data-act="supBuy" data-id="${d.id}" data-s="1">${priceTxt(p)}</button>`}</div>`;
+  }
+  h += `<div class="muted" style="margin-top:2px">Набор собирается в Гараже. В бою кнопка 🎒 внизу.</div>`;
   h += `<div class="sect ttl" id="gemShop">💎 Гемы</div><div class="grid2">`;
   for (const p of GEMPACKS) h += `<div class="boxc"><div style="font-size:44px">💎</div><div class="nm">${p.g} гемов</div><button class="btn sm purple" data-act="stars" data-k="gems" data-i="${GEMPACKS.indexOf(p)}">⭐ ${p.st}</button></div>`;
   h += `</div><div class="muted" style="margin-top:8px">Гемы нужны для Космического контейнера, лимиток и рынка.<br>Бесплатно: 10 гемов каждый 10-й день входа и 20 — за первую победу над каждым боссом.</div>`;
@@ -1488,7 +1496,7 @@ document.addEventListener('click', (ev) => {
     case 'tank': tankModal(id); break;
     case 'squad': doAct('squad', { id }).then(r => { if (r.err) return toast(r.err); tankModal(id); render(); }); break;
     case 'sup': supModal(id); break;
-    case 'supBuy': doAct('supBuy', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(supById(id).n + ' — куплено!'); supModal(id); render(); }); break;
+    case 'supBuy': doAct('supBuy', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(supById(id).n + ' — куплено!'); if (!a.dataset.s) supModal(id); render(); }); break;
     case 'supSet': doAct('supSet', { id }).then(r => { if (r.err) return toast(r.err); supModal(id); render(); }); break;
     case 'up': doAct('up', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(`${tankById(id).name} → ур. ${r.lv}!`); keepScroll(() => tankModal(id)); render(); }); break;
     case 'buy': doAct('buy', { id }).then(r => {
