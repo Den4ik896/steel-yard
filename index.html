@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '26';
+const VER = '27';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -912,6 +912,9 @@ async function usePromo() {
   const code = ($('#promo') || {}).value || ''; if (!code.trim()) return toast('Введи промокод');
   const r = await api('promo', { code }); if (r.err) return toast(r.err);
   hapticN('success'); const d = r.drop;
+  if (r.tank) { const t = tankById(r.tank); modal(`<div class="ribbon g">Новый танк!</div><div class="rays" style="--rc:${RAR[t.rar].hex}"><img src="${icon('t', t.id, 140)}"></div>
+      <div style="font-size:24px">${t.name}</div><div class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n} · ${t.role}</div>
+      <p style="font-weight:700">${t.desc}</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`); return render(); }
   modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', d.model, 140, d.attrs, d.serial)}"></div><div style="font-size:24px">${tankById(d.model).name} #${d.serial}</div><div class="muted">${nftBest(d)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${d.id}">Открыть</button></div>`);
   render();
 }
