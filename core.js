@@ -36,7 +36,7 @@ const TANKS = [
   { id: 'moroz', name: 'Мороз', kind: 'cryo', rar: 'rare', dmg: 10, rate: 0.8, range: 2.3, cost: 100, slow: 0.4, det: { g: 1, a: 1, h: 3 },
     role: 'Криопушка', desc: 'Замораживает: враги и вертолёты едут на 40% медленнее.', perk: 'Глубокая заморозка −60%',
     look: { h: '#4fa8d8', tur: 'circle', ts: .26, bar: 1, bl: .44, bw: .19, extra: 'crystal' }, price: { silver: 400 } },
-  { id: 'vihr', name: 'Вихрь', kind: 'aa', rar: 'rare', dmg: 14, rate: 0.3, range: 3.4, cost: 100, det: { g: 1, a: 1, h: 1, l: 1 }, dmT: [.6, .85, .85, .7],
+  { id: 'vihr', name: 'Вихрь', kind: 'aa', rar: 'rare', dmg: 14, rate: 0.3, range: 3.4, cost: 100, det: { g: 1, a: 1, h: 1, l: 1 }, dmgT: [9.5, 13.5, 18, 23],
     role: 'Зенитка', desc: 'Зенитка с радаром: рвёт авиацию и видит скрытых. По земле бьёт вполсилы, в полную силу — на ★4. Самолёты бьёт первыми.', perk: 'Полный урон по земле',
     look: { h: '#8f9c55', tur: 'box', ts: .23, bar: 2, bl: .62, bw: .07, extra: 'dish' }, price: { silver: 400 } },
   { id: 'oboz', name: 'Обоз', kind: 'supply', rar: 'rare', cost: 120, give: [25, 40, 60, 85], range: 0, det: {},
@@ -88,7 +88,7 @@ const ENEMY = {
   scout:     { n: 'Камуфляж', hp: 75, speed: 1.3, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
   transport: { n: 'Грузовик', hp: 170, speed: .9, reward: 9, cost: 5, leak: 2, size: .62, gap: 1.1, from: 10, w: 1, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
   heavy:     { n: 'Тяжёлый танк', hp: 460, speed: .55, arm: 1, reward: 26, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
-  bomber:    { n: 'Бомбардировщик', hp: 170, speed: 1.5, fly: 1, reward: 16, cost: 6, leak: 2, size: .76, gap: 1.2, from: 14, w: .8, desc: '✈ Быстрый и крепкий самолёт — летит напрямую к базе!' },
+  bomber:    { n: 'Бомбардировщик', hp: 170, speed: 1.5, fly: 1, reward: 0, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: пролетает над полем, его не сбить. Бомбит случайный танк — оглушает на 3–8 с.' },
   assault:   { n: 'Штурмовой танк', hp: 300, speed: .95, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
   ghost:     { n: 'Ночной вертолёт', hp: 140, speed: 1.3, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
   sled:      { n: 'Аэросани', hp: 55, speed: 2.3, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
@@ -225,7 +225,7 @@ function maxUnlocked() { let n = 1; while (n < LEVELS && S.stars[n] > 0) n++; re
 function calc(t, lv = 1, tier = 1) {
   const i = tier - 1, g = 1 + 0.2 * (lv - 1), det = t.det || {}, has = k => det[k] != null && tier >= det[k], perk = tier === MAXT;
   if (t.kind === 'supply') return { sup: 1, give: Math.round(t.give[i] * (1 + .1 * (lv - 1))), det: {}, perk, range: 0 };
-  const dmg = (t.dmg || 0) * g * TIER.d[i] * (t.dmT ? t.dmT[i] : 1), rate = +(t.rate * TIER.r[i]).toFixed(2), range = +(t.range + TIER.rg[i]).toFixed(2);
+  const dmg = (t.dmgT ? t.dmgT[i] : (t.dmg || 0) * TIER.d[i]) * g, rate = +(t.rate * TIER.r[i]).toFixed(2), range = +(t.range + TIER.rg[i]).toFixed(2);
   const k = t.kind;
   if (k === 'spawner') { const n = tier >= 3 ? 2 : 1; return { dmg, rate, range: 0, dps: dmg * n / rate, shots: n, aoe: 'Свои танки', perk, ally: 1, det: { g: has('g'), a: false, h: false, l: has('l') } }; }
   const shots = k === 'drum' ? (perk ? 5 : 3) : k === 'aa' || k === 'mammoth' || (k === 'cannon' && perk) ? 2 : k === 'rockets' ? (perk ? 6 : t.salvo) : 1;
@@ -271,7 +271,7 @@ const MODS = { b: { n: 'Раздутый', hp: 2, sc: 1.18, col: '#7bd94f' }, c:
 function makeWaves(n, np) {
   const r = rng(n * 7919 + 13), boss = n % 8 === 0, nw = n <= 16 ? Math.min(15, 6 + Math.floor(n / 2)) : n === 17 ? 18 : n === 18 ? 24 : Math.min(34, 30 + Math.floor((n - 19) / 3)), waves = [];
   const minis = Object.keys(ENEMY).filter(k => ENEMY[k].mini && ENEMY[k].from <= n);
-  const unl = Object.keys(ENEMY).filter(k => ENEMY[k].from <= n && !ENEMY[k].mini), fresh = unl.find(k => ENEMY[k].from === n);
+  const unl = Object.keys(ENEMY).filter(k => ENEMY[k].from <= n && !ENEMY[k].mini && !ENEMY[k].raid), fresh = unl.find(k => ENEMY[k].from === n);
   const pick = (pool) => { let x = r() * pool.reduce((a, k) => a + ENEMY[k].w, 0); for (const k of pool) { x -= ENEMY[k].w; if (x <= 0) return k; } return pool[0]; };
   for (let w = 0; w < nw; w++) {
     const cap = 2 + w * 1.4; let budget = (5 + 2.3 * Math.min(n, 4) + 1.2 * Math.max(0, n - 4)) * (1 + .37 * Math.min(w, 8) + (n <= 16 ? .18 * Math.max(0, w - 8) : .12 * Math.min(7, Math.max(0, w - 8)) + .05 * Math.max(0, w - 15)) * (n <= 16 ? 1 : .6)) * (w === 0 && n > 4 ? .7 : 1), pool = unl, list = [];
@@ -285,8 +285,10 @@ function makeWaves(n, np) {
     /* ⭐ мини-босс каждые 5 волн (с ур. 27 — по два на каждой 10-й); на ур. 32 босса ведут оба мини-босса */
     if (minis.length && w % 5 === 4 && w < nw - 1) { const m = Math.floor(w / 5); list.push(minis[m % minis.length]); if (n >= 27 && w % 10 === 9 && minis.length > 1) list.push(minis[(m + 1) % minis.length]); }
     if (boss && w === nw - 1) { list.push('boss'); if (n >= 32) list.push(...minis); }
+    /* ✈ налёты (с ур. 14): самолёт бомбит случайный танк — оглушение 3–8 с */
+    if (n >= ENEMY.bomber.from && w >= 2) { const k = (r() < Math.min(.5, .3 + .01 * (n - 14)) ? 1 : 0) + (n >= 25 && r() < .3 ? 1 : 0); for (let j = 0; j < k; j++) list.splice(Math.floor(r() * (list.length + 1)), 0, 'bomber'); }
     const pB = w === 0 ? 0 : Math.min(.22, .05 + .015 * w + .004 * n), pC = n >= 6 && w >= nw - 3 ? Math.min(.12, .03 + .004 * n) : 0;
-    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini) { const x = r(); if (x < pC) q.mod = 'c'; else if (x < pC + pB) q.mod = 'b'; } return q; }));
+    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini && !ENEMY[k].raid) { const x = r(); if (x < pC) q.mod = 'c'; else if (x < pC + pB) q.mod = 'b'; } return q; }));
   }
   return waves;
 }
@@ -302,7 +304,7 @@ function makeMatch(n, deck, lvOf, vis, seed = n * 977 + 3, sdeck = SDEF) {
     if (r() < (n === 1 ? .06 : .1)) obs.set(k, { x, y, kind: L.loc.obs[Math.floor(r() * L.loc.obs.length)] });
   }
   G = { n, L, paths, air, road, obs, deck: deck.slice(), lvOf, vis, waves: makeWaves(n, paths.length), wave: 0, spawnQ: [], spawnT: 0, nextT: null,
-    enemies: [], towers: [], shots: [], fx: [], parts: [], decals: [], mines: [], bombs: [], amb: [], allies: [], cash: L.cash, lives: L.lives,
+    enemies: [], towers: [], shots: [], fx: [], parts: [], decals: [], mines: [], bombs: [], raids: [], amb: [], allies: [], cash: L.cash, lives: L.lives,
     kills: 0, airKills: 0, built: 0, leak: {}, t: 0, time: 0, speed: 1, sel: null, prev: null, arm: null, sdeck, sup: Object.fromEntries(sdeck.map(k => [k, { cd: 0, left: supById(k).uses || 0 }])), zones: [],
     over: false, paused: false, running: false, shake: 0, seed, tut: 0, rnd: rng(seed), tick: 0, log: [], used: {}, skin: {} };
   return G;
@@ -315,7 +317,15 @@ function tstats(tw) {
 }
 const upPrice = (tw) => Math.round(tw.t.cost * TIER.up[tw.tier - 1]);
 const towerAt = (x, y) => G.towers.find(t => t.x === x && t.y === y);
+/* ✈ Налёт: самолёт летит слева направо над случайным танком и оглушает его на 3–8 с */
+function raid() {
+  if (!G.towers.length) return;
+  const tw = G.towers[Math.floor(G.rnd() * G.towers.length)], dur = 3 + G.rnd() * 5;
+  G.raids.push({ tw, dur, x: -1.5, y: tw.y, v: 5 });
+  if (G.vis) tip('✈ Налёт! Танк оглушён', 1500);
+}
 function spawn(type, pi, dist = 0, mod) {
+  if (ENEMY[type].raid) return raid();
   const d = ENEMY[type], P = d.fly && !d.road ? G.air[pi] : G.paths[pi], M = MODS[mod];
   const hp = Math.round(d.hp * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
   const p = posAt(P, dist);
@@ -439,7 +449,8 @@ function beamTick(tw, s, L, dt) {
   if (e.dead) { if (G.vis && tw.skin && tw.skin.ke) G.fx.push({ k: 'txt', x: e.x, y: e.y - .7, txt: tw.skin.ke, t: 0, life: .8, col: '#fff', big: 1 }); tw.lk = tw.beam = null; }
 }
 /* Завод: свои танки едут от базы навстречу врагам, стреляют и таранят. ★3 — по 2 танка, ★4 — тяжёлые */
-const ALLY = [{ sz: .42, hp: 1, gun: .1, sp: 1.5 }, { sz: .52, hp: 1.4, gun: .14, sp: 1.3 }, { sz: .64, hp: 2, gun: .2, sp: 1.1 }];
+/* rg — радиус стрельбы, cd — перезарядка: маленькие стреляют слабо, большие — нормально */
+const ALLY = [{ sz: .42, hp: 1, gun: .1, sp: 1.5, rg: 3, cd: .7, r: .05 }, { sz: .52, hp: 1.4, gun: .16, sp: 1.3, rg: 3.2, cd: .6, r: .065 }, { sz: .64, hp: 2, gun: .22, sp: 1.1, rg: 3.5, cd: .55, r: .085 }];
 function makeAllies(tw, s) {
   const kind = tw.tier >= 4 ? 2 : tw.tier >= 3 ? 1 : 0, A = ALLY[kind];
   for (let i = 0; i < s.shots; i++) {
@@ -453,7 +464,7 @@ function allyTick(dt) {
     a.dist -= a.sp * dt; a.tread += a.sp * dt * 3;
     if (a.dist <= 0) { a.dead = 1; continue; }
     const p = posAt(a.P, Math.min(a.dist, a.P.total)); a.x = p.x; a.y = p.y; a.ang = lerpAng(a.ang, p.ang + Math.PI, dt * 8);
-    let near = null, nd = 1.9;
+    let near = null, nd = ALLY[a.kind].rg;
     for (const e of G.enemies) {
       if (e.dead || e.d.fly || e.y < -.4) continue;
       const d = Math.hypot(e.x - a.x, e.y - a.y);
@@ -466,7 +477,7 @@ function allyTick(dt) {
       if (!e.d.hid && d < nd) { nd = d; near = e; }
     }
     if (a.dead) continue;
-    if (near) { a.tur = lerpAng(a.tur, Math.atan2(near.y - a.y, near.x - a.x), dt * 10); a.cd -= dt; if (a.cd <= 0) { a.cd = .6; G.shots.push({ k: 'bul', x: a.x, y: a.y, tgt: near, spd: 14, dmg: a.gun, o: { pen: a.pen }, r: .05, col: '#7fd6ff', delay: 0 }); } }
+    if (near) { a.tur = lerpAng(a.tur, Math.atan2(near.y - a.y, near.x - a.x), dt * 10); a.cd -= dt; if (a.cd <= 0) { a.cd = ALLY[a.kind].cd; G.shots.push({ k: 'bul', x: a.x, y: a.y, tgt: near, spd: 14, dmg: a.gun, o: { pen: a.pen }, r: ALLY[a.kind].r, col: '#7fd6ff', delay: 0 }); } }
     else a.tur = lerpAng(a.tur, a.ang, dt * 4);
   }
   G.allies = G.allies.filter(a => !a.dead);
@@ -515,11 +526,14 @@ function update(dt) {
   G.mines = G.mines.filter(m => !m.done);
   for (const b of G.bombs) { b.delay -= dt; if (b.delay <= 0) { b.done = 1; explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1 }); if (b.air) explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1, fly: 1 }); } }
   G.bombs = G.bombs.filter(b => !b.done);
+  for (const q of G.raids) { q.x += q.v * dt; if (!q.hit && q.x >= q.tw.x) { q.hit = 1; if (G.towers.includes(q.tw)) { q.tw.stn = Math.max(q.tw.stn || 0, q.dur); if (G.vis) { G.fx.push({ k: 'boom', x: q.tw.x, y: q.tw.y, r: .7, t: 0, life: .4 }); G.shake = Math.max(G.shake, 5); } } } }
+  G.raids = G.raids.filter(q => q.x < COLS + 2);
   /* ❄ Метель (ур. 25+): каждые 50 с на 8 с дальность танков −25% */
   if (G.L.bliz) { const b = G.wave > 0 && G.time % 50 > 42; if (b && !G.bliz && G.vis) tip('🌨 Метель! Дальность танков −25%', 1800); G.bliz = b; }
   for (const tw of G.towers) {
     tw.cd -= dt; tw.rec = Math.max(0, tw.rec - dt * 5); if (tw.flash > 0) tw.flash -= dt;
     if (tw.frz > 0) { tw.frz -= dt; continue; }
+    if (tw.stn > 0) { tw.stn -= dt; continue; }
     if (tw.t.kind === 'supply') continue;
     if (tw.t.kind === 'spawner') { if (G.enemies.length && tw.cd <= 0 && G.allies.filter(a => a.tw === tw).length < 8) { const s = tstats(tw); tw.cd = s.rate; makeAllies(tw, s); } continue; }
     const s = tstats(tw), L = targets(tw, s);

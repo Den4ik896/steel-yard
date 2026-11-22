@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '30';
+const VER = '31';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -188,7 +188,8 @@ nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45e
 .sq{display:flex;gap:6px;justify-content:center;align-items:center;margin:8px 0}
 .sq img{width:50px;height:50px;background:#fff;border:3px solid var(--ink);border-radius:12px}
 .stars{font-size:48px;letter-spacing:2px;line-height:1.1;margin:4px 0}
-.stars span{display:inline-block;color:#e2d6be;-webkit-text-stroke:2px var(--ink)}
+.stars span{display:inline-block;width:58px;height:58px;margin:0 2px;vertical-align:middle;background:url(img/ui/star_gold.webp) center/contain no-repeat;filter:grayscale(1) brightness(1.5) drop-shadow(0 3px 0 rgba(43,33,24,.35));opacity:.75}
+.stars span.on{filter:drop-shadow(0 3px 0 rgba(43,33,24,.35));opacity:1}
 .stars span.on{color:#ffd23f;animation:starin .5s backwards}
 @keyframes starin{from{transform:scale(2.4) rotate(-40deg);opacity:0}}
 .rew{display:flex;gap:10px;justify-content:center;font-size:22px;margin:8px 0}
@@ -370,7 +371,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=13"></script>
+<script src="core.js?v=14"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -1087,7 +1088,7 @@ function preBattle(n) {
     <div class="enl">${types.map(k => `<div class="en ${fresh.includes(k) ? 'new' : ''}"><img src="${icon('e', k, 56)}">${ENEMY[k].n} <small class="ehp">❤${hpN(ENEMY[k].hp * L.scale)}</small>${ENEMY[k].fly ? ' ✈' : ''}${ENEMY[k].hid ? ' 👁' : ''}${ENEMY[k].arm ? ' 🛡' : ''}${fresh.includes(k) ? '<i>НОВЫЙ</i>' : ''}</div>`).join('')}</div>
     ${fresh.length ? `<div class="tipbox">💡 <b>${ENEMY[fresh[0]].n}:</b> ${ENEMY[fresh[0]].desc}</div>` : ''}
     ${(() => { const has = k => S.deck.some(id => (tankById(id).det || {})[k] != null), w = [];
-      if (types.some(k => ENEMY[k].fly) && !has('a')) w.push('✈ авиацию');
+      if (types.some(k => ENEMY[k].fly && !ENEMY[k].raid) && !has('a')) w.push('✈ авиацию');
       if (types.some(k => ENEMY[k].hid) && !has('h')) w.push('👁 скрытых');
       if (types.some(k => ENEMY[k].arm) && !has('l')) w.push('🛡 броню');
       return w.length ? `<div class="tipbox" style="background:#ffd0c8">⚠️ Твой отряд не берёт ${w.join(', ')}! Поменяй состав.</div>` : ''; })()}
@@ -1130,7 +1131,7 @@ async function finish(win) {
     if (!g.running || G !== g) return;
     const dropH = drop ? `<div class="drop" data-act="item" data-id="${drop.id}"><img src="${icon('t', drop.model, 84, drop.attrs, drop.serial)}"><div><div class="ribbon g" style="font-size:15px;margin:0">✨ ТРОФЕЙ!</div><b>${tankById(drop.model).name} #${drop.serial}</b><div class="muted">${nftBest(drop)}</div></div></div>` : '';
     const warnH = warn ? `<div class="tipbox" style="background:#ffd0c8">⚠️ ${warn}</div>` : '';
-    if (win) modal(`<div class="ribbon g">ПОБЕДА!</div><div class="stars">${[0, 1, 2].map(k => `<span class="${k < stars ? 'on' : ''}" style="animation-delay:${.2 + k * .25}s">★</span>`).join('')}</div>
+    if (win) modal(`<div class="ribbon g">ПОБЕДА!</div><div class="stars">${[0, 1, 2].map(k => `<span class="${k < stars ? 'on' : ''}" style="animation-delay:${.2 + k * .25}s"></span>`).join('')}</div>
       <div class="muted">${stars < 3 ? 'Для 3★ не пропусти ни одного врага' : 'Идеально — база цела!'} · уничтожено: ${G.kills}</div>${warnH}
       <div class="rew"><div>🥈 ${silver}</div>${gold ? `<div>🥇 ${gold}</div>` : ''}${rew.gems ? `<div>💎 ${rew.gems}</div>` : ''}</div>${dropH}
       <div class="row c"><button class="btn gray" data-act="map">Карта</button><button class="btn gray" data-act="retry">↻</button>${n < LEVELS ? `<button class="btn green" data-act="next">Дальше ▶</button>` : ''}</div>`);
@@ -1253,6 +1254,8 @@ function draw(fdt) {
     if (tw.skin && tw.skin.fl) { c.font = `${Math.round(T * .3)}px system-ui`; c.fillText(tw.skin.fl, x - T * .42, y - T * .22); }
     if (tw.frz > 0) { c.globalAlpha = Math.min(1, tw.frz * 2) * .75; rr(c, x - T * .42, y - T * .42, T * .84, T * .84, T * .16); c.fillStyle = '#bfe9ff'; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 3; c.stroke();
       c.globalAlpha = 1; c.font = `${Math.round(T * .36)}px system-ui`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('❄', x, y); }
+    if (tw.stn > 0) { c.globalAlpha = .55; rr(c, x - T * .42, y - T * .42, T * .84, T * .84, T * .16); c.fillStyle = '#2b2118'; c.fill(); c.globalAlpha = 1;
+      c.font = `${Math.round(T * .34)}px system-ui`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('💫', x, y - T * .05); c.font = `900 ${Math.round(T * .22)}px system-ui`; c.fillStyle = '#fff'; c.fillText(Math.ceil(tw.stn), x, y + T * .28); }
   }
   const gr = G.enemies.filter(e => !e.d.fly).sort((a, b) => a.y - b.y), ai = G.enemies.filter(e => e.d.fly);
   for (const e of gr.concat(ai)) {
@@ -1333,6 +1336,10 @@ function draw(fdt) {
     }
     c.globalAlpha = 1;
   }
+  /* ✈ налёт: самолёт с тенью; перед целью падает бомба */
+  for (const q of G.raids) { const x = PX(q.x), y = PY(q.y), s = T * .9;
+    if (!q.hit) { const k = Math.max(0, 1 - (q.tw.x - q.x) / 2); c.fillStyle = `rgba(255,60,40,${.15 + .25 * k})`; circ(c, PX(q.tw.x), PY(q.tw.y), T * (.5 - .2 * k)); c.fill(); }
+    drawEnemy(c, 'bomber', x, y, s, 0, G.t, null); }
   for (const b of G.bombs) { c.fillStyle = b.big ? 'rgba(255,60,40,.3)' : 'rgba(0,0,0,.25)'; circ(c, PX(b.x), PY(b.y), T * (b.big ? b.r : .2) * (1 - Math.min(1, b.delay))); c.fill(); }
   if (L.part && fdt) {
     if (G.amb.length < (L.part === 'snow' ? 60 : 25) && Math.random() < .5) G.amb.push({ x: Math.random() * W, y: -5, v: L.part === 'snow' ? 25 + Math.random() * 30 : 8, h: L.part === 'snow' ? Math.random() * 10 - 5 : 40 + Math.random() * 30, r: L.part === 'snow' ? 1.5 + Math.random() * 2 : 1.2, ph: Math.random() * 6 });
