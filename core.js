@@ -294,7 +294,7 @@ function posAt(P, d) {
 }
 /* Модификаторы врагов: Раздутый — ×2 ХП (случайно, со 2-й волны), Колосс — ×5 ХП (только последние волны, с 6-го уровня).
    Награда за убийство растёт так же, как ХП. Волны по-прежнему детерминированы (сид = номер уровня). */
-const MODS = { b: { n: 'Раздутый', hp: 2, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 5, sc: 1.4, col: '#b45cff' } };
+const MODS = { b: { n: 'Раздутый', hp: 2, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 5, sc: 1.4, col: '#b45cff' }, t: { n: 'Титан', hp: 7, sc: 1.55, col: '#e0362c' } };
 function makeWaves(n, np) {
   const r = rng(n * 7919 + 13), boss = n % 8 === 0, nw = n <= 16 ? Math.min(15, 6 + Math.floor(n / 2)) : n === 17 ? 18 : n === 18 ? 24 : Math.min(34, 30 + Math.floor((n - 19) / 3)), waves = [];
   const minis = Object.keys(ENEMY).filter(k => ENEMY[k].mini && ENEMY[k].from <= n);
@@ -310,14 +310,15 @@ function makeWaves(n, np) {
     }
     while (budget > .5) { let k = pick(pool); if (fresh && w >= 1 && ENEMY[fresh].cost <= cap && r() < .2) k = fresh; list.push(k); budget -= ENEMY[k].cost; }
     /* ⭐ мини-босс каждые 5 волн (с ур. 27 — по два на каждой 10-й); на ур. 32 босса ведут оба мини-босса */
-    if (minis.length && (n >= 17 ? w % 3 === 2 : w % 5 === 4) && w < nw - 1) { const m = Math.floor(w / 5); list.push(minis[m % minis.length]); if (n >= 27 && w % 10 === 9 && minis.length > 1) list.push(minis[(m + 1) % minis.length]); }
+    if (minis.length && ((n >= 17 ? w % 3 === 2 : w % 5 === 4) || n >= 17 && w >= 9 && r() < .25) && w < nw - 1) { const m = Math.floor(w / 5); list.push(minis[m % minis.length]); if (n >= 27 && w % 10 === 9 && minis.length > 1) list.push(minis[(m + 1) % minis.length]); }
     if (boss && w === nw - 1) { list.push('boss'); if (n >= 32) list.push(...minis); }
     /* ✈ налёты (с ур. 14): самолёт бомбит случайный танк — оглушение 3–8 с */
     if (n >= ENEMY.bomber.from && w >= 2) { const k = (r() < Math.min(.5, .3 + .01 * (n - 14)) ? 1 : 0) + (n >= 25 && r() < .3 ? 1 : 0); for (let j = 0; j < k; j++) list.splice(Math.floor(r() * (list.length + 1)), 0, 'bomber'); }
     let pB = w === 0 ? 0 : Math.min(.22, .05 + .015 * w + .004 * n), pC = n >= 6 && w >= nw - 3 ? Math.min(.12, .03 + .004 * n) : 0;
     /* ❄ зима (ур. 17+), волны 12+: Колоссов ×5 больше, почти все остальные — Раздутые ×2 */
-    if (n >= 17 && w >= 11) { pC = Math.max(pC, .16 + .004 * (w - 11)); pB = .92 - pC; }
-    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini && !ENEMY[k].raid) { const x = r(); if (x < pC) q.mod = 'c'; else if (x < pC + pB) q.mod = 'b'; } return q; }));
+    if (n >= 17 && w >= 11) { pC = Math.max(pC, .16 + .004 * (w - 11)); pB = .92 - pC * 1.8; }
+    const pT = pC * .8; /* Титан ×7 — чуть реже Колосса ×5 */
+    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini && !ENEMY[k].raid) { const x = r(); if (x < pT) q.mod = 't'; else if (x < pT + pC) q.mod = 'c'; else if (x < pT + pC + pB) q.mod = 'b'; } return q; }));
   }
   return waves;
 }
