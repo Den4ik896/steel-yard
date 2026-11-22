@@ -36,7 +36,7 @@ const TANKS = [
   { id: 'moroz', name: 'Мороз', kind: 'cryo', rar: 'rare', dmg: 10, rate: 0.8, range: 2.3, cost: 100, slow: 0.4, det: { g: 1, a: 1, h: 3 },
     role: 'Криопушка', desc: 'Замораживает: враги и вертолёты едут на 40% медленнее.', perk: 'Глубокая заморозка −60%',
     look: { h: '#4fa8d8', tur: 'circle', ts: .26, bar: 1, bl: .44, bw: .19, extra: 'crystal' }, price: { silver: 400 } },
-  { id: 'vihr', name: 'Вихрь', kind: 'aa', rar: 'rare', dmg: 14, rate: 0.3, range: 3.4, cost: 100, det: { g: 1, a: 1, h: 1 },
+  { id: 'vihr', name: 'Вихрь', kind: 'aa', rar: 'rare', dmg: 14, rate: 0.3, range: 3.4, cost: 100, det: { g: 1, a: 1, h: 1, l: 1 }, dmT: [.6, .85, .85, .7],
     role: 'Зенитка', desc: 'Зенитка с радаром: рвёт авиацию и видит скрытых. По земле бьёт вполсилы, в полную силу — на ★4. Самолёты бьёт первыми.', perk: 'Полный урон по земле',
     look: { h: '#8f9c55', tur: 'box', ts: .23, bar: 2, bl: .62, bw: .07, extra: 'dish' }, price: { silver: 400 } },
   { id: 'oboz', name: 'Обоз', kind: 'supply', rar: 'rare', cost: 120, give: [25, 40, 60, 85], range: 0, det: {},
@@ -225,7 +225,7 @@ function maxUnlocked() { let n = 1; while (n < LEVELS && S.stars[n] > 0) n++; re
 function calc(t, lv = 1, tier = 1) {
   const i = tier - 1, g = 1 + 0.2 * (lv - 1), det = t.det || {}, has = k => det[k] != null && tier >= det[k], perk = tier === MAXT;
   if (t.kind === 'supply') return { sup: 1, give: Math.round(t.give[i] * (1 + .1 * (lv - 1))), det: {}, perk, range: 0 };
-  const dmg = (t.dmg || 0) * g * TIER.d[i], rate = +(t.rate * TIER.r[i]).toFixed(2), range = +(t.range + TIER.rg[i]).toFixed(2);
+  const dmg = (t.dmg || 0) * g * TIER.d[i] * (t.dmT ? t.dmT[i] : 1), rate = +(t.rate * TIER.r[i]).toFixed(2), range = +(t.range + TIER.rg[i]).toFixed(2);
   const k = t.kind;
   if (k === 'spawner') { const n = tier >= 3 ? 2 : 1; return { dmg, rate, range: 0, dps: dmg * n / rate, shots: n, aoe: 'Свои танки', perk, ally: 1, det: { g: has('g'), a: false, h: false, l: has('l') } }; }
   const shots = k === 'drum' ? (perk ? 5 : 3) : k === 'aa' || k === 'mammoth' || (k === 'cannon' && perk) ? 2 : k === 'rockets' ? (perk ? 6 : t.salvo) : 1;
