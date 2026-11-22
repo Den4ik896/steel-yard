@@ -88,7 +88,7 @@ const ENEMY = {
   scout:     { n: 'Камуфляж', hp: 75, speed: 1.3, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
   transport: { n: 'Грузовик', hp: 170, speed: .9, reward: 9, cost: 5, leak: 2, size: .62, gap: 1.1, from: 10, w: 1, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
   heavy:     { n: 'Тяжёлый танк', hp: 460, speed: .55, arm: 1, reward: 26, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
-  bomber:    { n: 'Бомбардировщик', hp: 170, speed: 1.5, fly: 1, reward: 0, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: пролетает над полем, его не сбить. Бомбит случайный танк — оглушает на 3–8 с.' },
+  bomber:    { n: 'Бомбардировщик', hp: 510, speed: 1.5, fly: 1, reward: 15, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: летит поперёк поля и сбрасывает бомбу на случайный танк — оглушение 3–8 с. Можно сбить до сброса. Улетает за край карты, базу не бьёт.' },
   assault:   { n: 'Штурмовой танк', hp: 300, speed: .95, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
   ghost:     { n: 'Ночной вертолёт', hp: 140, speed: 1.3, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
   sled:      { n: 'Аэросани', hp: 55, speed: 2.3, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
@@ -304,7 +304,7 @@ function makeMatch(n, deck, lvOf, vis, seed = n * 977 + 3, sdeck = SDEF) {
     if (r() < (n === 1 ? .06 : .1)) obs.set(k, { x, y, kind: L.loc.obs[Math.floor(r() * L.loc.obs.length)] });
   }
   G = { n, L, paths, air, road, obs, deck: deck.slice(), lvOf, vis, waves: makeWaves(n, paths.length), wave: 0, spawnQ: [], spawnT: 0, nextT: null,
-    enemies: [], towers: [], shots: [], fx: [], parts: [], decals: [], mines: [], bombs: [], raids: [], amb: [], allies: [], cash: L.cash, lives: L.lives,
+    enemies: [], towers: [], shots: [], fx: [], parts: [], decals: [], mines: [], bombs: [], amb: [], allies: [], cash: L.cash, lives: L.lives,
     kills: 0, airKills: 0, built: 0, leak: {}, t: 0, time: 0, speed: 1, sel: null, prev: null, arm: null, sdeck, sup: Object.fromEntries(sdeck.map(k => [k, { cd: 0, left: supById(k).uses || 0 }])), zones: [],
     over: false, paused: false, running: false, shake: 0, seed, tut: 0, rnd: rng(seed), tick: 0, log: [], used: {}, skin: {} };
   return G;
@@ -318,18 +318,15 @@ function tstats(tw) {
 const upPrice = (tw) => Math.round(tw.t.cost * TIER.up[tw.tier - 1]);
 const towerAt = (x, y) => G.towers.find(t => t.x === x && t.y === y);
 /* ✈ Налёт: самолёт летит слева направо над случайным танком и оглушает его на 3–8 с */
-function raid() {
-  if (!G.towers.length) return;
-  const tw = G.towers[Math.floor(G.rnd() * G.towers.length)], dur = 3 + G.rnd() * 5;
-  G.raids.push({ tw, dur, x: -1.5, y: tw.y, v: 5 });
-  if (G.vis) tip('✈ Налёт! Танк оглушён', 1500);
-}
 function spawn(type, pi, dist = 0, mod) {
-  if (ENEMY[type].raid) return raid();
-  const d = ENEMY[type], P = d.fly && !d.road ? G.air[pi] : G.paths[pi], M = MODS[mod];
+  const d = ENEMY[type], M = MODS[mod];
+  /* ✈ бомбардировщик: летит по прямой через ряд случайного танка, бомбит его и улетает за край */
+  let tw = null, P = d.fly && !d.road ? G.air[pi] : G.paths[pi];
+  if (d.raid) { tw = G.towers.length ? G.towers[Math.floor(G.rnd() * G.towers.length)] : null; const y = tw ? tw.y : ROWS / 2; P = buildPath([[-1.5, y], [COLS + 1.5, y]], true); }
   const hp = Math.round(d.hp * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
   const p = posAt(P, dist);
   G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: d.reward * (M ? M.hp : 1), x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
+  if (d.raid) G.enemies[G.enemies.length - 1].tw = tw;
 }
 function targets(tw, s) {
   const L = [];
@@ -516,6 +513,11 @@ function update(dt) {
     e.dist += sp * dt; e.tread += sp * dt * 3;
     const p = posAt(e.P, e.dist); e.x = p.x; e.y = p.y;
     e.ang = lerpAng(e.ang, p.ang, dt * 8); e.tur = lerpAng(e.tur, p.ang, dt * 4);
+    if (e.d.raid) {
+      if (e.tw && !e.hit && e.x >= e.tw.x) { e.hit = 1; if (G.towers.includes(e.tw)) { e.tw.stn = Math.max(e.tw.stn || 0, 3 + G.rnd() * 5); if (G.vis) { G.fx.push({ k: 'boom', x: e.tw.x, y: e.tw.y, r: .7, t: 0, life: .4 }); G.shake = Math.max(G.shake, 5); tip('✈ Бомба! Танк оглушён', 1500); } } }
+      if (e.dist >= e.P.total) e.dead = true; /* улетел за край — базу не бьёт */
+      continue;
+    }
     if (e.dist >= e.P.total) {
       /* Как в TDS: дошедший враг бьёт базу на весь свой оставшийся HP */
       const hit = Math.max(1, Math.ceil(e.hp / HPU)); e.dead = true; G.lives -= hit; G.leak[e.type] = (G.leak[e.type] || 0) + 1;
@@ -526,8 +528,6 @@ function update(dt) {
   G.mines = G.mines.filter(m => !m.done);
   for (const b of G.bombs) { b.delay -= dt; if (b.delay <= 0) { b.done = 1; explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1 }); if (b.air) explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1, fly: 1 }); } }
   G.bombs = G.bombs.filter(b => !b.done);
-  for (const q of G.raids) { q.x += q.v * dt; if (!q.hit && q.x >= q.tw.x) { q.hit = 1; if (G.towers.includes(q.tw)) { q.tw.stn = Math.max(q.tw.stn || 0, q.dur); if (G.vis) { G.fx.push({ k: 'boom', x: q.tw.x, y: q.tw.y, r: .7, t: 0, life: .4 }); G.shake = Math.max(G.shake, 5); } } } }
-  G.raids = G.raids.filter(q => q.x < COLS + 2);
   /* ❄ Метель (ур. 25+): каждые 50 с на 8 с дальность танков −25% */
   if (G.L.bliz) { const b = G.wave > 0 && G.time % 50 > 42; if (b && !G.bliz && G.vis) tip('🌨 Метель! Дальность танков −25%', 1800); G.bliz = b; }
   for (const tw of G.towers) {
