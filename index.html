@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '28';
+const VER = '29';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -586,7 +586,7 @@ const ALLY_LOOK = [{ h: '#3f7fd0', tur: 'dome', ts: .27, bar: 1, bl: .5, bw: .14
 /* Спрайты юнитов: img/units/{t|e}_id.webp — вид сверху, смотрят вверх, центр картинки = центр корпуса.
    Пока картинка не загрузилась — рисуем кодом (drawTank/drawEnemy). */
 const SPR = {};
-function spr(k) { let im = SPR[k]; if (!im) { im = SPR[k] = new Image(); im.src = `img/units/${k}.webp`; } return im.complete && im.naturalWidth ? im : null; }
+function spr(k) { let im = SPR[k]; if (!im) { im = SPR[k] = new Image(); im.src = `img/units/${k}.webp?v=2`; } return im.complete && im.naturalWidth ? im : null; }
 /* дуло: доля размера картинки от центра вверх */
 const SPR_TIP = { baraban: .275, bobr: .288, grad: .238, grom: .258, kuvalda: .275, mamont: .283, moroz: .288, oboz: .225, polar: .233, relsa: .308, shmel: .296, sokol: .35, tesla: .271, uskor: .312, vihr: .308, zavod: .238, zhar: .288 };
 const SPR_K = { boss: .8, heli: .78, ghost: .78, bomber: .8 };
@@ -693,7 +693,7 @@ const ICON = {};
 const GIFTC = { red: ['#ff5b4f', '#ffd23f'], blue: ['#45a6ff', '#ffffff'], green: ['#5fcb45', '#ff5b4f'], purple: ['#b06bff', '#ffd23f'], gold: ['#ffc83a', '#ff4f9a'] };
 function icon(kind, id, size = 96, attrs, serial) {
   if (kind === 'b' || kind === 'bo') return `img/ui/box_${id}${kind === 'bo' ? '_o' : ''}.webp`;   // сундуки — нарисованные картинки (bo = открытый)
-  if ((kind === 't' && !attrs) || kind === 'e') return `img/units/i_${kind}_${id}.webp`;   // танки и враги — нарисованные картинки (лимитки с камуфляжем — кодом)
+  if ((kind === 't' && !attrs) || kind === 'e') return `img/units/i_${kind}_${id}.webp?v=2`;   // танки и враги — нарисованные картинки (лимитки с камуфляжем — кодом)
   if (kind === 'g') return `img/ui/gift${GIFTC[id] && id !== 'red' ? '_' + id : ''}.webp`;   // подарки дня — картинки 5 цветов
   const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
   const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
