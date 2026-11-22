@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '38';
+const VER = '39';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,7 +371,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=21"></script>
+<script src="core.js?v=22"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -855,7 +855,7 @@ function statRows(s, nx) {
   const one = v => v.toFixed(1);
   return `<div class="st"><span>💥 Урон</span><b>${f(s.dmg, nx && nx.dmg, hpN)}${s.shots > 1 ? ` ×${nx && nx.shots !== s.shots ? s.shots + ' → ' + nx.shots : s.shots}` : ''}</b></div>
     <div class="st"><span>⚡ DPS</span><b>${f(s.dps, nx && nx.dps, hpN)}</b></div>
-    <div class="st"><span>⏱ Перезарядка</span><b>${f(s.rate, nx && nx.rate, v => v + 'с', 1)}</b></div>
+    <div class="st"><span>⏱ Перезарядка</span><b>${f(s.rate, nx && nx.rate, v => +v.toFixed(2) + 'с', 1)}</b></div>
     <div class="st"><span>📏 Дальность</span><b>${f(s.range, nx && nx.range, one)}</b></div>
     <div class="st"><span>🎯 Тип</span><b>${s.aoe ? '💥 ' + (nx && nx.aoe !== s.aoe ? `${s.aoe} <i class="up">→ ${nx.aoe}</i>` : s.aoe) : 'Одна цель'}</b></div>`;
 }
@@ -892,9 +892,9 @@ function tankModal(id) {
     : `<button class="btn green" data-act="buy" data-id="${id}" ${(t.price.silver && S.silver < t.price.silver) || (t.price.gold && S.gold < t.price.gold) || (t.price.gems && (S.gems || 0) < t.price.gems) ? 'disabled' : ''}>Купить ${priceTxt(t.price)}</button>`;
   else btns = `<button class="btn ${inD ? 'gray' : 'blue'}" data-act="squad" data-id="${id}">${inD ? 'Убрать из отряда' : 'В отряд'}</button>` +
     (lv < MAXLV ? `<button class="btn green" data-act="up" data-id="${id}" ${S.silver < upCost(t, lv) ? 'disabled' : ''}>⬆ ур.${lv + 1} · 🥈 ${upCost(t, lv)}</button>` : '<span class="chip">Макс. уровень</span>');
-  const tiers = [1, 2, 3, 4].map(k => {
+  const tiers = [1, 2, 3, 4, 5].map(k => {
     const c = calc(t, lv || 1, k), p = k > 1 ? calc(t, lv || 1, k - 1).det : {}, nw = k > 1 ? Object.keys(c.det).filter(x => c.det[x] && !p[x]) : [];
-    const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === MAXT ? ['⭐ ' + t.perk] : [])].join(' · ');
+    const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === 4 ? ['⭐ ' + t.perk] : []), ...(k === 5 ? [t.id === 'moroz' ? '🔥 Урон +300%, перезарядка −60%' : t.kind === 'supply' ? '🔥 Доход +35%' : t.kind === 'spawner' ? '🔥 3 тяжёлых танка, +35% силы, выпуск на 20% чаще' : '🔥 Урон +35%, перезарядка −20%'] : [])].join(' · ');
     return `<div class="tr"><b>${'★' + k}</b><span>${k === 1 ? t.cost : '+' + tierUp(t, k)} 💵</span>` +
       (c.sup ? `<span style="grid-column:span 3">+${c.give} 💵 за волну</span>` : `<span>💥 ${hpN(c.dmg)}</span><span>⚡ ${hpN(c.dps)}</span><span>📏 ${c.range.toFixed(1)}</span>`) +
       (extra ? `<div class="nw">${extra}</div>` : '') + `</div>`;
@@ -1452,7 +1452,7 @@ function openRadial(x, y) {
 }
 /* Завод: какие танки выпускает на каждой ★ (как в makeAllies: ★1–2 лёгкий ×1, ★3 средний ×2, ★4 тяжёлый ×2) */
 function spawnHTML(tier) {
-  const cur = tier >= 4 ? 2 : tier >= 3 ? 1 : 0, R = [['★1–2', 'Лёгкий танк', 1], ['★3', 'Средний танк', 2], ['★4', 'Тяжёлый танк', 2]];
+  const cur = tier >= 5 ? 3 : tier >= 4 ? 2 : tier >= 3 ? 1 : 0, R = [['★1–2', 'Лёгкий танк', 1], ['★3', 'Средний танк', 2], ['★4', 'Тяжёлый танк', 2], ['★5', 'Тяжёлый танк', 3]];
   return '<div class="muted" style="font-size:12px;margin-top:4px">🏭 Выпускает:</div><div class="dets">' + R.map(([k, n, x], i) =>
     `<span class="chip${i === cur ? ' ok' : ''}" style="${i > cur ? 'opacity:.5' : ''}">${i > cur ? '🔒 ' : ''}${k} ${n}${x > 1 ? ' ×' + x : ''}</span>`).join(' ') + '</div>';
 }
@@ -1470,7 +1470,7 @@ function showInfo() {
     h = `<b>${tw.t.name} ${'★'.repeat(tw.tier)}<span style="opacity:.3">${'★'.repeat(MAXT - tw.tier)}</span></b> <span class="muted">${tw.t.role}${st.sup ? '' : ' · цель: ' + MODES[tw.mode]}</span>` +
       (nx ? ` <span class="chip" style="background:#ffe36b">⬆ ★${tw.tier + 1} за ${upPrice(tw)} 💵</span>` : ' <span class="chip ok">👑 Максимум</span>') + ` <span class="chip">Вложено: ${tw.spent} 💵</span>` +
       `<div class="stats">${statRows(st, nx)}</div>` + (tw.t.kind === 'spawner' ? spawnHTML(tw.tier) : '') + (st.sup ? '' : `<div class="dets">${detHTML(nx ? nx.det : st.det, nx ? st.det : null, tw.t.det)}</div>`) +
-      `<span class="muted">${tw.tier === MAXT ? '✅ Перк: ' : `⭐ На ★${MAXT}: `}${tw.t.perk}</span>`;
+      `<span class="muted">${tw.tier >= 4 ? '✅ Перк: ' : '⭐ На ★4: '}${tw.t.perk}</span>`;
     if (G.prev === 'sell') h += '<br><b style="color:#c43a30">Нажми 💰 ещё раз, чтобы продать</b>';
   } else if (G.prev) h = infoTank(tankById(G.prev), G.lvOf[G.prev], '<br><b style="color:#2d8a1f">Нажми ещё раз, чтобы поставить</b>');
   else h = '<b>Выбери танк</b><br>Нажми на иконку, чтобы увидеть радиус и описание';
@@ -1492,7 +1492,8 @@ function radialAct(ra, btn) {
     if (G.cash < c) return toast('Не хватает 💵');
     if (!act('u', s.x, s.y)) return; haptic('medium');
     if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: '★'.repeat(tw.tier), t: 0, life: .9, col: '#ffd23f', big: 1 });
-    if (tw.tier === MAXT) tip(`Перк открыт: ${tw.t.perk}`, 3000);
+    if (tw.tier === 5) tip('🔥 ★5: максимальная мощь!', 3000);
+    else if (tw.tier === 4) tip(`Перк открыт: ${tw.t.perk}`, 3000);
     else { const a = calc(tw.t, tw.lv, tw.tier - 1).det, b = calc(tw.t, tw.lv, tw.tier).det, nw = Object.keys(b).filter(k => b[k] && !a[k]); if (nw.length) tip('Новое: ' + nw.map(k => k === 'g' ? '🛞 Земля' : DETS[k].join(' ')).join(', '), 2500); }
     openRadial(s.x, s.y);
   } else if (ra === 'rsell') {

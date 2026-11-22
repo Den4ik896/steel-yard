@@ -5,7 +5,7 @@
 const COLS = 9, ROWS = 14, LEVELS = 32, FCOST = 1, MAXF = 10, FREGEN = 300000, DECK = 4, MAXLV = 10;
 const WAVE_GAP = 5, BOXCD = 4 * 3600000;
 /* Улучшения в бою: 4 уровня ★. Множители урона/перезарядки/дальности и цена (доля от стоимости танка) */
-const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 4;
+const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 5; /* ★5: цена ×2 от ★4, урон +35%, перезарядка −20% (Мороз: +300% и −60%) */
 const ARMK = 0.3; /* урон по 🛡 бронированным без бронебойности */
 const DETS = { a: ['✈', 'Воздух'], h: ['👁', 'Скрытые'], l: ['🛡', 'Броня'] };
 const OL = '#2b2118';
@@ -96,7 +96,7 @@ const TUNE = {
   uskor:   { lim: 3, cost: 350, up: [360, 500, 900], dps: [24, 39, 57, 90], rg: [3, 3.3, 3.8, 5] },
 };
 for (const [id, o] of Object.entries(TUNE)) { const t = TANKS.find(x => x.id === id); if (!t) continue; if (o.cost) t.cost = o.cost; t.tune = o; }
-const tierUp = (t, k) => { const u = t.tune && t.tune.up && t.tune.up[k - 2]; return u != null ? u : Math.round(t.cost * TIER.up[k - 2]); }; /* доплата за ★k */
+const tierUp = (t, k) => { if (k === 5) return 2 * tierUp(t, 4); const u = t.tune && t.tune.up && t.tune.up[k - 2]; return u != null ? u : Math.round(t.cost * TIER.up[k - 2]); }; /* доплата за ★k */
 const tv = (t, key, i) => { const a = t.tune && t.tune[key]; return a && a[i] != null ? a[i] : null; };
 const tankById = (id) => TANKS.find(t => t.id === id);
 
@@ -249,7 +249,15 @@ const qReady = () => quests().some(q => !q.c && q.p >= QPOOL.find(x => x.id === 
 function maxUnlocked() { let n = 1; while (n < LEVELS && S.stars[n] > 0) n++; return n; }
 /* Все характеристики танка: lv — уровень в гараже, tier — звёзды в бою (1..4) */
 function calc(t, lv = 1, tier = 1) {
-  const i = tier - 1, g = 1 + 0.2 * (lv - 1), det = t.det || {}, has = k => det[k] != null && tier >= det[k], perk = tier === MAXT;
+  const s = calc4(t, lv, Math.min(tier, 4)); if (tier < 5) return s;
+  s.t5 = 1; if (s.sup) { s.give = Math.round(s.give * 1.35); return s; }
+  const fr = t.id === 'moroz', D = fr ? 4 : 1.35, R = fr ? .4 : .8;
+  s.dmg *= D; s.rate *= R; s.dps *= D / R;
+  if (s.ally) { s.shots = 3; s.dps = s.dmg * 3 / s.rate; }
+  return s;
+}
+function calc4(t, lv, tier) {
+  const i = tier - 1, g = 1 + 0.2 * (lv - 1), det = t.det || {}, has = k => det[k] != null && tier >= det[k], perk = tier >= 4;
   if (t.kind === 'supply') return { sup: 1, give: Math.round(t.give[i] * (1 + .1 * (lv - 1))), det: {}, perk, range: 0 };
   let dmg = (t.dmgT ? t.dmgT[i] : (t.dmg || 0) * TIER.d[i]) * g; const rate = +(t.rate * TIER.r[i]).toFixed(2), range = tv(t, 'rg', i) ?? +(t.range + TIER.rg[i]).toFixed(2);
   const k = t.kind;
@@ -462,7 +470,7 @@ function callWave(manual) {
   if (G.wave > 0) { const b = waveRew(); G.cash += b; if (G.vis) G.fx.push({ k: 'txt', x: COLS / 2, y: 1, txt: `Волна пройдена! +${b} 💵`, t: 0, life: 1.2, col: '#ffe36b', big: 1 }); if (G.vis && typeof sfx === 'function') sfx('coin'); }
   G.spawnQ.push(...G.waves[G.wave]); if (G.spawnT <= 0) G.spawnT = .2;
   G.wave++; G.nextT = null;
-  for (const tw of G.towers) if (tw.t.kind === 'supply') { const g = Math.round(tw.t.give[tw.tier - 1] * (1 + .1 * (tw.lv - 1))); G.cash += g; if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: `+${g} 💵`, t: 0, life: 1.1, col: '#ffe36b' }); }
+  for (const tw of G.towers) if (tw.t.kind === 'supply') { const g = calc(tw.t, tw.lv, tw.tier).give; G.cash += g; if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: `+${g} 💵`, t: 0, life: 1.1, col: '#ffe36b' }); }
   if (G.vis) { wavePreview(); tip(G.wave === G.waves.length ? (G.L.boss ? '💀 Последняя волна — БОСС!' : 'Последняя волна!') : `Волна ${G.wave}`, 1600); haptic('medium'); if (G.tut === 2) { G.tut = 3; setTimeout(() => G.running && tip('Танки стреляют сами. Тапни по танку, чтобы улучшить ★', 4500), 1700); } }
 }
 /* Ближайшая к точке позиция на дороге — чтобы авиаудар всегда ложился на дорогу, а не мимо */
@@ -482,7 +490,7 @@ function beamTick(tw, s, L, dt) {
   hurt(e, s.dmg * (dt / s.rate) * (s.perk ? 1 + tw.heat / 3 : 1), { pen: s.pen, quiet: 1 });
   if (e.dead) { if (G.vis && tw.skin && tw.skin.ke) G.fx.push({ k: 'txt', x: e.x, y: e.y - .7, txt: tw.skin.ke, t: 0, life: .8, col: '#fff', big: 1 }); tw.lk = tw.beam = null; }
 }
-/* Завод: свои танки едут от базы навстречу врагам, стреляют и таранят. ★3 — по 2 танка, ★4 — тяжёлые */
+/* Завод: свои танки едут от базы навстречу врагам, стреляют и таранят. ★3 — по 2 танка, ★4 — тяжёлые, ★5 — тяжёлые ×3 */
 /* rg — радиус стрельбы, cd — перезарядка: маленькие стреляют слабо, большие — нормально */
 const ALLY = [{ sz: .42, hp: 1, gun: .1, sp: 1.5, rg: 3, cd: .7, r: .05 }, { sz: .52, hp: 1.4, gun: .16, sp: 1.3, rg: 3.2, cd: .6, r: .065 }, { sz: .64, hp: 2, gun: .22, sp: 1.1, rg: 3.5, cd: .55, r: .085 }];
 function makeAllies(tw, s) {
