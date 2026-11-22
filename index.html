@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '21';
+const VER = '22';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -1235,8 +1235,6 @@ function draw(fdt) {
   for (const tw of G.towers) {
     const x = PX(tw.x), y = PY(tw.y);
     c.lineWidth = Math.max(1.5, T * .05); c.strokeStyle = OL;
-    rr(c, x - T * .44, y - T * .44, T * .88, T * .88, T * .2); fs(c, ['#b7b0a2', '#b7b0a2', '#d6c6a0', '#e8c35a'][tw.tier - 1]);
-    c.fillStyle = 'rgba(255,255,255,.3)'; rr(c, x - T * .38, y - T * .38, T * .76, T * .2, T * .1); c.fill();
     if (tw.skin) drawTank(c, x, y, T * .78, skinLook(tw.t, tw.skin), -Math.PI / 2, tw.ang, { recoil: tw.rec, flash: tw.flash, tier: tw.tier, gear: tw.skin.gr, num: tw.skin.n, beam: tw.beam, spin: tw.cd * 3 });
     else drawUnit(c, tw.t, x, y, T * .78, -Math.PI / 2, tw.ang, { recoil: tw.rec, flash: tw.flash, tier: tw.tier, beam: tw.beam, spin: tw.cd * 3 });
     if (tw.skin && tw.skin.fl) { c.font = `${Math.round(T * .3)}px system-ui`; c.fillText(tw.skin.fl, x - T * .42, y - T * .22); }
