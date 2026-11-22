@@ -114,14 +114,14 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .lm{position:relative}
 .lm svg{position:absolute;inset:0;width:100%;height:100%}
 .dec{position:absolute;font-size:26px;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.15))}
-.node{position:absolute;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;background:var(--y);border:4px solid var(--ink);box-shadow:0 5px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
-.node b{font-size:24px;line-height:1;color:#fff;-webkit-text-stroke:5px var(--ink);paint-order:stroke fill}
-.node i{position:absolute;bottom:-17px;font-style:normal;font-size:15px;letter-spacing:-1px;color:#ffd23f;-webkit-text-stroke:1px var(--ink);white-space:nowrap}
+.node{position:absolute;transform:translate(-50%,-50%);width:43px;height:43px;border-radius:50%;background:var(--y);border:4px solid var(--ink);box-shadow:0 5px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+.node b{font-size:16px;line-height:1;color:#fff;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
+.node i{position:absolute;bottom:-27px;font-style:normal;font-size:24px;letter-spacing:-1px;color:#ffd23f;-webkit-text-stroke:1.5px var(--ink);white-space:nowrap}
 .node i .e{color:#fff7}
 .node.done{background:var(--g)}
-.node.boss{width:80px;height:80px;background:var(--r)}
+.node.boss{width:52px;height:52px;background:var(--r)}
 .node.locked{background:#b9b0a0;box-shadow:0 3px 0 var(--ink)}
-.node.locked b{font-size:20px}
+.node.locked b{font-size:14px}
 .node.cur{animation:bob 1s ease-in-out infinite}
 .node.cur::after{content:'';position:absolute;inset:-10px;border-radius:50%;border:4px solid #fff;opacity:.8;animation:ping 1.4s infinite}
 @keyframes bob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-62%)}}
@@ -738,7 +738,7 @@ function mapHTML() {
     for (let i = 0; i < 12; i++) { const side = r() < .5, sz = 30 + r() * 26; h += `<i class="dec" style="left:${side ? 3 + r() * 13 : 84 + r() * 13}%;top:${30 + r() * (H - 50)}px;width:${sz}px;height:${sz}px">${MAPSPR[DS[Math.floor(r() * DS.length)]]}</i>`; }
     for (let n = L.from; n <= L.to; n++) {
       const st = S.stars[n] || 0, lock = n > un, boss = n % 8 === 0, cur = n === un && !st;
-      if (boss) h += `<i class="dec fort" style="left:${X(n)}%;top:${Y(n) - 64}px">${MAPSPR.fort}</i>`;
+      if (boss) h += `<i class="dec fort" style="left:${X(n)}%;top:${Y(n) - 50}px">${MAPSPR.fort}</i>`;
       h += `<button class="node ${lock ? 'locked' : st ? 'done' : ''} ${boss ? 'boss' : ''} ${cur ? 'cur' : ''}" style="left:${X(n)}%;top:${Y(n)}px" data-act="lvl" data-n="${n}">
         <b>${boss ? '💀' : n}</b>${flagSvg(lock ? '#c43a30' : st ? '#3d8bff' : '#ffd23f')}${lock ? '' : `<i>${[0, 1, 2].map(k => k < st ? '★' : '<span class="e">★</span>').join('')}</i>`}</button>`;
     }
