@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '19';
+const VER = '20';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -515,13 +515,15 @@ function drawTruck(c, x, y, s, a, cab, cargo, kind) {
 function drawEnemy(c, type, x, y, s, a, tm, e) {
   const lw = Math.max(1.4, s * .055);
   c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
-  const hb = spr('h_' + type), tu = hb && (type === 'medic' || type === 'transport' ? 0 : spr('u_' + type));
+  const sp2 = SPR_SPLIT[type], fr = SPR_TREAD[type] && e ? Math.floor(e.tread * 16) % 3 : 0;
+  let hb = sp2 || SPR_TREAD[type] ? spr('h_' + type) : null; if (hb && fr) hb = spr('h_' + type + '_' + fr) || hb;
+  const tu = hb ? (sp2 ? spr('u_' + type) : 0) : null;
   if (hb && tu !== null) {   // корпус + башня (у вертолётов — винт, у бомбера — пропеллер на носу)
     const fly = type === 'heli' || type === 'ghost' || type === 'bomber', ga = c.globalAlpha;
     if (e && (type === 'scout' || type === 'ghost')) c.globalAlpha = ga * (.55 + .12 * Math.sin(tm * 5));
     const sway = type === 'bomber' ? Math.sin(tm * 2) * .05 : fly ? Math.sin(tm * 3) * .06 : 0;
     drawSpr(c, hb, x, y, s, a + sway, { k: SPR_K[type], alt: fly ? s * (type === 'bomber' ? .5 : .45) : 0, jit: !fly && e ? Math.sin(e.tread * 9) * s * .012 : 0,
-      tur: tu || null, ta: e ? e.tur : a, spin: fly ? tm * (type === 'bomber' ? 40 : 22) : null, tofs: type === 'bomber' ? .228 : 0 });
+      tur: tu || null, ta: e ? e.tur : a, spin: fly ? tm * 22 : null, tofs: sp2 });
     c.globalAlpha = ga; return;
   }
   const im = spr('e_' + type);
@@ -529,7 +531,8 @@ function drawEnemy(c, type, x, y, s, a, tm, e) {
     const fly = type === 'heli' || type === 'ghost' || type === 'bomber', ga = c.globalAlpha;
     if (e && (type === 'scout' || type === 'ghost')) c.globalAlpha = ga * (.55 + .12 * Math.sin(tm * 5));
     const sway = type === 'bomber' ? Math.sin(tm * 2) * .05 : fly ? Math.sin(tm * 3) * .06 : 0;
-    drawSpr(c, im, x, y, s, a + sway, { k: SPR_K[type], alt: fly ? s * (type === 'bomber' ? .5 : .45) : 0, jit: !fly && e ? Math.sin(e.tread * 9) * s * .012 : 0 });
+    drawSpr(c, im, x, y, s, a + sway, { k: SPR_K[type], alt: fly ? s * (type === 'bomber' ? .5 : .45) : 0, jit: !fly && e ? Math.sin(e.tread * 9) * s * .012 : 0,
+      props: type === 'bomber' ? [[-.18, -.133, .045], [.18, -.133, .045]] : null, ptm: tm });
     if (type === 'heli' || type === 'ghost') {   // винт крутится поверх нарисованного
       c.save(); c.translate(x, y - s * .45); c.rotate(tm * 22); c.fillStyle = 'rgba(255,255,255,.1)'; circ(c, 0, 0, s * .72); c.fill();
       c.fillStyle = 'rgba(30,30,30,.32)'; c.fillRect(-s * .74, -s * .03, s * 1.48, s * .06); c.fillRect(-s * .03, -s * .74, s * .06, s * 1.48); c.restore();
@@ -586,9 +589,12 @@ const SPR = {};
 function spr(k) { let im = SPR[k]; if (!im) { im = SPR[k] = new Image(); im.src = `img/units/${k}.webp`; } return im.complete && im.naturalWidth ? im : null; }
 /* дуло: доля размера картинки от центра вверх */
 const SPR_TIP = { baraban: .275, bobr: .288, grad: .238, grom: .258, kuvalda: .275, mamont: .283, moroz: .288, oboz: .225, polar: .233, relsa: .308, shmel: .296, sokol: .35, tesla: .271, uskor: .312, vihr: .308, zavod: .238, zhar: .288 };
-const SPR_K = { boss: .8, heli: .78, ghost: .9, bomber: .8 };
-/* то же для отдельных башен (u_id.webp): от оси поворота до дула */
-const SPR_TIP2 = { shmel: .217, bobr: .245, zhar: .243, sokol: .246, moroz: .216, vihr: .203, oboz: .214, grad: .203, mamont: .242, polar: .248, zavod: .165, grom: .209, baraban: .211, relsa: .257, uskor: .259, tesla: .218 };
+const SPR_K = { boss: .8, heli: .78, ghost: .78, bomber: .8 };
+/* Корпус h_id + башня u_id (вырезаны из цельных спрайтов): [смещение оси башни x, y; дуло] — доли картинки.
+   h_id_1, h_id_2 — кадры бегущих траков. Без башни — цельный спрайт стоит, не крутится (SPR_STATIC). */
+const SPR_SPLIT = { assault: [0.0, 0.017, 0.271], btr: [-0.004, -0.056, 0.219], heavy: [0.0, 0.004, 0.267], light: [-0.004, -0.004, 0.242], scout: [-0.006, -0.01, 0.252], tank: [0.0, 0.008, 0.267], kuvalda: [0.0, 0.012, 0.279], mamont: [-0.004, 0.015, 0.294], moroz: [-0.002, 0.008, 0.292], relsa: [-0.004, 0.006, 0.269], shmel: [-0.01, -0.023, 0.265], sokol: [-0.004, 0.0, 0.288], baraban: [0.0, 0.017, 0.288], bobr: [0.0, 0.033, 0.317], grad: [0.0, -0.021, 0.108], uskor: [0.0, 0.004, 0.312], vihr: [-0.002, 0.021, 0.321], zhar: [-0.002, 0.023, 0.306], heli: [-.004, -.171, 0], ghost: [0, -.188, 0] };
+const SPR_TREAD = { light: 1, tank: 1, scout: 1, heavy: 1, assault: 1, medic: 1 };
+const SPR_STATIC = { oboz: 1, zavod: 1, tesla: 1, grom: 1, polar: 1 };
 const SPR_GLOW = { tesla: 1, polar: 1, rail: 1, beam: 1 };
 /* o: k — масштаб, alt — высота полёта, rec — откат, flash — вспышка, tip — дуло, glow — цвет свечения ядра, sc — «дыхание», jit — дрожь хода */
 function drawSpr(c, im, x, y, s, a, o = {}) {
@@ -602,23 +608,27 @@ function drawSpr(c, im, x, y, s, a, o = {}) {
   if (o.sc) c.scale(o.sc, o.sc);
   if (o.tur) {   // корпус + башня/винт отдельно: башня крутится сама, откат только у неё
     c.drawImage(im, -d / 2 + (o.jit || 0), -d / 2, d, d);
-    if (o.tofs) c.translate(0, -o.tofs * d);
+    if (o.tofs) c.translate(o.tofs[0] * d, o.tofs[1] * d);
     c.rotate(o.spin != null ? o.spin : (o.ta != null ? o.ta : a) - a);
     c.translate(0, (o.rec || 0) * s * .07); im = o.tur;
   } else c.translate(o.jit || 0, (o.rec || 0) * s * .12);
   c.drawImage(im, -d / 2, -d / 2, d, d);
+  if (o.props) for (const [px, py, pr] of o.props) {   // крутящиеся пропеллеры: прозрачный диск + две лопасти
+    c.save(); c.translate(px * d, py * d); c.rotate(o.ptm * 40); const r = pr * d;
+    c.fillStyle = 'rgba(220,230,240,.35)'; circ(c, 0, 0, r); c.fill(); c.fillStyle = 'rgba(40,40,50,.75)'; c.fillRect(-r, -r * .14, r * 2, r * .28); c.restore();
+  }
   if (o.glow && (o.flash > 0 || o.beam)) { const g = c.createRadialGradient(0, 0, 0, 0, 0, s * .32); g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(.4, o.glow); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; circ(c, 0, 0, s * .32); c.fill(); }
   else if (o.flash > 0 && o.tip) { const ty = -o.tip * d - s * .08; c.fillStyle = '#ffe36b'; circ(c, 0, ty, s * .14); c.fill(); c.fillStyle = '#fff'; circ(c, 0, ty + s * .03, s * .07); c.fill(); }
   c.restore();
 }
 /* Башня игрока целиком поворачивается к цели; откат, вспышка, лёгкое «дыхание», шевроны уровня на плитке */
 function drawTowerSpr(c, im, t, x, y, s, a, o, tu, ba) {
-  drawSpr(c, im, x, y, s, tu ? ba : a, { tur: tu, ta: a, rec: o.recoil, flash: o.flash, beam: o.beam, tip: (tu ? SPR_TIP2 : SPR_TIP)[t.id], glow: SPR_GLOW[t.kind] ? (t.look.core || '#4fe3ff') : 0, sc: 1 + Math.sin(G.t * 3 + x) * .015 });
+  drawSpr(c, im, x, y, s, tu ? ba : a, { tur: tu, ta: a, tofs: tu && SPR_SPLIT[t.id], rec: o.recoil, flash: o.flash, beam: o.beam, tip: tu ? SPR_SPLIT[t.id][2] : SPR_TIP[t.id], glow: SPR_GLOW[t.kind] ? (t.look.core || '#4fe3ff') : 0, sc: 1 + Math.sin(G.t * 3 + x) * .015 });
   if (o.tier >= 2) { const T2 = s / .78; c.strokeStyle = '#ffd23f'; c.lineWidth = Math.max(2, T2 * .06); c.lineCap = 'round'; for (let i = 0; i < o.tier - 1; i++) { const cx = x - T2 * .3 + i * T2 * .13, cy = y + T2 * .3; c.beginPath(); c.moveTo(cx - T2 * .05, cy - T2 * .04); c.lineTo(cx, cy + T2 * .02); c.lineTo(cx + T2 * .05, cy - T2 * .04); c.stroke(); } c.strokeStyle = OL; }
 }
 function drawUnit(c, t, x, y, s, bodyA, turA, o) {
-  const hb = spr('h_' + t.id), tu = hb && spr('u_' + t.id); if (tu) return drawTowerSpr(c, hb, t, x, y, s, turA, o || {}, tu, bodyA);
-  const im = spr('t_' + t.id); if (im) return drawTowerSpr(c, im, t, x, y, s, turA, o || {});
+  const hb = SPR_SPLIT[t.id] && spr('h_' + t.id), tu = hb && spr('u_' + t.id); if (tu) return drawTowerSpr(c, hb, t, x, y, s, turA, o || {}, tu, bodyA);
+  const im = spr('t_' + t.id); if (im) return drawTowerSpr(c, im, t, x, y, s, SPR_STATIC[t.id] ? bodyA : turA, o || {});
   if (t.kind === 'supply') return drawTruck(c, x, y, s, bodyA, '#5f9e4f', t.look.h, 'crates');
   drawTank(c, x, y, s, t.look, bodyA, turA, o);
 }
