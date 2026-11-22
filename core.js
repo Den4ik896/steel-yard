@@ -105,23 +105,23 @@ const HPU = 6.4, BASE_HP = 100;
 const hpN = v => { const x = v / HPU; return x >= 10 ? Math.round(x) : +x.toFixed(1); };
 const ENEMY = {
   /* arm — 🛡 бронированный (без бронебойности урон ×0.3), hid — 👁 скрытый, fly — ✈ летит напрямую */
-  light:     { n: 'Лёгкий танк', hp: 32, speed: 1.6, reward: 4, cost: 1, leak: 1, size: .5, gap: .55, from: 1, w: 3, desc: 'Быстрый и хлипкий. Берёт числом.' },
-  btr:       { n: 'Броневик', hp: 75, speed: 1.2, reward: 7, cost: 2, leak: 1, size: .56, gap: .8, from: 2, w: 3, desc: 'Покрепче лёгкого танка.' },
-  tank:      { n: 'Средний танк', hp: 170, speed: .8, arm: 1, reward: 13, cost: 4.5, leak: 2, size: .64, gap: 1.1, from: 4, w: 2, desc: '🛡 Броня: без бронебойности урон всего 30%. Нужен Бобр, Сокол, Жар или Тесла.' },
-  heli:      { n: 'Вертолёт', hp: 85, speed: 1.15, fly: 1, road: 1, reward: 10, cost: 3, leak: 1, size: .62, gap: 1, from: 6, w: 1.6, desc: '✈ Летит над дорогой. Сбивают только танки с ✈.' },
-  medic:     { n: 'Ремонтник', hp: 110, speed: 1, reward: 14, cost: 4, leak: 1, size: .56, gap: 1, from: 7, w: .8, heal: 1, desc: 'Чинит врагов рядом. Убивай его первым.' },
-  scout:     { n: 'Камуфляж', hp: 75, speed: 1.3, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
-  transport: { n: 'Грузовик', hp: 170, speed: .9, reward: 9, cost: 5, leak: 2, size: .62, gap: 1.1, from: 10, w: 1, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
-  heavy:     { n: 'Тяжёлый танк', hp: 460, speed: .55, arm: 1, reward: 26, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
+  light:     { n: 'Лёгкий танк', hp: 32, speed: 2, reward: 2.5, cost: 1, leak: 1, size: .5, gap: .55, from: 1, w: 4, desc: 'Быстрый и хлипкий. Берёт числом.' },
+  btr:       { n: 'Броневик', hp: 96, speed: 1, reward: 6, cost: 2, leak: 1, size: .56, gap: .8, from: 2, w: 3, desc: 'Покрепче лёгкого танка.' },
+  tank:      { n: 'Средний танк', hp: 224, speed: .8, arm: 1, reward: 15, cost: 4.5, leak: 2, size: .64, gap: 1.1, from: 4, w: 2, desc: '🛡 Броня: без бронебойности урон всего 30%. Нужен Бобр, Сокол, Жар или Тесла.' },
+  heli:      { n: 'Вертолёт', hp: 109, speed: 1.2, fly: 1, road: 1, reward: 9, cost: 3, leak: 1, size: .62, gap: 1, from: 6, w: 1.6, desc: '✈ Летит над дорогой. Сбивают только танки с ✈.' },
+  medic:     { n: 'Ремонтник', hp: 128, speed: 1, reward: 11, cost: 4, leak: 1, size: .56, gap: 1, from: 7, w: .85, heal: 1, desc: 'Чинит врагов рядом. Убивай его первым.' },
+  scout:     { n: 'Камуфляж', hp: 96, speed: 1.3, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1.3, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
+  transport: { n: 'Грузовик', hp: 160, speed: 1.5, reward: 9, cost: 6, leak: 2, size: .62, gap: 1.1, from: 10, w: 2, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
+  heavy:     { n: 'Тяжёлый танк', hp: 576, speed: .7, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
   bomber:    { n: 'Бомбардировщик', hp: 510, speed: 1.5, fly: 1, reward: 15, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: летит поперёк поля и сбрасывает бомбу на случайный танк — оглушение 3–8 с. Можно сбить до сброса. Улетает за край карты, базу не бьёт.' },
   assault:   { n: 'Штурмовой танк', hp: 300, speed: .95, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
-  ghost:     { n: 'Ночной вертолёт', hp: 140, speed: 1.3, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
-  sled:      { n: 'Аэросани', hp: 55, speed: 2.3, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
-  digger:    { n: 'Бурильщик', hp: 230, speed: .85, reward: 16, cost: 5, leak: 2, size: .6, gap: 1.1, from: 21, w: .8, dig: 1, desc: '⛏ Время от времени зарывается под снег — пока он под землёй, по нему не попасть.' },
+  ghost:     { n: 'Ночной вертолёт', hp: 192, speed: 1.4, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
+  sled:      { n: 'Аэросани', hp: 64, speed: 2.5, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
+  digger:    { n: 'Бурильщик', hp: 288, speed: .95, reward: 16, cost: 5, leak: 2, size: .6, gap: 1.1, from: 20, w: .8, dig: 1, desc: '⛏ Время от времени зарывается под снег — пока он под землёй, по нему не попасть.' },
   /* ⭐ мини-боссы ледяного перевала: приходят каждые 5 волн, в обычный набор волны не попадают (w: 0) */
-  icebreaker:{ n: 'Ледокол', hp: 1100, speed: .45, arm: 1, reward: 70, cost: 0, leak: 10, size: .92, gap: 1.6, from: 17, w: 0, mini: 1, frost: 1, desc: '⭐ Мини-босс. 🛡 Броня. Каждые 7 с бьёт морозом: танки рядом замерзают на 2 с. Оглуши его — и мороза не будет.' },
-  shield:    { n: 'Щитоносец', hp: 900, speed: .6, reward: 60, cost: 0, leak: 8, size: .84, gap: 1.6, from: 20, w: 0, mini: 1, aura: 1, desc: '⭐ Мини-босс. Щит: враги рядом с ним получают вдвое меньше урона. Убивай его первым.' },
-  boss:      { n: 'Колосс', hp: 2200, speed: .33, arm: 1, reward: 150, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
+  icebreaker:{ n: 'Ледокол', hp: 1760, speed: .61, arm: 1, reward: 70, cost: 0, leak: 10, size: .92, gap: 1.6, from: 17, w: 0, mini: 1, frost: 1, desc: '⭐ Мини-босс. 🛡 Броня. Каждые 7 с бьёт морозом: танки рядом замерзают на 2 с. Оглуши его — и мороза не будет.' },
+  shield:    { n: 'Щитоносец', hp: 1440, speed: .68, reward: 60, cost: 0, leak: 8, size: .84, gap: 1.6, from: 20, w: 0, mini: 1, aura: 1, desc: '⭐ Мини-босс. Щит: враги рядом с ним получают вдвое меньше урона. Убивай его первым.' },
+  boss:      { n: 'Колосс', hp: 5120, speed: .44, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
 };
 const ELOOK = {
   light: { h: '#e0763c', tur: 'circle', ts: .22, bar: 1, bl: .45, bw: .08 },

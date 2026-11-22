@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '34';
+const VER = '35';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,7 +371,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=17"></script>
+<script src="core.js?v=18"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -1399,7 +1399,7 @@ function wavePreview() {
     Object.keys(MODS).map(m => { const n = G.waves[G.wave].filter(q => q.mod === m).length; return n ? ` <span class="chip" style="background:${MODS[m].col};color:#fff;font-size:11px">${MODS[m].n} ×${MODS[m].hp} ХП: ${n}</span>` : ''; }).join('');
 }
 function hud() {
-  $('#bLives').textContent = G.lives; { const hb = $('#bHp'), k = G.lives / G.L.lives; $('#bHpF').style.width = Math.max(0, k * 100) + '%'; hb.classList.toggle('mid', k <= .6 && k > .3); hb.classList.toggle('low', k <= .3); hb.querySelector('small').textContent = '/' + G.L.lives; if (hb._v != null && G.lives < hb._v) { hb.classList.remove('hit'); void hb.offsetWidth; hb.classList.add('hit'); } hb._v = G.lives; } $('#bCash').textContent = G.cash;
+  $('#bLives').textContent = G.lives; { const hb = $('#bHp'), k = G.lives / G.L.lives; $('#bHpF').style.width = Math.max(0, k * 100) + '%'; hb.classList.toggle('mid', k <= .6 && k > .3); hb.classList.toggle('low', k <= .3); hb.querySelector('small').textContent = '/' + G.L.lives; if (hb._v != null && G.lives < hb._v) { hb.classList.remove('hit'); void hb.offsetWidth; hb.classList.add('hit'); } hb._v = G.lives; } $('#bCash').textContent = Math.floor(G.cash);
   $('#bWaveN').textContent = `Волна ${G.wave}/${G.waves.length}`; $('#bWaveP').style.width = (G.wave / G.waves.length * 100) + '%';
   const bw = $('#bWave'), done = G.wave >= G.waves.length;
   const busy = G.wave > 0 && waveBusy();
