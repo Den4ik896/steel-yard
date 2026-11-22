@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '36';
+const VER = '37';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,7 +371,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=19"></script>
+<script src="core.js?v=20"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -514,6 +514,7 @@ function drawTruck(c, x, y, s, a, cab, cargo, kind) {
   c.restore();
 }
 function drawEnemy(c, type, x, y, s, a, tm, e) {
+  if (ENEMY[type] && ENEMY[type].img) type = ENEMY[type].img;
   const lw = Math.max(1.4, s * .055);
   c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
   const sp2 = SPR_SPLIT[type], fr = SPR_TREAD[type] && e ? Math.floor(e.tread * 16) % 3 : 0;
@@ -524,7 +525,7 @@ function drawEnemy(c, type, x, y, s, a, tm, e) {
     if (e && (type === 'scout' || type === 'ghost')) c.globalAlpha = ga * (.55 + .12 * Math.sin(tm * 5));
     const sway = type === 'bomber' ? Math.sin(tm * 2) * .05 : fly ? Math.sin(tm * 3) * .06 : 0;
     drawSpr(c, hb, x, y, s, a + sway, { k: (SPR_K[type] || 1) * 1.12, alt: fly ? s * (type === 'bomber' ? .5 : .45) : 0, jit: !fly && e ? Math.sin(e.tread * 9) * s * .012 : 0,
-      tur: tu || null, ta: e ? e.tur : a, spin: fly ? tm * 22 : null, tofs: sp2 });
+      tur: tu || null, ta: e ? e.tur : a, spin: fly ? tm * 9 : null, tofs: sp2 });
     c.globalAlpha = ga; return;
   }
   const im = spr('e_' + type);
@@ -598,7 +599,7 @@ const SPR_TREAD = { light: 1, tank: 1, scout: 1, heavy: 1, assault: 1, medic: 1 
 const SPR_STATIC = { oboz: 1, zavod: 1, tesla: 1, grom: 1, polar: 1 };
 /* грузим все картинки юнитов заранее, чтобы в начале боя не мелькали нарисованные кодом танки */
 setTimeout(() => { try {
-  TANKS.forEach(t => spr('t_' + t.id)); Object.keys(ENEMY).forEach(k => spr('e_' + k));
+  TANKS.forEach(t => spr('t_' + t.id)); Object.keys(ENEMY).forEach(k => spr('e_' + (ENEMY[k].img || k)));
   Object.keys(SPR_SPLIT).forEach(k => { spr('h_' + k); spr('u_' + k); }); Object.keys(SPR_TREAD).forEach(k => { spr('h_' + k); spr('h_' + k + '_1'); spr('h_' + k + '_2'); });
 } catch (e) {} }, 0);
 const SPR_GLOW = { tesla: 1, polar: 1, rail: 1, beam: 1 };
@@ -699,7 +700,7 @@ function icon(kind, id, size = 96, attrs, serial) {
   const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
   const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
   if (kind === 't') { const t = tankById(id); drawTank(c, size / 2, size / 2, size * .62, skinLook(t, sk), -Math.PI / 4, -Math.PI / 4, sk ? { gear: sk.gr, num: sk.n } : {}); if (sk && sk.fl) { c.font = `${Math.round(size * .26)}px system-ui`; c.fillText(sk.fl, size * .04, size * .3); } }
-  else if (kind === 'e') { const sc = { light: .7, scout: .7, btr: .66, tank: .62, heavy: .58, boss: .5, heli: .5, ghost: .5, assault: .6, bomber: .48, medic: .64, transport: .62 }[id]; drawEnemy(c, id, size / 2, size / 2 + (ENEMY[id].fly ? size * .14 : 0), size * sc, -Math.PI / 4, 0.3, null); }
+  else if (kind === 'e') { const sc = { light: .7, scout: .7, btr: .66, tank: .62, heavy: .58, boss: .5, heli: .5, ghost: .5, assault: .6, bomber: .48, sbomber: .48, medic: .64, transport: .62 }[id]; drawEnemy(c, id, size / 2, size / 2 + (ENEMY[id].fly ? size * .14 : 0), size * sc, -Math.PI / 4, 0.3, null); }
   else if (kind === 'b') { const b = BOXES.find(x => x.id === id); c.translate(size / 2, size / 2); drawChest(c, size * .95, b.col, b.band, BOXES.indexOf(b)); }
   else if (kind === 'g') { const [col, rib] = GIFTC[id] || GIFTC.red; c.translate(size / 2, size / 2 + size * .02); drawGift(c, size * .92, col, rib); }
   return ICON[k] = cv2.toDataURL();
@@ -1337,7 +1338,7 @@ function draw(fdt) {
     c.globalAlpha = 1;
   }
   /* ✈ прицел бомбардировщика: краснеет по мере подлёта */
-  for (const e of G.enemies) if (e.d.raid && e.tw && !e.hit && !e.dead && G.towers.includes(e.tw)) { const k = Math.max(0, Math.min(1, 1 - (e.tw.x - e.x) / 2.5)); c.fillStyle = `rgba(255,60,40,${.12 + .28 * k})`; circ(c, PX(e.tw.x), PY(e.tw.y), T * (.55 - .2 * k)); c.fill(); }
+  for (const e of G.enemies) if (e.d.raid && e.tw && !e.hit && !e.dead && (e.d.aoe || G.towers.includes(e.tw))) { const k = Math.max(0, Math.min(1, 1 - (e.tw.x - e.x) / 2.5)); c.fillStyle = `rgba(255,60,40,${.12 + .28 * k})`; circ(c, PX(e.tw.x), PY(e.tw.y), e.d.aoe ? T * e.d.aoe : T * (.55 - .2 * k)); c.fill(); if (e.d.aoe) { c.strokeStyle = 'rgba(255,60,40,.8)'; c.lineWidth = 2; c.setLineDash([6, 5]); c.stroke(); c.setLineDash([]); } }
   for (const b of G.bombs) { c.fillStyle = b.big ? 'rgba(255,60,40,.3)' : 'rgba(0,0,0,.25)'; circ(c, PX(b.x), PY(b.y), T * (b.big ? b.r : .2) * (1 - Math.min(1, b.delay))); c.fill(); }
   if (L.part && fdt) {
     if (G.amb.length < (L.part === 'snow' ? 60 : 25) && Math.random() < .5) G.amb.push({ x: Math.random() * W, y: -5, v: L.part === 'snow' ? 25 + Math.random() * 30 : 8, h: L.part === 'snow' ? Math.random() * 10 - 5 : 40 + Math.random() * 30, r: L.part === 'snow' ? 1.5 + Math.random() * 2 : 1.2, ph: Math.random() * 6 });

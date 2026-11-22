@@ -114,6 +114,7 @@ const ENEMY = {
   transport: { n: 'Грузовик', hp: 160, speed: 1.5, reward: 9, cost: 6, leak: 2, size: .62, gap: 1.1, from: 10, w: 2, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
   heavy:     { n: 'Тяжёлый танк', hp: 576, speed: .7, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
   bomber:    { n: 'Бомбардировщик', hp: 510, speed: 1.5, fly: 1, reward: 15, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: летит поперёк поля и сбрасывает бомбу на случайный танк — оглушение 3–8 с. Можно сбить до сброса. Улетает за край карты, базу не бьёт.' },
+  sbomber:   { n: 'Супер-бомбардировщик', hp: 2040, speed: 1.5, fly: 1, reward: 60, cost: 0, leak: 0, size: 1, gap: 1.6, from: 20, w: 0, raid: 1, aoe: 1.5, img: 'bomber', desc: '✈ Тяжёлый налёт: ХП ×4, бомба оглушает все танки в радиусе 1.5 клетки на 1–4 с. Можно сбить до сброса. Улетает за край карты.' },
   assault:   { n: 'Штурмовой танк', hp: 300, speed: .95, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
   ghost:     { n: 'Ночной вертолёт', hp: 192, speed: 1.4, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
   sled:      { n: 'Аэросани', hp: 64, speed: 2.5, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
@@ -314,11 +315,12 @@ function makeWaves(n, np) {
     if (boss && w === nw - 1) { list.push('boss'); if (n >= 32) list.push(...minis); }
     /* ✈ налёты (с ур. 14): самолёт бомбит случайный танк — оглушение 3–8 с */
     if (n >= ENEMY.bomber.from && w >= 2) { const k = (r() < Math.min(.5, .3 + .01 * (n - 14)) ? 1 : 0) + (n >= 25 && r() < .3 ? 1 : 0); for (let j = 0; j < k; j++) list.splice(Math.floor(r() * (list.length + 1)), 0, 'bomber'); }
+    if (n >= ENEMY.sbomber.from && w >= 4 && r() < Math.min(.45, .2 + .015 * (n - 20))) list.splice(Math.floor(r() * (list.length + 1)), 0, 'sbomber');
     let pB = w === 0 ? 0 : Math.min(.22, .05 + .015 * w + .004 * n), pC = n >= 6 && w >= nw - 3 ? Math.min(.12, .03 + .004 * n) : 0;
     /* ❄ зима (ур. 17+), волны 12+: Колоссов ×5 больше, почти все остальные — Раздутые ×2 */
     if (n >= 17 && w >= 11) { pC = Math.max(pC, .16 + .004 * (w - 11)); pB = .92 - pC * 1.8; }
     const pT = pC * .8; /* Титан ×7 — чуть реже Колосса ×5 */
-    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini && !ENEMY[k].raid) { const x = r(); if (x < pT) q.mod = 't'; else if (x < pT + pC) q.mod = 'c'; else if (x < pT + pC + pB) q.mod = 'b'; } return q; }));
+    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini) { const x = r(); if (x < pT && !ENEMY[k].raid) q.mod = 't'; else if (x < pT + pC) q.mod = 'c'; else if (x < pT + pC + pB) q.mod = 'b'; } return q; }));
   }
   return waves;
 }
@@ -346,6 +348,8 @@ function tstats(tw) {
   return Object.assign(s, { air: s.det.a, ground: s.det.g, hid: s.det.h, pen: s.det.l });
 }
 const upPrice = (tw) => tierUp(tw.t, tw.tier + 1);
+/* 💵 после 40% пройденных волн награда ×0.5, после 60% — ×0.25 (кроме босса) */
+function rewK(d) { const p = Math.max(0, G.wave - 1) / G.waves.length; return d.boss ? 1 : p > .6 ? .25 : p > .4 ? .5 : 1; }
 const towerAt = (x, y) => G.towers.find(t => t.x === x && t.y === y);
 /* ✈ Налёт: самолёт летит слева направо над случайным танком и оглушает его на 3–8 с */
 function spawn(type, pi, dist = 0, mod) {
@@ -357,8 +361,8 @@ function spawn(type, pi, dist = 0, mod) {
   const base = G.n >= 17 && d.boss ? d.hp * 2.5 : G.n >= 17 && d.mini && G.wave >= 16 ? ENEMY.boss.hp * 2.5 : d.hp;
   const hp = Math.round(base * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
   const p = posAt(P, dist);
-  G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: d.reward * (M ? M.hp : 1), x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
-  if (d.raid) G.enemies[G.enemies.length - 1].tw = tw;
+  G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: Math.round(d.reward * (M ? M.hp : 1) * rewK(d) * 10) / 10, x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
+  if (d.raid) { const E = G.enemies[G.enemies.length - 1]; E.tw = tw; if (G.rnd() < .3) E.spk = 1.2 + G.rnd() * .2; } /* ✈ иногда самолёт быстрее */
 }
 function targets(tw, s) {
   const L = [];
@@ -422,7 +426,7 @@ function fire(tw, s, L) {
     case 'sniper': { const crit = s.perk && G.rnd() < .25; hurt(e, s.dmg * (crit ? 2.5 : 1), { show: 1, crit, pen }); if (G.vis) G.fx.push({ k: 'line', x: m.x, y: m.y, x2: e.x, y2: e.y, t: 0, life: .18, col: '#fff6b0', w: .07 }); G.shake = Math.max(G.shake, 2); break; }
     case 'cryo': shot({ k: 'ice', tgt: e, spd: 9, dmg: s.dmg, splash: s.spl, o: { slow: s.slow, slowB: s.slowB, ice: 1 }, r: .09, col: '#9fe6ff' }); break;
     case 'aa': for (const off of [-.08, .08]) G.shots.push({ k: 'bul', x: m.x + off, y: m.y - off, tgt: e, spd: 16, dmg: e.d.fly || s.perk ? s.dmg : s.dmg / 2, o: {}, r: .05, col: '#ffe36b', delay: off > 0 ? .05 : 0 }); tw.rec = .5; break;
-    case 'kv2': { const sp = e.d.speed * (e.slowT > 0 ? 1 - e.slowK : 1), p = posAt(e.P, e.dist + (e.stunT > 0 ? 0 : sp * 1.1)); G.shots.push({ k: 'lob', sx: m.x, sy: m.y, tx: p.x, ty: p.y, t: 0, dur: 1.1, dmg: s.dmg, splash: t.splash, o: { stun: s.perk ? .6 : 0, fly: 0 }, delay: 0 }); G.shake = Math.max(G.shake, 3); break; }
+    case 'kv2': { const sp = e.d.speed * (e.spk || 1) * (e.slowT > 0 ? 1 - e.slowK : 1), p = posAt(e.P, e.dist + (e.stunT > 0 ? 0 : sp * 1.1)); G.shots.push({ k: 'lob', sx: m.x, sy: m.y, tx: p.x, ty: p.y, t: 0, dur: 1.1, dmg: s.dmg, splash: t.splash, o: { stun: s.perk ? .6 : 0, fly: 0 }, delay: 0 }); G.shake = Math.max(G.shake, 3); break; }
     case 'tesla': {
       const hit = [e]; let cur = e;
       for (let i = 1; i < (s.perk ? 5 : 3); i++) { let best = null, bd = 1.8; for (const x of G.enemies) { if (x.dead || hit.includes(x) || (x.d.hid && !s.hid)) continue; const d = Math.hypot(x.x - cur.x, x.y - cur.y); if (d < bd) { bd = d; best = x; } } if (!best) break; hit.push(best); cur = best; }
@@ -549,7 +553,9 @@ function update(dt) {
     const p = posAt(e.P, e.dist); e.x = p.x; e.y = p.y;
     e.ang = lerpAng(e.ang, p.ang, dt * 8); e.tur = lerpAng(e.tur, p.ang, dt * 4);
     if (e.d.raid) {
-      if (e.tw && !e.hit && e.x >= e.tw.x) { e.hit = 1; if (G.towers.includes(e.tw)) { e.tw.stn = Math.max(e.tw.stn || 0, 3 + G.rnd() * 5); if (G.vis) { G.fx.push({ k: 'boom', x: e.tw.x, y: e.tw.y, r: .7, t: 0, life: .4 }); G.shake = Math.max(G.shake, 5); tip('✈ Бомба! Танк оглушён', 1500); } } }
+      if (e.tw && !e.hit && e.x >= e.tw.x) { e.hit = 1; const R = e.d.aoe, hit = R ? G.towers.filter(t => Math.hypot(t.x - e.tw.x, t.y - e.tw.y) <= R) : G.towers.includes(e.tw) ? [e.tw] : [];
+        for (const t of hit) t.stn = Math.max(t.stn || 0, R ? 1 + G.rnd() * 3 : 3 + G.rnd() * 5);
+        if (G.vis && (R || hit.length)) { G.fx.push({ k: 'boom', x: e.tw.x, y: e.tw.y, r: R || .7, t: 0, life: R ? .6 : .4 }); G.shake = Math.max(G.shake, R ? 9 : 5); if (hit.length) tip(R ? `✈ Тяжёлая бомба! Оглушено танков: ${hit.length}` : '✈ Бомба! Танк оглушён', 1500); } }
       if (e.dist >= e.P.total) e.dead = true; /* улетел за край — базу не бьёт */
       continue;
     }
