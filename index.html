@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '27';
+const VER = '28';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -910,7 +910,14 @@ function tankModal(id) {
 }
 async function usePromo() {
   const code = ($('#promo') || {}).value || ''; if (!code.trim()) return toast('Введи промокод');
-  const r = await api('promo', { code }); if (r.err) return toast(r.err);
+  let r;
+  if (ON) r = await api('promo', { code });
+  else { /* офлайн: код на танк проверяем прямо в игре */
+    const tc = { FACTORY: 'zavod' }[code.trim().toUpperCase()], used = S.tpromo ||= {};
+    r = !tc ? { err: 'Неверный промокод' } : used[tc] ? { err: 'Промокод уже использован' } : S.owned[tc] ? { err: 'Этот танк уже есть в гараже' } : { ok: 1, tank: tc };
+    if (r.ok) { S.owned[tc] = 1; if (S.deck.length < DECK) S.deck.push(tc); used[tc] = 1; save(); }
+  }
+  if (r.err) return toast(r.err);
   hapticN('success'); const d = r.drop;
   if (r.tank) { const t = tankById(r.tank); modal(`<div class="ribbon g">Новый танк!</div><div class="rays" style="--rc:${RAR[t.rar].hex}"><img src="${icon('t', t.id, 140)}"></div>
       <div style="font-size:24px">${t.name}</div><div class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n} · ${t.role}</div>
@@ -927,7 +934,7 @@ function shopHTML() {
       <button class="btn sm ${b.price.gems ? 'purple' : free ? 'green' : ''}" data-act="box" data-id="${b.id}" ${dis ? 'disabled' : ''}>${free && left > 0 ? '⏱ ' + fmt(left) : priceTxt(b.price)}</button></div>`;
   }
   h += `</div><div class="muted" style="margin-top:8px">Гарантия: каждый 10-й Золотой контейнер — Легенда (осталось ${10 - (S.pity || 0)}). Повторный танк превращается в 🥈/🥇.</div>`;
-  if (ON) h += `<div class="sect ttl">🎟 Промокод</div><div class="row" style="gap:8px"><input id="promo" maxlength="24" placeholder="Введи промокод" autocomplete="off" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:3px solid #2b2118;font:inherit;font-weight:800;text-transform:uppercase"><button class="btn sm green" data-act="promo">Активировать</button></div>`;
+  h += `<div class="sect ttl">🎟 Промокод</div><div class="row" style="gap:8px"><input id="promo" maxlength="24" placeholder="Введи промокод" autocomplete="off" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:3px solid #2b2118;font:inherit;font-weight:800;text-transform:uppercase"><button class="btn sm green" data-act="promo">Активировать</button></div>`;
   h += `<div class="sect ttl">Танки</div>`;
   for (const t of TANKS.filter(t => t.price)) {
     const own = S.owned[t.id];
