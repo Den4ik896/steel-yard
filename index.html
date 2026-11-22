@@ -97,7 +97,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .reg+.reg{border-top:3px dashed rgba(43,33,24,.4)}
 .reg .rd{position:absolute;inset:0;width:100%;height:100%}
 .reg .rbn{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;width:max-content;filter:drop-shadow(0 4px 0 rgba(43,33,24,.35))}
-.rbn .md{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-style:normal;background:radial-gradient(circle at 35% 30%,#fff7d6,#ffd25a 55%,#d99a1e);border:3px solid var(--ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);position:relative;z-index:2;margin-bottom:-14px}
+.rbn .md{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-style:normal;background:radial-gradient(circle at 35% 30%,#fff7d6,#ffd25a 55%,#d99a1e);border:3px solid var(--ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);position:relative;z-index:2;margin-bottom:-14px}.rbn .md.zm{background:center/contain no-repeat;border:0;box-shadow:none;width:52px;height:52px;filter:drop-shadow(0 3px 0 rgba(0,0,0,.3))}
 .rbn .rbb{position:relative;padding:12px 30px 5px;background:linear-gradient(color-mix(in srgb,var(--rb) 70%,#fff),var(--rb) 55%,color-mix(in srgb,var(--rb) 80%,#000));border:3px solid var(--ink);border-radius:8px;text-align:center}
 .rbn .rbb::before,.rbn .rbb::after{content:'';position:absolute;top:9px;width:26px;height:100%;z-index:-1;background:color-mix(in srgb,var(--rb) 65%,#000);border:3px solid var(--ink)}
 .rbn .rbb::before{left:-20px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,38% 50%)}
@@ -171,7 +171,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .sw{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink);margin-right:4px;vertical-align:-1px}
 /* Слитки вместо 🥈/🥇 (подставляет i18n.js) */
 .mi{display:inline-block;width:1.3em;height:1.3em;vertical-align:middle;background:center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}.mi.x1{opacity:.55}
-.mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}
+.mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}.mi.smoke{background-image:url(img/ui/smoke.webp)}.mi.repair{background-image:url(img/ui/repair.webp)}.mi.barrage{background-image:url(img/ui/barrage.webp)}.mi.emp{background-image:url(img/ui/emp.webp)}.mi.orbital{background-image:url(img/ui/orbital.webp)}.mi.freeze{background-image:url(img/ui/freeze.webp)}.mi.zone1{background-image:url(img/ui/zone1.webp)}.mi.zone2{background-image:url(img/ui/zone2.webp)}.mi.zone3{background-image:url(img/ui/zone3.webp)}
 nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45em}.hcard .big .mi{width:1.6em;height:1.6em}
 .ing{display:inline-block;width:1.35em;height:1.35em;vertical-align:-.3em;margin:0 .08em;background:center/contain no-repeat}
 .ing.s{background-image:url(img/ui/silver.webp)}.ing.g{background-image:url(img/ui/gold.webp)}.ing.f{background-image:url(img/ui/fuel.webp)}.ing.st{background-image:url(img/ui/star.webp)}
@@ -697,7 +697,7 @@ function homeHTML() {
   const nextE = Object.keys(ENEMY).filter(k => ENEMY[k].from > un && ENEMY[k].from < 99).sort((a, b) => ENEMY[a].from - ENEMY[b].from)[0];
   const ups = S.deck.map(id => tankById(id)).filter(t => S.owned[t.id] < MAXLV).sort((a, b) => upCost(a, S.owned[a.id]) - upCost(b, S.owned[b.id]))[0];
   let h = `<div class="logot"><b>TANK</b><b>DEFENSE</b></div><div class="hero" style="background:${loc.bg}">
-    <div class="loc2">${loc.icon} ${loc.name} · ${done}/${loc.to - loc.from + 1}</div>
+    <div class="loc2"><i class="mi zone${LOCS.indexOf(loc) + 1}"></i> ${loc.name} · ${done}/${loc.to - loc.from + 1}</div>
     <div class="lprog"><i style="width:${done / (loc.to - loc.from + 1) * 100}%"></i></div>
     <div class="ttl lvt">${L.boss ? '💀 Босс · ' : ''}Уровень ${un}</div>
     <div class="dio">${S.deck.map(id => `<img src="${icon('t', id, 94)}">`).join('')}</div>
@@ -732,7 +732,7 @@ function mapHTML() {
     const pl = pts.map(p => p.join(',')).join(' '), fog = L.from > un, got = Array.from({ length: cnt }, (_, i) => S.stars[L.from + i] || 0).reduce((a, b) => a + b, 0);
     let hills = []; for (let i = 0; i < 7; i++) { const w = 90 + r() * 140; hills.push(`radial-gradient(${w}px ${w * .45}px at ${r() * 100}% ${r() * H}px,${r() < .5 ? 'rgba(255,255,255,.2)' : 'rgba(40,30,10,.07)'} 64%,transparent 66%)`); }
     h += `<section class="reg ${fog ? 'fog' : ''}" style="height:${H}px;background:${hills.join(',')},${L.bg}">
-      <div class="rbn" style="--rb:${L.rb}"><i class="md">${L.icon}</i><div class="rbb"><b>${L.name}</b><small>${fog ? `<img src="img/ui/lock.webp" alt="">после ур. ${L.from - 1}` : `<span style="color:#ffd23f">★</span> ${got}/${cnt * 3}`}</small></div></div>
+      <div class="rbn" style="--rb:${L.rb}"><i class="md zm" style="background-image:url(img/ui/zone${li + 1}.webp)"></i><div class="rbb"><b>${L.name}</b><small>${fog ? `<img src="img/ui/lock.webp" alt="">после ур. ${L.from - 1}` : `<span style="color:#ffd23f">★</span> ${got}/${cnt * 3}`}</small></div></div>
       <svg class="rd" viewBox="0 0 100 ${H}" preserveAspectRatio="none"><polyline points="${pl}" fill="none" stroke="${OL}" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".3"/><polyline points="${pl}" fill="none" stroke="${L.road}" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><polyline points="${pl}" fill="none" stroke="${L.path}" stroke-width="4" stroke-dasharray="10 12" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
     const DS = MAPDEC[li] || MAPDEC[0];
     for (let i = 0; i < 12; i++) { const side = r() < .5, sz = 30 + r() * 26; h += `<i class="dec" style="left:${side ? 3 + r() * 13 : 84 + r() * 13}%;top:${30 + r() * (H - 50)}px;width:${sz}px;height:${sz}px">${MAPSPR[DS[Math.floor(r() * DS.length)]]}</i>`; }
@@ -984,7 +984,7 @@ function preBattle(n) {
   const fresh = types.filter(k => ENEMY[k].from === n || k === 'boss');
   const first = !(S.stars[n] > 0), sil = first ? levelSilver(n) : Math.round(levelSilver(n) * .4);
   modal(`<button class="x" data-act="close">✕</button><div class="ribbon ${L.boss ? '' : 'b'}">${L.boss ? '💀 Босс' : 'Уровень ' + n}</div>
-    <div class="muted">${L.loc.icon} ${L.loc.name} · волн: ${wv.length}${L.paths.length > 1 ? ' · <b style="color:#c43a30">2 входа!</b>' : ''}</div>
+    <div class="muted"><i class="mi zone${LOCS.indexOf(L.loc) + 1}"></i> ${L.loc.name} · волн: ${wv.length}${L.paths.length > 1 ? ' · <b style="color:#c43a30">2 входа!</b>' : ''}</div>
     <div class="enl">${types.map(k => `<div class="en ${fresh.includes(k) ? 'new' : ''}"><img src="${icon('e', k, 56)}">${ENEMY[k].n} <small class="ehp">❤${hpN(ENEMY[k].hp * L.scale)}</small>${ENEMY[k].fly ? ' ✈' : ''}${ENEMY[k].hid ? ' 👁' : ''}${ENEMY[k].arm ? ' 🛡' : ''}${fresh.includes(k) ? '<i>НОВЫЙ</i>' : ''}</div>`).join('')}</div>
     ${fresh.length ? `<div class="tipbox">💡 <b>${ENEMY[fresh[0]].n}:</b> ${ENEMY[fresh[0]].desc}</div>` : ''}
     ${(() => { const has = k => S.deck.some(id => (tankById(id).det || {})[k] != null), w = [];
@@ -1424,8 +1424,8 @@ cv.addEventListener('pointerdown', (ev) => {
 $('#bWave').addEventListener('pointerdown', (ev) => { ev.preventDefault(); if ($('#bWave').disabled) return; if (G.tut === 1) return tip('Сначала поставь танк 👇', 2000); act('w'); hud(); });
 /* Нижняя панель (как в TDS): 4 слота — танки отряда или предметы поддержки; 🎒/🛡 переключает. pointerdown — чтобы нажатие не терялось при обновлении HUD */
 let barMode = 't';
-function supIco(id, big) { const d = supById(id), img = { strike: 'strike', mine: 'mine' }[id], em = { smoke: '💨', repair: '🔧', barrage: '💥', emp: '⚡', orbital: '☄️', freeze: '⏳' }[id];
-  return `<span class="sic${big ? ' big' : ''}" style="--rc:${RAR[d.rar].hex}">${img ? `<i class="mi ${img}"></i>` : em}</span>`; }
+function supIco(id, big) { const d = supById(id), img = id;
+  return `<span class="sic${big ? ' big' : ''}" style="--rc:${RAR[d.rar].hex}"><i class="mi ${img}"></i></span>`; }
 function buildSlots() {
   const L = barMode === 't' ? G.deck : G.sdeck, el = $('#slots');
   el.innerHTML = [0, 1, 2, 3].map(i => { const id = L[i]; if (!id) return '<button class="ab sl empty" disabled><span>＋</span><small>&nbsp;</small></button>';
