@@ -36,8 +36,8 @@ const TANKS = [
   { id: 'moroz', name: 'Мороз', kind: 'cryo', rar: 'rare', dmg: 10, rate: 0.8, range: 2.3, cost: 100, slow: 0.4, det: { g: 1, a: 1, h: 3 },
     role: 'Криопушка', desc: 'Замораживает: враги и вертолёты едут на 40% медленнее.', perk: 'Глубокая заморозка −60%',
     look: { h: '#4fa8d8', tur: 'circle', ts: .26, bar: 1, bl: .44, bw: .19, extra: 'crystal' }, price: { silver: 400 } },
-  { id: 'vihr', name: 'Вихрь', kind: 'aa', rar: 'rare', dmg: 14, rate: 0.3, range: 3.4, cost: 100, det: { g: 4, a: 1, h: 1 },
-    role: 'Зенитка', desc: 'Зенитка с радаром: рвёт авиацию и видит скрытых. По земле стреляет только на ★4.', perk: 'Стреляет и по земле',
+  { id: 'vihr', name: 'Вихрь', kind: 'aa', rar: 'rare', dmg: 14, rate: 0.3, range: 3.4, cost: 100, det: { g: 1, a: 1, h: 1 },
+    role: 'Зенитка', desc: 'Зенитка с радаром: рвёт авиацию и видит скрытых. По земле бьёт вполсилы, в полную силу — на ★4. Самолёты бьёт первыми.', perk: 'Полный урон по земле',
     look: { h: '#8f9c55', tur: 'box', ts: .23, bar: 2, bl: .62, bw: .07, extra: 'dish' }, price: { silver: 400 } },
   { id: 'oboz', name: 'Обоз', kind: 'supply', rar: 'rare', cost: 120, give: [25, 40, 60, 85], range: 0, det: {},
     role: 'Снабжение', desc: 'Не стреляет. В начале каждой волны привозит 💵 на постройку.', perk: '+85 💵 за волну',
@@ -320,6 +320,7 @@ function targets(tw, s) {
     if (d <= s.range + e.d.size * .3) { e._d = d; L.push(e); }
   }
   if (tw.mode === 'strong') L.sort((a, b) => b.hp - a.hp || b.dist / b.P.total - a.dist / a.P.total); else if (tw.mode === 'near') L.sort((a, b) => a._d - b._d); else L.sort((a, b) => b.dist / b.P.total - a.dist / a.P.total);
+  if (tw.t.kind === 'aa') L.sort((a, b) => !!b.d.fly - !!a.d.fly); /* зенитка: сначала авиация */
   return L;
 }
 function hurt(e, dmg, o = {}) {
@@ -368,7 +369,7 @@ function fire(tw, s, L) {
       break;
     case 'sniper': { const crit = s.perk && G.rnd() < .25; hurt(e, s.dmg * (crit ? 2.5 : 1), { show: 1, crit, pen }); if (G.vis) G.fx.push({ k: 'line', x: m.x, y: m.y, x2: e.x, y2: e.y, t: 0, life: .18, col: '#fff6b0', w: .07 }); G.shake = Math.max(G.shake, 2); break; }
     case 'cryo': shot({ k: 'ice', tgt: e, spd: 9, dmg: s.dmg, o: { slow: s.perk ? .6 : .4 }, r: .09, col: '#9fe6ff' }); break;
-    case 'aa': for (const off of [-.08, .08]) G.shots.push({ k: 'bul', x: m.x + off, y: m.y - off, tgt: e, spd: 16, dmg: s.dmg, o: {}, r: .05, col: '#ffe36b', delay: off > 0 ? .05 : 0 }); tw.rec = .5; break;
+    case 'aa': for (const off of [-.08, .08]) G.shots.push({ k: 'bul', x: m.x + off, y: m.y - off, tgt: e, spd: 16, dmg: e.d.fly || s.perk ? s.dmg : s.dmg / 2, o: {}, r: .05, col: '#ffe36b', delay: off > 0 ? .05 : 0 }); tw.rec = .5; break;
     case 'kv2': { const sp = e.d.speed * (e.slowT > 0 ? 1 - e.slowK : 1), p = posAt(e.P, e.dist + (e.stunT > 0 ? 0 : sp * 1.1)); G.shots.push({ k: 'lob', sx: m.x, sy: m.y, tx: p.x, ty: p.y, t: 0, dur: 1.1, dmg: s.dmg, splash: t.splash, o: { stun: s.perk ? .6 : 0, fly: 0 }, delay: 0 }); G.shake = Math.max(G.shake, 3); break; }
     case 'tesla': {
       const hit = [e]; let cur = e;
