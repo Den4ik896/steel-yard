@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '25';
+const VER = '26';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -368,9 +368,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=8"></script>
+<script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=11"></script>
+<script src="core.js?v=12"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -1056,7 +1056,7 @@ function marketHTML() {
   if (auc.length) h += `<div class="sect ttl">🔨 Аукционы</div>` + auc.map(mkRow).join('');
   h += `<div class="sect ttl">🏷 Продаются</div>` + (fix.length ? fix.map(mkRow).join('') : nf ? '<div class="muted" style="text-align:center">Ничего не найдено — сбрось фильтры</div>' : '<div class="muted" style="text-align:center">Пока никто не продаёт. Выбей лимитку в бою с боссом — и стань первым!</div>');
   if (d.myOffers.length) h += `<div class="sect ttl">Мои предложения</div>` + d.myOffers.map(o => `<div class="panel hrow mkrow"><img src="${icon('t', o.item.model, 44, o.item.attrs, o.item.serial)}"><div class="grow"><b>#${o.item.serial}</b> — ${tonTxt(o.price)}<div class="muted" style="font-size:11px">ещё ${left(o.expires)}</div></div><button class="btn gray sm" data-act="offCancel" data-o="${o.id}">Отменить</button></div>`).join('');
-  h += `<div class="sect ttl">Мои лимитки</div>` + (ITEMS.length ? `<div class="nftl">${ITEMS.map(i => nftCard(i)).join('')}</div>` : '<div class="muted" style="text-align:center">Пока нет. Они падают с боссов (ур. 8, 16, 24) и за 3★.</div>');
+  h += `<div class="sect ttl">Мои лимитки</div>` + (ITEMS.length ? `<div class="nftl">${ITEMS.map(i => nftCard(i)).join('')}</div>` : '<div class="muted" style="text-align:center">Пока нет. Они падают с боссов (ур. 8, 16, 24, 32) и за 3★.</div>');
   return h + `<div class="muted" style="margin-top:10px;font-size:12px">Все сделки проверяет сервер, комиссия ${NFT.fee * 100}%. После покупки танк можно перепродать через 24 ч.</div>`;
 }
 /* Золото за Telegram Stars: сервер создаёт счёт, оплата в окне Telegram, золото начисляет сервер после платежа */
@@ -1241,20 +1241,25 @@ function draw(fdt) {
     if (tw.skin) drawTank(c, x, y, T * .78, skinLook(tw.t, tw.skin), -Math.PI / 2, tw.ang, { recoil: tw.rec, flash: tw.flash, tier: tw.tier, gear: tw.skin.gr, num: tw.skin.n, beam: tw.beam, spin: tw.cd * 3 });
     else drawUnit(c, tw.t, x, y, T * .78, -Math.PI / 2, tw.ang, { recoil: tw.rec, flash: tw.flash, tier: tw.tier, beam: tw.beam, spin: tw.cd * 3 });
     if (tw.skin && tw.skin.fl) { c.font = `${Math.round(T * .3)}px system-ui`; c.fillText(tw.skin.fl, x - T * .42, y - T * .22); }
+    if (tw.frz > 0) { c.globalAlpha = Math.min(1, tw.frz * 2) * .75; rr(c, x - T * .42, y - T * .42, T * .84, T * .84, T * .16); c.fillStyle = '#bfe9ff'; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 3; c.stroke();
+      c.globalAlpha = 1; c.font = `${Math.round(T * .36)}px system-ui`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('❄', x, y); }
   }
   const gr = G.enemies.filter(e => !e.d.fly).sort((a, b) => a.y - b.y), ai = G.enemies.filter(e => e.d.fly);
   for (const e of gr.concat(ai)) {
     const x = PX(e.x), y = PY(e.y), s = T * e.d.size * (e.sc || 1);
     if (e.mod) { const M = MODS[e.mod]; c.fillStyle = M.col + '55'; c.beginPath(); c.ellipse(x, y + (e.d.fly ? 0 : s * .1), s * .62, s * .38, 0, 0, 7); c.fill(); }
     if (e.slowT > 0) { c.fillStyle = 'rgba(159,230,255,.55)'; c.beginPath(); c.ellipse(x, y + (e.d.fly ? 0 : s * .1), s * .6, s * .35, 0, 0, 7); c.fill(); }
+    if (e.under) { c.fillStyle = '#e8eef3'; c.beginPath(); c.ellipse(x, y + s * .1, s * .5, s * .3, 0, 0, 7); c.fill(); c.strokeStyle = '#9fb4c4'; c.lineWidth = 2; c.stroke(); c.fillStyle = '#8a6a4a'; c.beginPath(); c.ellipse(x, y + s * .05, s * .28, s * .14, 0, 0, 7); c.fill(); continue; }
     drawEnemy(c, e.type, x, y, s, e.ang, G.t + e.maxHp, e);
+    if (e.shU > G.time) { c.strokeStyle = 'rgba(120,200,255,.9)'; c.lineWidth = 2.5; c.fillStyle = 'rgba(120,200,255,.18)'; circ(c, x, (e.d.fly ? y - s * .45 : y), s * .55); c.fill(); c.stroke(); }
+    if (e.d.aura) { c.strokeStyle = 'rgba(176,107,255,.35)'; c.lineWidth = 2; c.setLineDash([6, 6]); circ(c, x, y, T * 1.7); c.stroke(); c.setLineDash([]); }
     const yy = e.d.fly ? y - s * .45 : y;
     if (e.hitT > 0) { c.fillStyle = 'rgba(255,255,255,.55)'; circ(c, x, yy, s * .45); c.fill(); }
     if (e.burnT > 0 && G.vis) { c.fillStyle = 'rgba(255,122,26,.35)'; circ(c, x, yy, s * .4); c.fill(); }
     if (e.stunT > 0) { c.fillStyle = '#ffd23f'; for (let i = 0; i < 3; i++) { const a = G.t * 6 + i * 2.1; circ(c, x + Math.cos(a) * s * .4, yy - s * .55 + Math.sin(a) * s * .12, 2.5); c.fill(); } }
     const bw = Math.max(T * .55, s * .9), bh = Math.max(5, T * .11), hy = yy - s * .6 - bh - 2;
     c.lineWidth = 1.5; c.strokeStyle = OL; rr(c, x - bw / 2, hy, bw, bh, bh / 2); c.fillStyle = '#3b2f26'; c.fill();
-    const hp = Math.max(0, e.hp / e.maxHp); if (hp > 0) { rr(c, x - bw / 2, hy, Math.max(bh, bw * hp), bh, bh / 2); c.fillStyle = e.d.boss ? '#ff7a1a' : hp > .5 ? '#5fcb45' : hp > .25 ? '#ffc83a' : '#ff5b4f'; c.fill(); }
+    const hp = Math.max(0, e.hp / e.maxHp); if (hp > 0) { rr(c, x - bw / 2, hy, Math.max(bh, bw * hp), bh, bh / 2); c.fillStyle = e.d.boss || e.d.mini ? '#ff7a1a' : hp > .5 ? '#5fcb45' : hp > .25 ? '#ffc83a' : '#ff5b4f'; c.fill(); }
     rr(c, x - bw / 2, hy, bw, bh, bh / 2); c.stroke();
     if (e.mod) { const M = MODS[e.mod], f = Math.max(9, T * .2); c.font = `900 ${f}px Nunito,system-ui,sans-serif`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.lineWidth = 3; c.strokeStyle = OL; c.strokeText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); c.fillStyle = M.col; c.fillText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); }
     if (e.d.arm) { c.beginPath(); c.moveTo(x - bw / 2 - 7, hy - 2); c.lineTo(x - bw / 2 + 1, hy - 2); c.lineTo(x - bw / 2 + 1, hy + bh - 1); c.lineTo(x - bw / 2 - 3, hy + bh + 3); c.lineTo(x - bw / 2 - 7, hy + bh - 1); c.closePath(); fs(c, e.shredT > 0 ? '#ff9a8a' : '#c9d1d9'); }
@@ -1329,6 +1334,8 @@ function draw(fdt) {
   if (G.arm) { c.fillStyle = supById(G.arm).tgt === 'road' ? 'rgba(255,200,58,.12)' : 'rgba(255,91,79,.12)'; c.fillRect(0, 0, W, H); }
   if (G.pick && !G.arm) { c.fillStyle = 'rgba(255,255,255,.13)'; for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (freeTile(x, y)) { rr(c, OX + x * T + 3, OY + y * T + 3, T - 6, T - 6, T * .18); c.fill(); } }
   for (const z of G.zones) { const a = Math.min(1, z.t / 1.2) * .55; c.fillStyle = `rgba(200,205,210,${a})`; for (let i = 0; i < 7; i++) { const q = i * .9 + G.t * .4; circ(c, PX(z.x + Math.cos(q) * z.r * .55), PY(z.y + Math.sin(q) * z.r * .45), T * z.r * .45); c.fill(); } }
+  if (G.bliz) { c.fillStyle = 'rgba(235,245,255,.3)'; c.fillRect(0, 0, W, H); c.strokeStyle = 'rgba(255,255,255,.75)'; c.lineWidth = 2; c.beginPath();
+    for (let i = 0; i < 60; i++) { const sx = (i * 137.5 + G.t * 260) % (W + 80) - 40, sy = (i * 71.3 + G.t * 120 + i * i) % H; c.moveTo(sx, sy); c.lineTo(sx - 14, sy - 5); } c.stroke(); }
   if (G.frozeT > 0) { G.frozeT -= fdt; c.fillStyle = `rgba(160,220,255,${Math.min(.25, G.frozeT * .1)})`; c.fillRect(0, 0, W, H); }
   c.restore();
 }

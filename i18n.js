@@ -42,7 +42,7 @@ var DICT = {
     'Бой сыгран подозрительно быстро — награда не начислена': 'The battle was played suspiciously fast — no reward given',
     'Сервер не смог подтвердить бой — награда не начислена': "The server couldn't verify the battle — no reward given",
     'Лимитки работают только в Telegram-версии с сервером игры.': 'Limited tanks only work in the Telegram version with the game server.',
-    'Пока нет. Они падают с боссов (ур. 8, 16, 24) и за 3★.': 'None yet. They drop from bosses (lv. 8, 16, 24) and for 3★ wins.',
+    'Пока нет. Они падают с боссов (ур. 8, 16, 24, 32) и за 3★.': 'None yet. They drop from bosses (lv. 8, 16, 24, 32) and for 3★ wins.',
     '3. За уничтоженных врагов — 💵, на них ставь и улучшай танки до ★4.': '3. Destroyed enemies give 💵 — spend it to place tanks and upgrade them up to ★4.',
     '4. Смотри обнаружение: ✈ авиация летит напрямую, 👁 скрытых видят не все, по 🛡 броне без бронебойности урон всего 30%.': '4. Watch detection: ✈ aircraft fly straight, 👁 hidden enemies are not seen by everyone, 🛡 armor takes only 30% damage without armor piercing.',
     '5. Проиграл? Прокачай танки в гараже или купи новые за 🥈/🥇.': '5. Lost? Upgrade tanks in the garage or buy new ones for 🥈/🥇.',
@@ -89,6 +89,15 @@ var DICT = {
     'Лимитка: молния бьёт сильнее Теслы и дальше прыгает.': 'Limited: lightning hits harder than Tesla and jumps further.',
     /* враги */
     'Лёгкий танк': 'Light tank', 'Броневик': 'Armored car', 'Средний танк': 'Medium tank', 'Вертолёт': 'Helicopter', 'Ремонтник': 'Mechanic',
+    'Аэросани': 'Aerosled', 'Бурильщик': 'Driller', 'Ледокол': 'Icebreaker', 'Щитоносец': 'Shield bearer',
+    'Очень быстрые. Скользят по льду — замедление на них не действует.': 'Very fast. They glide on ice — slowing has no effect.',
+    'Время от времени зарывается под снег — пока он под землёй, по нему не попасть.': 'Burrows under the snow from time to time — while underground it cannot be hit.',
+    'Мини-босс.': 'Mini-boss.',
+    'Каждые 7 с бьёт морозом: танки рядом замерзают на 2 с. Оглуши его — и мороза не будет.': 'Every 7 s it unleashes frost: nearby tanks freeze for 2 s. Stun it to stop the frost.',
+    'Каждые 7s бьёт морозом: танки рядом замерзают на 2s. Оглуши его — и мороза не будет.': 'Every 7s it unleashes frost: nearby tanks freeze for 2s. Stun it to stop the frost.',
+    'Броня. Каждые 7 с бьёт морозом: танки рядом замерзают на 2 с. Оглуши его — и мороза не будет.': 'Armor. Every 7 s it unleashes frost: nearby tanks freeze for 2 s. Stun it to stop the frost.',
+    'Щит: враги рядом с ним получают вдвое меньше урона. Убивай его первым.': 'Shield: enemies near it take half damage. Kill it first.',
+    'Метель! Дальность танков −25%': 'Blizzard! Tank range −25%',
     'Камуфляж': 'Camo', 'Грузовик': 'Truck', 'Тяжёлый танк': 'Heavy tank', 'Бомбардировщик': 'Bomber', 'Колосс': 'Colossus',
     'Быстрый и хлипкий. Берёт числом.': 'Fast and flimsy. Wins by numbers.',
     'Покрепче лёгкого танка.': 'Tougher than a light tank.',
@@ -255,7 +264,7 @@ function tr(s, lang = LANG) {
 /* В браузере: переводим всё, что появляется на странице (текст, placeholder, title). Элементы с data-notr не трогаем */
 if (typeof document !== 'undefined') {
   document.documentElement.lang = LANG;
-  if (LANG !== 'ru' && LANG !== 'en') document.write('<script src="lang/' + LANG + '.js?v=3"><\/script>');
+  if (LANG !== 'ru' && LANG !== 'en') document.write('<script src="lang/' + LANG + '.js?v=4"><\/script>');
   /* Тот же проход меняет эмодзи валют и значков (🥈 🥇 ⛽ ⭐ 💎 🔒 🎁 🎟 🏰 💵 🎒 🔥 💀 ✈ 🛡 ⏱ 💥) на нарисованные иконки (<i class="ing …">) — для всех языков, включая русский */
   {
     const CYR = /[А-Яа-яЁё]/, ING = /\u{1F948}|\u{1F947}|\u26FD|\u2B50|\u{1F48E}|\u{1F512}|\u{1F381}|\u{1F39F}|\u{1F3F0}|\u{1F4B5}|\u{1F392}|\u{1F525}|\u{1F480}|\u2708|\u{1F6E1}|\u23F1|\u{1F4A5}/u, ICO = { '🥈': 's', '🥇': 'g', '⛽': 'f', '⭐': 'st', '💎': 'gem', '🔒': 'lk', '🎁': 'gift', '🎟': 'tk', '🏰': 'base', '💵': 'cash', '🎒': 'bag', '🔥': 'fire', '💀': 'skull', '✈': 'air', '🛡': 'armor', '⏱': 'timer', '💥': 'boom' }, SKIP = 'script,style,[data-notr]', DONE = new WeakMap();

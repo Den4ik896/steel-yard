@@ -2,7 +2,7 @@
    Всё, что влияет на результат боя, — детерминировано: фиксированный шаг DT, свой ГСЧ G.rnd по сиду матча.
    Визуальные эффекты (G.vis) могут использовать Math.random — на сервере vis=false. */
 /* ======================= Константы ======================= */
-const COLS = 9, ROWS = 14, LEVELS = 24, FCOST = 1, MAXF = 10, FREGEN = 300000, DECK = 4, MAXLV = 10;
+const COLS = 9, ROWS = 14, LEVELS = 32, FCOST = 1, MAXF = 10, FREGEN = 300000, DECK = 4, MAXLV = 10;
 const WAVE_GAP = 5, BOXCD = 4 * 3600000;
 /* Улучшения в бою: 4 уровня ★. Множители урона/перезарядки/дальности и цена (доля от стоимости танка) */
 const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 4;
@@ -91,6 +91,11 @@ const ENEMY = {
   bomber:    { n: 'Бомбардировщик', hp: 170, speed: 1.5, fly: 1, reward: 16, cost: 6, leak: 2, size: .76, gap: 1.2, from: 14, w: .8, desc: '✈ Быстрый и крепкий самолёт — летит напрямую к базе!' },
   assault:   { n: 'Штурмовой танк', hp: 300, speed: .95, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
   ghost:     { n: 'Ночной вертолёт', hp: 140, speed: 1.3, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
+  sled:      { n: 'Аэросани', hp: 55, speed: 2.3, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
+  digger:    { n: 'Бурильщик', hp: 230, speed: .85, reward: 16, cost: 5, leak: 2, size: .6, gap: 1.1, from: 21, w: .8, dig: 1, desc: '⛏ Время от времени зарывается под снег — пока он под землёй, по нему не попасть.' },
+  /* ⭐ мини-боссы ледяного перевала: приходят каждые 5 волн, в обычный набор волны не попадают (w: 0) */
+  icebreaker:{ n: 'Ледокол', hp: 1100, speed: .45, arm: 1, reward: 70, cost: 0, leak: 10, size: .92, gap: 1.6, from: 17, w: 0, mini: 1, frost: 1, desc: '⭐ Мини-босс. 🛡 Броня. Каждые 7 с бьёт морозом: танки рядом замерзают на 2 с. Оглуши его — и мороза не будет.' },
+  shield:    { n: 'Щитоносец', hp: 900, speed: .6, reward: 60, cost: 0, leak: 8, size: .84, gap: 1.6, from: 20, w: 0, mini: 1, aura: 1, desc: '⭐ Мини-босс. Щит: враги рядом с ним получают вдвое меньше урона. Убивай его первым.' },
   boss:      { n: 'Колосс', hp: 2200, speed: .33, arm: 1, reward: 150, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
 };
 const ELOOK = {
@@ -108,7 +113,7 @@ const LOCS = [
     bg: 'linear-gradient(#b5ea8a,#7fca5b)', path: '#f3dca8', dec: ['🌳', '🌲', '🌼', '🍄', '🌷', '🪨'] },
   { name: 'Жаркая пустыня', rb: '#e8862a', icon: '🏜️', from: 9, to: 16, g1: '#f4d48f', g2: '#eecb80', road: '#cfa064', edge: '#9d7240', obs: ['cactus', 'rock', 'cactus', 'bones'],
     bg: 'linear-gradient(#ffe3a6,#f0c071)', path: '#fff0cc', dec: ['🌵', '🪨', '🦂', '🐫', '🌴'], part: 'dust' },
-  { name: 'Ледяной перевал', rb: '#3d9be0', icon: '❄️', from: 17, to: 24, g1: '#eef6fb', g2: '#e2eef6', road: '#bdd0de', edge: '#8ea7bc', obs: ['pine', 'pine', 'snowman', 'ice'],
+  { name: 'Ледяной перевал', rb: '#3d9be0', icon: '❄️', from: 17, to: 32, g1: '#eef6fb', g2: '#e2eef6', road: '#bdd0de', edge: '#8ea7bc', obs: ['pine', 'pine', 'snowman', 'ice'],
     bg: 'linear-gradient(#f1f9ff,#c3e1f4)', path: '#ffffff', dec: ['🌲', '⛄', '❄️', '🏔️', '🐧'], part: 'snow' }
 ];
 const PATHS = [
@@ -119,14 +124,17 @@ const PATHS = [
   [[[6, -1], [6, 4], [2, 4], [2, 8], [6, 8], [6, 12], [3, 12], [3, 14]]],
   [[[1, -1], [1, 12], [4, 12], [4, 2], [7, 2], [7, 14]]],
   [[[1, -1], [1, 7], [4, 7], [4, 10], [2, 10], [2, 14]], [[7, -1], [7, 3], [5, 3], [5, 7], [4, 7], [4, 10], [2, 10], [2, 14]]],
-  [[[0, -1], [0, 4], [4, 4], [4, 8], [7, 8], [7, 14]], [[8, -1], [8, 2], [4, 2], [4, 8], [7, 8], [7, 14]]]
+  [[[0, -1], [0, 4], [4, 4], [4, 8], [7, 8], [7, 14]], [[8, -1], [8, 2], [4, 2], [4, 8], [7, 8], [7, 14]]],
+  /* ледяной перевал: длинный серпантин и две дороги, сходящиеся у базы */
+  [[[0, -1], [0, 2], [8, 2], [8, 6], [0, 6], [0, 10], [4, 10], [4, 14]]],
+  [[[1, -1], [1, 3], [3, 3], [3, 6], [1, 6], [1, 9], [4, 9], [4, 14]], [[7, -1], [7, 3], [5, 3], [5, 6], [7, 6], [7, 9], [4, 9], [4, 14]]]
 ];
-const LV_P = [0, 1, 3, 2, 4, 5, 1, 2, 6, 0, 3, 7, 5, 2, 6, 4, 7, 5, 6, 3, 7, 2, 6, 7];
+const LV_P = [0, 1, 3, 2, 4, 5, 1, 2, 6, 0, 3, 7, 5, 2, 6, 4, 7, 5, 6, 3, 7, 2, 6, 7, 8, 9, 3, 7, 8, 6, 9, 9];
 function LVL(n) {
   const mir = n > 8 && n % 2 === 0;
   let ps = PATHS[LV_P[n - 1]];
   if (mir) ps = ps.map(p => p.map(([x, y]) => [COLS - 1 - x, y]));
-  return { n, paths: ps, loc: LOCS[Math.floor((n - 1) / 8)], boss: n % 8 === 0, scale: 1 + (n - 1) * 0.12 + Math.min(.4, Math.max(0, n - 2) * .1) + Math.min(.3, Math.max(0, n - 3) * .1) - Math.max(0, n - 12) * .04,
+  return { n, paths: ps, loc: LOCS.find(l => n >= l.from && n <= l.to), boss: n % 8 === 0, bliz: n >= 25, scale: 1 + (n - 1) * 0.12 + Math.min(.4, Math.max(0, n - 2) * .1) + Math.min(.3, Math.max(0, n - 3) * .1) - Math.max(0, n - 12) * .04,
     cash: 170 + n * 10 + Math.max(0, n - 5) * 8 - Math.min(30, Math.max(0, n - 3) * 10) + Math.max(0, n - 12) * 6, lives: BASE_HP };
 }
 const levelSilver = (n) => 80 + n * 30;
@@ -261,11 +269,12 @@ function posAt(P, d) {
    Награда за убийство растёт так же, как ХП. Волны по-прежнему детерминированы (сид = номер уровня). */
 const MODS = { b: { n: 'Раздутый', hp: 2, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 5, sc: 1.4, col: '#b45cff' } };
 function makeWaves(n, np) {
-  const r = rng(n * 7919 + 13), boss = n % 8 === 0, nw = Math.min(15, 6 + Math.floor(n / 2)), waves = [];
-  const unl = Object.keys(ENEMY).filter(k => ENEMY[k].from <= n), fresh = unl.find(k => ENEMY[k].from === n);
+  const r = rng(n * 7919 + 13), boss = n % 8 === 0, nw = n <= 16 ? Math.min(15, 6 + Math.floor(n / 2)) : n === 17 ? 18 : n === 18 ? 24 : Math.min(34, 30 + Math.floor((n - 19) / 3)), waves = [];
+  const minis = Object.keys(ENEMY).filter(k => ENEMY[k].mini && ENEMY[k].from <= n);
+  const unl = Object.keys(ENEMY).filter(k => ENEMY[k].from <= n && !ENEMY[k].mini), fresh = unl.find(k => ENEMY[k].from === n);
   const pick = (pool) => { let x = r() * pool.reduce((a, k) => a + ENEMY[k].w, 0); for (const k of pool) { x -= ENEMY[k].w; if (x <= 0) return k; } return pool[0]; };
   for (let w = 0; w < nw; w++) {
-    const cap = 2 + w * 1.4; let budget = (5 + 2.3 * Math.min(n, 4) + 1.2 * Math.max(0, n - 4)) * (1 + .37 * Math.min(w, 8) + .18 * Math.max(0, w - 8)) * (w === 0 && n > 4 ? .7 : 1), pool = unl, list = [];
+    const cap = 2 + w * 1.4; let budget = (5 + 2.3 * Math.min(n, 4) + 1.2 * Math.max(0, n - 4)) * (1 + .37 * Math.min(w, 8) + (n <= 16 ? .18 * Math.max(0, w - 8) : .12 * Math.min(7, Math.max(0, w - 8)) + .05 * Math.max(0, w - 15)) * (n <= 16 ? 1 : .6)) * (w === 0 && n > 4 ? .7 : 1), pool = unl, list = [];
     if (w === 0) pool = unl.filter(k => ENEMY[k].cost <= 2);
     else {
       /* Ранние волны — лёгкие враги, тяжёлые появляются ближе к концу уровня */
@@ -273,9 +282,11 @@ function makeWaves(n, np) {
       if (n >= 5 && r() < .25) { const th = pool.filter(k => k !== 'light' && k !== fresh && !(ENEMY[k].hid && n < ENEMY[k].from + 3)); if (th.length) pool = [th[Math.floor(r() * th.length)]]; }
     }
     while (budget > .5) { let k = pick(pool); if (fresh && w >= 1 && ENEMY[fresh].cost <= cap && r() < .2) k = fresh; list.push(k); budget -= ENEMY[k].cost; }
-    if (boss && w === nw - 1) list.push('boss');
+    /* ⭐ мини-босс каждые 5 волн (с ур. 27 — по два на каждой 10-й); на ур. 32 босса ведут оба мини-босса */
+    if (minis.length && w % 5 === 4 && w < nw - 1) { const m = Math.floor(w / 5); list.push(minis[m % minis.length]); if (n >= 27 && w % 10 === 9 && minis.length > 1) list.push(minis[(m + 1) % minis.length]); }
+    if (boss && w === nw - 1) { list.push('boss'); if (n >= 32) list.push(...minis); }
     const pB = w === 0 ? 0 : Math.min(.22, .05 + .015 * w + .004 * n), pC = n >= 6 && w >= nw - 3 ? Math.min(.12, .03 + .004 * n) : 0;
-    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss') { const x = r(); if (x < pC) q.mod = 'c'; else if (x < pC + pB) q.mod = 'b'; } return q; }));
+    waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini) { const x = r(); if (x < pC) q.mod = 'c'; else if (x < pC + pB) q.mod = 'b'; } return q; }));
   }
   return waves;
 }
@@ -306,7 +317,7 @@ const upPrice = (tw) => Math.round(tw.t.cost * TIER.up[tw.tier - 1]);
 const towerAt = (x, y) => G.towers.find(t => t.x === x && t.y === y);
 function spawn(type, pi, dist = 0, mod) {
   const d = ENEMY[type], P = d.fly && !d.road ? G.air[pi] : G.paths[pi], M = MODS[mod];
-  const hp = Math.round(d.hp * G.L.scale * (1 + .05 * Math.max(0, G.wave - 1)) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
+  const hp = Math.round(d.hp * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
   const p = posAt(P, dist);
   G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: d.reward * (M ? M.hp : 1), x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
 }
@@ -316,19 +327,20 @@ function targets(tw, s) {
     if (e.dead || e.y < -.4) continue;
     if (e.d.fly ? !s.air : !s.ground) continue;
     if (e.d.hid && !s.hid) continue;
+    if (e.under) continue;
     const d = Math.hypot(e.x - tw.x, e.y - tw.y);
-    if (d <= s.range + e.d.size * .3) { e._d = d; L.push(e); }
+    if (d <= s.range * (G.bliz ? .75 : 1) + e.d.size * .3) { e._d = d; L.push(e); }
   }
   if (tw.mode === 'strong') L.sort((a, b) => b.hp - a.hp || b.dist / b.P.total - a.dist / a.P.total); else if (tw.mode === 'near') L.sort((a, b) => a._d - b._d); else L.sort((a, b) => b.dist / b.P.total - a.dist / a.P.total);
   if (tw.t.kind === 'aa') L.sort((a, b) => !!b.d.fly - !!a.d.fly); /* зенитка: сначала авиация */
   return L;
 }
 function hurt(e, dmg, o = {}) {
-  if (e.dead) return;
+  if (e.dead || e.under) return;
   const blocked = e.d.arm && !o.pen && !(e.shredT > 0), v = blocked ? dmg * ARMK : dmg;
-  e.hp -= v; if (!o.quiet) e.hitT = .08;
-  if (o.slow) { const k = e.d.boss ? o.slow / 2 : o.slow; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = 2; }
-  if (o.stun) e.stunT = Math.max(e.stunT, e.d.boss ? o.stun / 3 : o.stun);
+  e.hp -= e.shU > G.time ? v / 2 : v; if (!o.quiet) e.hitT = .08;
+  if (o.slow && !e.d.noslow) { const k = e.d.boss || e.d.mini ? o.slow / 2 : o.slow; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = 2; }
+  if (o.stun) e.stunT = Math.max(e.stunT, e.d.boss ? o.stun / 3 : e.d.mini ? o.stun / 2 : o.stun);
   if (o.shred) e.shredT = o.shred;
   if (blocked && !o.quiet && G.vis && Math.random() < .15) G.fx.push({ k: 'txt', x: e.x, y: e.y - .55, txt: '🛡', t: 0, life: .6, col: '#c9d1d9' });
   if (o.show && G.vis) G.fx.push({ k: 'txt', x: e.x, y: e.y - .5, txt: (o.crit ? 'КРИТ! ' : '') + Math.round(v), t: 0, life: .9, col: o.crit ? '#ff5b4f' : '#fff' });
@@ -471,9 +483,9 @@ function update(dt) {
   if (G.over) return;
   G.time += dt;
   for (const k in G.sup) if (G.sup[k].cd > 0) G.sup[k].cd -= dt;
-  for (const z of G.zones) { z.t -= dt; for (const e of G.enemies) if (!e.dead && Math.hypot(e.x - z.x, e.y - z.y) < z.r) { const k = e.d.boss ? .25 : .5; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = Math.max(e.slowT, .25); } }
+  for (const z of G.zones) { z.t -= dt; for (const e of G.enemies) if (!e.dead && !e.d.noslow && Math.hypot(e.x - z.x, e.y - z.y) < z.r) { const k = e.d.boss ? .25 : .5; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = Math.max(e.slowT, .25); } }
   G.zones = G.zones.filter(z => z.t > 0);
-  if (G.spawnQ.length) { G.spawnT -= dt; if (G.spawnT <= 0) { const q = G.spawnQ.shift(); spawn(q.type, q.pi, 0, q.mod); G.spawnT = ENEMY[q.type].gap * (G.spawnQ[0] && G.spawnQ[0].type !== q.type ? 1.3 : 1); } }
+  if (G.spawnQ.length) { G.spawnT -= dt; if (G.spawnT <= 0) { const q = G.spawnQ.shift(); spawn(q.type, q.pi, 0, q.mod); G.spawnT = ENEMY[q.type].gap * (G.spawnQ[0] && G.spawnQ[0].type !== q.type ? 1.3 : 1) * (G.n >= 17 ? .7 : 1); } }
   else if (G.wave > 0 && G.wave < G.waves.length && !G.enemies.length) { if (G.nextT == null) G.nextT = WAVE_GAP; G.nextT -= dt; if (G.nextT <= 0) callWave(false); }
   else G.nextT = null;
   for (const e of G.enemies) {
@@ -483,7 +495,11 @@ function update(dt) {
     if (e.burnT > 0) { e.burnT -= dt; hurt(e, e.burnD * dt, { pen: 1, quiet: 1 }); if (e.dead) continue; if (G.vis && Math.random() < dt * 10) G.parts.push({ x: e.x + (Math.random() - .5) * .3, y: e.y, vx: 0, vy: -1, t: 0, life: .4, r: .08, col: '#ff7a1a', flame: 1 }); }
     if (e.d.heal) { e.healT -= dt; if (e.healT <= 0) { e.healT = 1; for (const o of G.enemies) if (o !== e && !o.dead && Math.hypot(o.x - e.x, o.y - e.y) < 1.6 && o.hp < o.maxHp) o.hp = Math.min(o.maxHp, o.hp + o.maxHp * .06); if (G.vis) G.fx.push({ k: 'ring', x: e.x, y: e.y, r: 1.6, t: 0, life: .5, col: '#6bff8a' }); } }
     if (e.d.boss) { e.sumT -= dt; if (e.sumT <= 0) { e.sumT = 6; spawn('light', e.pi, Math.max(0, e.dist - .4)); spawn('btr', e.pi, Math.max(0, e.dist - .8)); } }
+    if (e.d.aura) for (const o of G.enemies) if (o !== e && !o.dead && Math.hypot(o.x - e.x, o.y - e.y) < 1.7) o.shU = G.time + .3;
+    if (e.d.dig) { e.digC = (e.digC == null ? 3 : e.digC) - dt; if (e.digC <= 0) { e.under = !e.under; e.digC = e.under ? 1.5 : 3.5; } }
     if (e.stunT > 0) { e.stunT -= dt; continue; }
+    if (e.d.frost) { e.frT = (e.frT == null ? 4 : e.frT) - dt; if (e.frT <= 0) { e.frT = 7; for (const tw of G.towers) if (Math.hypot(tw.x - e.x, tw.y - e.y) < 1.9) tw.frz = 2;
+      if (G.vis) G.fx.push({ k: 'ring', x: e.x, y: e.y, r: 1.9, t: 0, life: .6, col: '#9fe6ff' }); } }
     if (e.slowT > 0) e.slowT -= dt;
     const sp = e.d.speed * (e.slowT > 0 ? 1 - e.slowK : 1);
     e.dist += sp * dt; e.tread += sp * dt * 3;
@@ -499,8 +515,11 @@ function update(dt) {
   G.mines = G.mines.filter(m => !m.done);
   for (const b of G.bombs) { b.delay -= dt; if (b.delay <= 0) { b.done = 1; explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1 }); if (b.air) explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1, fly: 1 }); } }
   G.bombs = G.bombs.filter(b => !b.done);
+  /* ❄ Метель (ур. 25+): каждые 50 с на 8 с дальность танков −25% */
+  if (G.L.bliz) { const b = G.wave > 0 && G.time % 50 > 42; if (b && !G.bliz && G.vis) tip('🌨 Метель! Дальность танков −25%', 1800); G.bliz = b; }
   for (const tw of G.towers) {
     tw.cd -= dt; tw.rec = Math.max(0, tw.rec - dt * 5); if (tw.flash > 0) tw.flash -= dt;
+    if (tw.frz > 0) { tw.frz -= dt; continue; }
     if (tw.t.kind === 'supply') continue;
     if (tw.t.kind === 'spawner') { if (G.enemies.length && tw.cd <= 0 && G.allies.filter(a => a.tw === tw).length < 8) { const s = tstats(tw); tw.cd = s.rate; makeAllies(tw, s); } continue; }
     const s = tstats(tw), L = targets(tw, s);
@@ -536,7 +555,7 @@ function update(dt) {
 /* ======================= Детерминированный шаг и действия игрока ======================= */
 /* Бой идёт фиксированными шагами по 1/60 с. Каждое действие игрока пишется в G.log как [тик, код, ...аргументы].
    Сервер берёт этот лог, проигрывает бой заново тем же кодом и сам решает, кто победил. */
-const DT = 1 / 60, MAX_TICKS = 60 * 60 * 45, MAX_LOG = 4000;
+const DT = 1 / 60, MAX_TICKS = 60 * 60 * 60, MAX_LOG = 4000;
 function step() { update(DT); G.tick++; }
 const okXY = (x, y) => Number.isInteger(x) && Number.isInteger(y) && x >= 0 && y >= 0 && x < COLS && y < ROWS;
 const freeTile = (x, y) => okXY(x, y) && !G.road.has(x + ',' + y) && !G.obs.has(x + ',' + y) && !towerAt(x, y);
