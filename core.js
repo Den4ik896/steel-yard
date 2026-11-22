@@ -283,11 +283,13 @@ function makeWaves(n, np) {
     }
     while (budget > .5) { let k = pick(pool); if (fresh && w >= 1 && ENEMY[fresh].cost <= cap && r() < .2) k = fresh; list.push(k); budget -= ENEMY[k].cost; }
     /* ⭐ мини-босс каждые 5 волн (с ур. 27 — по два на каждой 10-й); на ур. 32 босса ведут оба мини-босса */
-    if (minis.length && w % 5 === 4 && w < nw - 1) { const m = Math.floor(w / 5); list.push(minis[m % minis.length]); if (n >= 27 && w % 10 === 9 && minis.length > 1) list.push(minis[(m + 1) % minis.length]); }
+    if (minis.length && (n >= 17 ? w % 3 === 2 : w % 5 === 4) && w < nw - 1) { const m = Math.floor(w / 5); list.push(minis[m % minis.length]); if (n >= 27 && w % 10 === 9 && minis.length > 1) list.push(minis[(m + 1) % minis.length]); }
     if (boss && w === nw - 1) { list.push('boss'); if (n >= 32) list.push(...minis); }
     /* ✈ налёты (с ур. 14): самолёт бомбит случайный танк — оглушение 3–8 с */
     if (n >= ENEMY.bomber.from && w >= 2) { const k = (r() < Math.min(.5, .3 + .01 * (n - 14)) ? 1 : 0) + (n >= 25 && r() < .3 ? 1 : 0); for (let j = 0; j < k; j++) list.splice(Math.floor(r() * (list.length + 1)), 0, 'bomber'); }
-    const pB = w === 0 ? 0 : Math.min(.22, .05 + .015 * w + .004 * n), pC = n >= 6 && w >= nw - 3 ? Math.min(.12, .03 + .004 * n) : 0;
+    let pB = w === 0 ? 0 : Math.min(.22, .05 + .015 * w + .004 * n), pC = n >= 6 && w >= nw - 3 ? Math.min(.12, .03 + .004 * n) : 0;
+    /* ❄ зима (ур. 17+), волны 12+: Колоссов ×5 больше, почти все остальные — Раздутые ×2 */
+    if (n >= 17 && w >= 11) { pC = Math.max(pC, .16 + .004 * (w - 11)); pB = .92 - pC; }
     waves.push(list.map((k, i) => { const q = { type: k, pi: np > 1 ? Math.floor(i / 3) % 2 : 0 }; if (k !== 'boss' && !ENEMY[k].mini && !ENEMY[k].raid) { const x = r(); if (x < pC) q.mod = 'c'; else if (x < pC + pB) q.mod = 'b'; } return q; }));
   }
   return waves;
@@ -323,7 +325,9 @@ function spawn(type, pi, dist = 0, mod) {
   /* ✈ бомбардировщик: летит по прямой через ряд случайного танка, бомбит его и улетает за край */
   let tw = null, P = d.fly && !d.road ? G.air[pi] : G.paths[pi];
   if (d.raid) { tw = G.towers.length ? G.towers[Math.floor(G.rnd() * G.towers.length)] : null; const y = tw ? tw.y : ROWS / 2; P = buildPath([[-1.5, y], [COLS + 1.5, y]], true); }
-  const hp = Math.round(d.hp * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
+  /* ❄ зима: босс ×2.5, мини-боссы с 16-й волны — с ХП босса */
+  const base = G.n >= 17 && d.boss ? d.hp * 2.5 : G.n >= 17 && d.mini && G.wave >= 16 ? ENEMY.boss.hp * 2.5 : d.hp;
+  const hp = Math.round(base * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
   const p = posAt(P, dist);
   G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: d.reward * (M ? M.hp : 1), x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
   if (d.raid) G.enemies[G.enemies.length - 1].tw = tw;
