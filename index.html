@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '16';
+const VER = '17';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -316,6 +316,13 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 .cur .pl{background:url(img/kit/plus.webp) center/contain no-repeat;border:0;width:22px;height:22px;color:transparent}
 /* 4 валюты + язык в шапке: на узких экранах ужимаем */
 @media (max-width:440px){header{gap:4px;padding:8px 6px}header .cur{padding:2px 5px 2px 3px;font-size:13px;gap:2px}.cur .pl{width:18px;height:18px;margin-left:1px}header .cur .ing{width:1.15em;height:1.15em}}
+/* полоски прогресса и плашки валют — картинки kit (рамка тянется 9-slice) */
+.lprog,.prog,.bar div{--h:20px;height:var(--h);box-sizing:border-box;border:0;border-radius:0;background:none;overflow:visible;border-image:url(img/kit/bar_track.webp) 0 42 fill/0 calc(var(--h)*.75) stretch;padding:calc(var(--h)*.25) calc(var(--h)*.23)}
+.prog{--h:18px}.bar div{--h:16px}
+.lprog i,.prog i,.bar div i{background:none;border-image:url(img/kit/bar_fill.webp) 0 15 fill/0 calc(var(--h)*.25) stretch;min-width:calc(var(--h)*.5);max-width:100%}
+.lprog i[style*="width:0%"],.prog i[style*="width:0%"],.bar div i[style*="width:0%"]{display:none}
+header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/bar_dark.webp) 0 29 fill/0 15px stretch;color:#fff;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;padding:5px 7px 5px 6px}
+
 </style>
 </head>
 <body>
