@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '24';
+const VER = '25';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -75,7 +75,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .row.c{justify-content:center}
 .grow{flex:1}
 .chip{display:inline-block;background:var(--cream2);border:2px solid var(--ink);border-radius:999px;padding:0 8px;font-size:12px;font-weight:900;margin:2px 2px 0 0}
-.chip.air{background:#bfe6ff}.chip.no{background:#f3c9c4;opacity:.75;text-decoration:line-through;text-decoration-thickness:2px}.chip.ok{background:#c9efb4}
+.chip.air{background:#bfe6ff}.chip.no{background:#f3c9c4;opacity:.75}.chip.soon{background:#ffe36b}.chip.ok{background:#c9efb4}
 .chip.new{background:#ffe36b;box-shadow:0 0 0 2px #fff,0 0 10px #ffd23f}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:8px 0;text-align:left}
 .st{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:13px;border-bottom:2px dotted rgba(43,33,24,.18);padding-bottom:2px}
@@ -834,9 +834,11 @@ function mapHTML() {
   return h + '</div>';
 }
 /* Кусок HTML: чипы обнаружения как в TDS — зелёный есть, красный нет */
-function detHTML(d, prev) {
-  return [['g', '🛞', 'Земля'], ['a', ...DETS.a], ['h', ...DETS.h], ['l', ...DETS.l]].map(([k, i, n]) =>
-    `<span class="chip ${d[k] ? 'ok' : 'no'}${prev && d[k] && !prev[k] ? ' new' : ''}">${i} ${n}</span>`).join('');
+/* full — t.det танка: чего ещё нет, но откроется на ★N — жёлтый значок с ★N */
+function detHTML(d, prev, full) {
+  return [['g', '🛞', 'Земля'], ['a', ...DETS.a], ['h', ...DETS.h], ['l', ...DETS.l]].map(([k, i, n]) => {
+    const soon = !d[k] && full && full[k];
+    return `<span class="chip ${d[k] ? 'ok' : soon ? 'soon' : 'no'}${prev && d[k] && !prev[k] ? ' new' : ''}">${i} ${n}${soon ? ' ★' + full[k] : ''}</span>`; }).join('');
 }
 /* Значки обнаружения для карточек: яркий — есть сразу, с цифрой — откроется на ★N в бою, бледный — никогда */
 function detIcons(t) {
@@ -899,7 +901,7 @@ function tankModal(id) {
     <div style="font-size:24px">${t.name} ${lv ? `<span class="chip">ур.${lv}</span>` : ''}</div>
     <div class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n} · ${t.role} · ${t.cost} 💵 в бою</div>
     <p style="margin:6px 0;font-weight:700;font-size:14px">${t.desc}</p>
-    ${s.sup ? '' : `<div class="dets">${detHTML(s.det)}</div>`}
+    ${s.sup ? '' : `<div class="dets">${detHTML(s.det, null, t.det)}</div>`}
     <div class="stats">${statRows(s, nx)}</div>
     ${nx ? `<div class="muted" style="font-size:12px">Зелёным — что станет на ур.${lv + 1} (+20% урона)</div>` : ''}
     <div style="font-size:15px;margin-top:8px;text-align:left">Улучшения в бою ★ <span class="muted" style="font-size:12px">— цены в 💵 матча</span></div>
@@ -1401,7 +1403,7 @@ function closeRadial() { $('#radial').classList.remove('on'); $('#tinfo').classL
 function infoTank(t, lv, extra = '') {
   const s = calc(t, lv, 1);
   return `<b>${t.name}</b> <span class="rar" style="--rc:${RAR[t.rar].c}">${t.role}</span> <span class="muted">ур.${lv} · ${t.cost} 💵</span>` +
-    `<div class="stats">${statRows(s)}</div>` + (s.sup ? '' : `<div class="dets">${detHTML(s.det)}</div>`) + extra;
+    `<div class="stats">${statRows(s)}</div>` + (s.sup ? '' : `<div class="dets">${detHTML(s.det, null, t.det)}</div>`) + extra;
 }
 function openRadial(x, y) {
   G.sel = { x, y }; G.prev = null;
@@ -1444,7 +1446,7 @@ function showInfo() {
     const st = calc(tw.t, tw.lv, tw.tier), nx = tw.tier < MAXT ? calc(tw.t, tw.lv, tw.tier + 1) : null;
     h = `<b>${tw.t.name} ${'★'.repeat(tw.tier)}<span style="opacity:.3">${'★'.repeat(MAXT - tw.tier)}</span></b> <span class="muted">${tw.t.role}${st.sup ? '' : ' · цель: ' + MODES[tw.mode]}</span>` +
       (nx ? ` <span class="chip" style="background:#ffe36b">⬆ ★${tw.tier + 1} за ${upPrice(tw)} 💵</span>` : ' <span class="chip ok">👑 Максимум</span>') + ` <span class="chip">Вложено: ${tw.spent} 💵</span>` +
-      `<div class="stats">${statRows(st, nx)}</div>` + (tw.t.kind === 'spawner' ? spawnHTML(tw.tier) : '') + (st.sup ? '' : `<div class="dets">${detHTML(nx ? nx.det : st.det, nx ? st.det : null)}</div>`) +
+      `<div class="stats">${statRows(st, nx)}</div>` + (tw.t.kind === 'spawner' ? spawnHTML(tw.tier) : '') + (st.sup ? '' : `<div class="dets">${detHTML(nx ? nx.det : st.det, nx ? st.det : null, tw.t.det)}</div>`) +
       `<span class="muted">${tw.tier === MAXT ? '✅ Перк: ' : `⭐ На ★${MAXT}: `}${tw.t.perk}</span>`;
     if (G.prev === 'sell') h += '<br><b style="color:#c43a30">Нажми 💰 ещё раз, чтобы продать</b>';
   } else if (G.prev) h = infoTank(tankById(G.prev), G.lvOf[G.prev], '<br><b style="color:#2d8a1f">Нажми ещё раз, чтобы поставить</b>');
