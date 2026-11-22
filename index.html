@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '13';
+const VER = '15';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -282,7 +282,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 .gday img{width:46px;height:46px}.gday small{font-size:10px;opacity:.7}.gday b{font-size:10px;line-height:1.1;text-align:center}
 .gday:last-child{grid-column:span 2;background:linear-gradient(#fff3b0,#ffd45a)}
 .gday.now{background:linear-gradient(#c9f7b0,#7fe05a);animation:pls 1.2s infinite}
-.gday.done{opacity:.55}.gday.done::after{content:'✓';position:absolute;top:2px;right:5px;color:#1f8a16;font-size:18px;font-weight:900}
+.gday.done{background:#e9dcc2}.gday.done>*{opacity:.5}.gday.done::after{content:'';position:absolute;top:-8px;right:-8px;width:28px;height:28px;background:url(img/kit/node_done.webp) center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(43,33,24,.35))}
 .gifth{position:relative}.gifth .dot{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--r);border:3px solid var(--ink)}
 /* Лимитки и рынок */
 .nftl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
@@ -612,6 +612,7 @@ const ICON = {};
 const GIFTC = { red: ['#ff5b4f', '#ffd23f'], blue: ['#45a6ff', '#ffffff'], green: ['#5fcb45', '#ff5b4f'], purple: ['#b06bff', '#ffd23f'], gold: ['#ffc83a', '#ff4f9a'] };
 function icon(kind, id, size = 96, attrs, serial) {
   if (kind === 'b' || kind === 'bo') return `img/ui/box_${id}${kind === 'bo' ? '_o' : ''}.webp`;   // сундуки — нарисованные картинки (bo = открытый)
+  if (kind === 'g') return `img/ui/gift${GIFTC[id] && id !== 'red' ? '_' + id : ''}.webp`;   // подарки дня — картинки 5 цветов
   const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
   const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
   if (kind === 't') { const t = tankById(id); drawTank(c, size / 2, size / 2, size * .62, skinLook(t, sk), -Math.PI / 4, -Math.PI / 4, sk ? { gear: sk.gr, num: sk.n } : {}); if (sk && sk.fl) { c.font = `${Math.round(size * .26)}px system-ui`; c.fillText(sk.fl, size * .04, size * .3); } }
