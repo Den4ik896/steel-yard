@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '12';
+const VER = '13';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -121,7 +121,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .node{position:absolute;transform:translate(-50%,-50%);width:43px;height:43px;border-radius:50%;background:var(--y);border:4px solid var(--ink);box-shadow:0 5px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
 .node b{font-size:16px;line-height:1;color:#fff;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
 .node i{position:absolute;bottom:-27px;font-style:normal;font-size:24px;letter-spacing:-1px;color:#ffcc1f;-webkit-text-stroke:1.6px var(--ink);paint-order:stroke fill;white-space:nowrap}
-.node i .e{color:#fff7}
+.node i s{display:inline-block;width:22px;height:22px;margin:0 -1px;background:url(img/ui/star_gold.webp) center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(43,33,24,.35))}.node i s.e{filter:grayscale(1) brightness(1.5);opacity:.75}
 .node.done{background:var(--g)}
 .node.boss{width:52px;height:52px;background:var(--r)}
 .node.locked{background:#b9b0a0;box-shadow:0 3px 0 var(--ink)}
@@ -178,7 +178,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}.mi.smoke{background-image:url(img/ui/smoke.webp)}.mi.repair{background-image:url(img/ui/repair.webp)}.mi.barrage{background-image:url(img/ui/barrage.webp)}.mi.emp{background-image:url(img/ui/emp.webp)}.mi.orbital{background-image:url(img/ui/orbital.webp)}.mi.freeze{background-image:url(img/ui/freeze.webp)}.mi.zone1{background-image:url(img/ui/zone1.webp)}.mi.zone2{background-image:url(img/ui/zone2.webp)}.mi.zone3{background-image:url(img/ui/zone3.webp)}
 nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45em}.hcard .big .mi{width:1.6em;height:1.6em}
 .ing{display:inline-block;width:1.35em;height:1.35em;vertical-align:-.3em;margin:0 .08em;background:center/contain no-repeat}
-.ing.s{background-image:url(img/ui/silver.webp)}.ing.base{background-image:url(img/deco/fort.webp)}.ing.g{background-image:url(img/ui/gold.webp)}.ing.f{background-image:url(img/ui/fuel.webp)}.ing.st{background-image:url(img/ui/star.webp)}
+.ing.s{background-image:url(img/ui/silver.webp)}.ing.base{background-image:url(img/deco/fort.webp)}.ing.cash{background-image:url(img/ui/cash.webp)}.ing.bag{background-image:url(img/ui/bag.webp)}.ing.fire{background-image:url(img/ui/fire.webp)}.ing.skull{background-image:url(img/ui/skull.webp)}.ing.air{background-image:url(img/ui/air.webp)}.ing.armor{background-image:url(img/ui/armor.webp)}.ing.timer{background-image:url(img/ui/timer.webp)}.ing.boom{background-image:url(img/ui/boom.webp)}.ing.g{background-image:url(img/ui/gold.webp)}.ing.f{background-image:url(img/ui/fuel.webp)}.ing.st{background-image:url(img/ui/star.webp)}
 .ing.gem{background-image:url(img/ui/gem.webp)}.ing.lk{background-image:url(img/ui/lock.webp)}.ing.gift{background-image:url(img/ui/gift.webp)}.ing.tk{background-image:url(img/ui/ticket.webp)}
 .enl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
 .en{position:relative;width:74px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:2px 2px 4px;font-size:11px;line-height:1.1}
@@ -361,7 +361,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=6"></script>
+<script src="i18n.js?v=7"></script>
 <script src="sfx.js?v=1"></script>
 <script src="core.js?v=10"></script>
 <script>
@@ -744,7 +744,7 @@ function mapHTML() {
       const st = S.stars[n] || 0, lock = n > un, boss = n % 8 === 0, cur = n === un && !st;
       if (boss) h += `<i class="dec fort" style="left:${X(n)}%;top:${Y(n) - 50}px">${MAPSPR.fort}</i>`;
       h += `<button class="node ${lock ? 'locked' : st ? 'done' : ''} ${boss ? 'boss' : ''} ${cur ? 'cur' : ''}" style="left:${X(n)}%;top:${Y(n)}px" data-act="lvl" data-n="${n}">
-        <b>${boss ? '💀' : n}</b>${flagSvg(lock ? '#c43a30' : st ? '#3d8bff' : '#ffd23f')}${lock ? '' : `<i>${[0, 1, 2].map(k => k < st ? '★' : '<span class="e">★</span>').join('')}</i>`}</button>`;
+        <b>${boss ? '💀' : n}</b>${flagSvg(lock ? '#c43a30' : st ? '#3d8bff' : '#ffd23f')}${lock ? '' : `<i>${[0, 1, 2].map(k => `<s${k < st ? '' : ' class="e"'}></s>`).join('')}</i>`}</button>`;
     }
     h += '</section>';
   });

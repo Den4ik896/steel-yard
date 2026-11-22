@@ -255,16 +255,16 @@ function tr(s, lang = LANG) {
 if (typeof document !== 'undefined') {
   document.documentElement.lang = LANG;
   if (LANG !== 'ru' && LANG !== 'en') document.write('<script src="lang/' + LANG + '.js?v=3"><\/script>');
-  /* Тот же проход меняет эмодзи валют и значков (🥈 🥇 ⛽ ⭐ 💎 🔒 🎁 🎟) на нарисованные иконки (<i class="ing …">) — для всех языков, включая русский */
+  /* Тот же проход меняет эмодзи валют и значков (🥈 🥇 ⛽ ⭐ 💎 🔒 🎁 🎟 🏰 💵 🎒 🔥 💀 ✈ 🛡 ⏱ 💥) на нарисованные иконки (<i class="ing …">) — для всех языков, включая русский */
   {
-    const CYR = /[А-Яа-яЁё]/, ING = /\u{1F948}|\u{1F947}|\u26FD|\u2B50|\u{1F48E}|\u{1F512}|\u{1F381}|\u{1F39F}|\u{1F3F0}/u, ICO = { '🥈': 's', '🥇': 'g', '⛽': 'f', '⭐': 'st', '💎': 'gem', '🔒': 'lk', '🎁': 'gift', '🎟': 'tk', '🏰': 'base' }, SKIP = 'script,style,[data-notr]', DONE = new WeakMap();
+    const CYR = /[А-Яа-яЁё]/, ING = /\u{1F948}|\u{1F947}|\u26FD|\u2B50|\u{1F48E}|\u{1F512}|\u{1F381}|\u{1F39F}|\u{1F3F0}|\u{1F4B5}|\u{1F392}|\u{1F525}|\u{1F480}|\u2708|\u{1F6E1}|\u23F1|\u{1F4A5}/u, ICO = { '🥈': 's', '🥇': 'g', '⛽': 'f', '⭐': 'st', '💎': 'gem', '🔒': 'lk', '🎁': 'gift', '🎟': 'tk', '🏰': 'base', '💵': 'cash', '🎒': 'bag', '🔥': 'fire', '💀': 'skull', '✈': 'air', '🛡': 'armor', '⏱': 'timer', '💥': 'boom' }, SKIP = 'script,style,[data-notr]', DONE = new WeakMap();
     const attrs = (el) => { for (const a of ['placeholder', 'title']) { const v = el.getAttribute(a); if (v && CYR.test(v)) { const t = tr(v); if (t !== v) el.setAttribute(a, t); } } };
     const txt = (x) => {
       let v = x.nodeValue; if (DONE.get(x) === v) return;
       if (CYR.test(v)) { const t = tr(v); if (t !== v) x.nodeValue = v = t; } // пишем только если изменилось, иначе observer зациклится
       if (!ING.test(v) || !x.parentNode || x.parentElement.closest('option,textarea,title')) return;
       const f = document.createDocumentFragment();
-      for (const p of v.split(/(\u{1F948}|\u{1F947}|\u26FD|\u2B50|\u{1F48E}|\u{1F512}|\u{1F381}|\u{1F39F}|\u{1F3F0})\uFE0F?/u)) {
+      for (const p of v.split(/(\u{1F948}|\u{1F947}|\u26FD|\u2B50|\u{1F48E}|\u{1F512}|\u{1F381}|\u{1F39F}|\u{1F3F0}|\u{1F4B5}|\u{1F392}|\u{1F525}|\u{1F480}|\u2708|\u{1F6E1}|\u23F1|\u{1F4A5})\uFE0F?/u)) {
         if (!p) continue;
         if (ING.test(p)) { const i = document.createElement('i'); i.className = 'ing ' + ICO[p]; f.appendChild(i); }
         else { const t = document.createTextNode(p); DONE.set(t, p); f.appendChild(t); }
