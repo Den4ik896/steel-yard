@@ -5,7 +5,7 @@
 const COLS = 9, ROWS = 14, LEVELS = 32, FCOST = 1, MAXF = 10, FREGEN = 300000, DECK = 4, MAXLV = 10;
 const WAVE_GAP = 5, BOXCD = 4 * 3600000;
 /* Улучшения в бою: 4 уровня ★. Множители урона/перезарядки/дальности и цена (доля от стоимости танка) */
-const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 5; /* ★5: цена ×2 от ★4, урон +35%, перезарядка −20% (Мороз: +300% и −60%) */
+const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 5; /* ★5: цена ×2 от ★4, урон +35%, перезарядка −20% (Мороз: +300% и −20%) */
 const ARMK = 0.3; /* урон по 🛡 бронированным без бронебойности */
 const DETS = { a: ['✈', 'Воздух'], h: ['👁', 'Скрытые'], l: ['🛡', 'Броня'] };
 const OL = '#2b2118';
@@ -75,7 +75,7 @@ const TANKS = [
 ];
 /* Ручной баланс (страница «Арсенал»): cost — постройка, up — доплата за ★2–★4, dps — DPS на 1-м уровне прокачки (в единицах игры),
    rg — радиус, slow/slowB — замедление % (обычные / боссы и мини-боссы), spl — сплеш, lim — сколько таких танков можно поставить в бою. null — как было */
-const MAXTW = 20;
+const MAXTW = 25;
 const TUNE = {
   shmel:   { lim: 6, up: [30, 60, 110], rg: [2.5, 3, 3.5, 4.35] },
   bobr:    { lim: 6, up: [null, null, 200], dps: [5, 7, 9, 20], rg: [null, 3, 4, 4] },
@@ -93,7 +93,7 @@ const TUNE = {
   grom:    { lim: 3, up: [null, null, 500], dps: [null, null, null, 25], rg: [null, null, 3.45, null] },
   baraban: { lim: 3, dps: [6.5, 9, 15, null] },
   relsa:   { lim: 4 },
-  uskor:   { lim: 4, cost: 350, up: [360, 500, 900], dps: [24, 39, 57, 90], rg: [3, 3.3, 3.8, 5] },
+  uskor:   { lim: 4, cost: 350, up: [360, 500, 900], dps: [28, 43, 64, 99, 166], rg: [3, 3.3, 3.8, 5] },
 };
 for (const [id, o] of Object.entries(TUNE)) { const t = TANKS.find(x => x.id === id); if (!t) continue; if (o.cost) t.cost = o.cost; t.tune = o; }
 const tierUp = (t, k) => { if (k === 5) return 2 * tierUp(t, 4); const u = t.tune && t.tune.up && t.tune.up[k - 2]; return u != null ? u : Math.round(t.cost * TIER.up[k - 2]); }; /* доплата за ★k */
@@ -251,9 +251,10 @@ function maxUnlocked() { let n = 1; while (n < LEVELS && S.stars[n] > 0) n++; re
 function calc(t, lv = 1, tier = 1) {
   const s = calc4(t, lv, Math.min(tier, 4)); if (tier < 5) return s;
   s.t5 = 1; if (s.sup) { s.give = Math.round(s.give * 1.35); return s; }
-  const fr = t.id === 'moroz', D = fr ? 4 : 1.35, R = fr ? .4 : .8;
+  const fr = t.id === 'moroz', D = fr ? 4 : 1.35, R = .8;
   s.dmg *= D; s.rate *= R; s.dps *= D / R;
   if (s.ally) { s.shots = 3; s.dps = s.dmg * 3 / s.rate; }
+  const w5 = tv(t, 'dps', 4); if (w5 != null && s.dps > 0) { const f = w5 * HPU * (1 + 0.2 * (lv - 1)) / s.dps; s.dmg *= f; s.dps *= f; } /* ★5 DPS из ручного баланса */
   return s;
 }
 function calc4(t, lv, tier) {

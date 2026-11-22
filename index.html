@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '43';
+const VER = '44';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -372,7 +372,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=23"></script>
+<script src="core.js?v=24"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -895,7 +895,7 @@ function tankModal(id) {
     (lv < MAXLV ? `<button class="btn green" data-act="up" data-id="${id}" ${S.silver < upCost(t, lv) ? 'disabled' : ''}>⬆ ур.${lv + 1} · 🥈 ${upCost(t, lv)}</button>` : '<span class="chip">Макс. уровень</span>');
   const tiers = [1, 2, 3, 4, 5].map(k => {
     const c = calc(t, lv || 1, k), p = k > 1 ? calc(t, lv || 1, k - 1).det : {}, nw = k > 1 ? Object.keys(c.det).filter(x => c.det[x] && !p[x]) : [];
-    const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === 4 ? ['⭐ ' + t.perk] : []), ...(k === 5 ? [t.id === 'moroz' ? '🔥 Урон +300%, перезарядка −60%' : t.kind === 'supply' ? '🔥 Доход +35%' : t.kind === 'spawner' ? '🔥 3 тяжёлых танка, +35% силы, выпуск на 20% чаще' : '🔥 Урон +35%, перезарядка −20%'] : [])].join(' · ');
+    const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === 4 ? ['⭐ ' + t.perk] : []), ...(k === 5 ? [t.id === 'moroz' ? '🔥 Урон +300%, перезарядка −20%' : t.kind === 'supply' ? '🔥 Доход +35%' : t.kind === 'spawner' ? '🔥 3 тяжёлых танка, +35% силы, выпуск на 20% чаще' : '🔥 Урон +35%, перезарядка −20%'] : [])].join(' · ');
     return `<div class="tr"><b>${'★' + k}</b><span>${k === 1 ? t.cost : '+' + tierUp(t, k)} 💵</span>` +
       (c.sup ? `<span style="grid-column:span 3">+${c.give} 💵 за волну</span>` : `<span>💥 ${hpN(c.dmg)}</span><span>⚡ ${hpN(c.dps)}</span><span>📏 ${c.range.toFixed(1)}</span>`) +
       (extra ? `<div class="nw">${extra}</div>` : '') + `</div>`;
