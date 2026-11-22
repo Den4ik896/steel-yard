@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="ru">
 <head>
+<script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
+const VER = '11';
+fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Tank Defense</title>
@@ -174,7 +178,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}.mi.smoke{background-image:url(img/ui/smoke.webp)}.mi.repair{background-image:url(img/ui/repair.webp)}.mi.barrage{background-image:url(img/ui/barrage.webp)}.mi.emp{background-image:url(img/ui/emp.webp)}.mi.orbital{background-image:url(img/ui/orbital.webp)}.mi.freeze{background-image:url(img/ui/freeze.webp)}.mi.zone1{background-image:url(img/ui/zone1.webp)}.mi.zone2{background-image:url(img/ui/zone2.webp)}.mi.zone3{background-image:url(img/ui/zone3.webp)}
 nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45em}.hcard .big .mi{width:1.6em;height:1.6em}
 .ing{display:inline-block;width:1.35em;height:1.35em;vertical-align:-.3em;margin:0 .08em;background:center/contain no-repeat}
-.ing.s{background-image:url(img/ui/silver.webp)}.ing.g{background-image:url(img/ui/gold.webp)}.ing.f{background-image:url(img/ui/fuel.webp)}.ing.st{background-image:url(img/ui/star.webp)}
+.ing.s{background-image:url(img/ui/silver.webp)}.ing.base{background-image:url(img/deco/fort.webp)}.ing.g{background-image:url(img/ui/gold.webp)}.ing.f{background-image:url(img/ui/fuel.webp)}.ing.st{background-image:url(img/ui/star.webp)}
 .ing.gem{background-image:url(img/ui/gem.webp)}.ing.lk{background-image:url(img/ui/lock.webp)}.ing.gift{background-image:url(img/ui/gift.webp)}.ing.tk{background-image:url(img/ui/ticket.webp)}
 .enl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
 .en{position:relative;width:74px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:2px 2px 4px;font-size:11px;line-height:1.1}
@@ -203,8 +207,8 @@ nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45e
 #bwrap{display:flex;flex-direction:column;height:100%;max-width:520px;width:100%;margin:0 auto}
 #hud{display:flex;align-items:center;gap:6px;padding:8px 8px 9px;background:linear-gradient(#5b6573,#3c434e);border-bottom:3px solid #000;box-shadow:inset 0 2px 0 rgba(255,255,255,.18)}
 .hpbar{position:relative;flex:1;height:32px;background:#2a1d18;border:3px solid var(--ink);border-radius:10px;box-shadow:0 3px 0 #000;overflow:hidden;min-width:0}
-.hpbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(#7fe05a 0 45%,#4fb43a 55%);transition:width .25s}
-.hpbar.mid i{background:linear-gradient(#ffd84a 0 45%,#e6a91f 55%)}.hpbar.low i{background:linear-gradient(#ff6b5a 0 45%,#d63b2e 55%)}
+.hpbar>i{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(#7fe05a 0 45%,#4fb43a 55%);transition:width .25s}
+.hpbar.mid>i{background:linear-gradient(#ffd84a 0 45%,#e6a91f 55%)}.hpbar.low>i{background:linear-gradient(#ff6b5a 0 45%,#d63b2e 55%)}
 .hpbar span{position:relative;display:flex;align-items:center;justify-content:center;height:100%;gap:3px;color:#fff;font-weight:900;font-size:15px;text-shadow:0 2px 0 #000,0 0 3px #000}
 .hpbar small{font-size:11px;opacity:.8}
 .hpbar.hit{animation:hpHit .35s}@keyframes hpHit{30%{transform:translateX(-3px);filter:brightness(1.8)}60%{transform:translateX(3px)}}
@@ -247,7 +251,7 @@ nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45e
 .ab.sl{width:auto;min-width:0}.ab.sl img{width:40px;height:40px;display:block;margin:0 auto}
 .ab.sl.poor{filter:grayscale(.6);opacity:.65}.ab.sl.empty{opacity:.35}
 .ab.sl .n{position:absolute;top:2px;right:4px;font-size:11px;font-weight:900;background:var(--ink);color:#fff;border-radius:8px;padding:0 4px}
-.ab.swp{width:52px;flex:none;background:#ffe36b}.ab.swp.sup{background:#b9e3ff}
+.ab.swp{width:52px;flex:none;background:#ffe36b}.ab.swp.sup{background:#b9e3ff}.ab.swp span img{width:36px;height:36px;display:block;margin:auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}
 .sic{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:radial-gradient(#fff,color-mix(in srgb,var(--rc) 55%,#fff));border:2px solid var(--ink);font-size:24px;line-height:1}
 .shopt .sic.big{width:62px;height:62px;font-size:36px;margin:0}.shopt .sic.big .mi{width:46px;height:46px}
 .sic .mi{width:30px;height:30px}.sic.big{width:84px;height:84px;font-size:50px;margin:6px auto 2px}.sic.big .mi{width:62px;height:62px}
@@ -303,7 +307,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 .btn:disabled{filter:grayscale(.8);opacity:.6}
 .panel,.hcard,.boxc,.mbox{background:none;border:4px solid transparent;box-shadow:none;border-image:url(img/kit/panel.webp) 24 fill / 13px stretch;filter:drop-shadow(0 4px 0 rgba(43,33,24,.3))}
 .mbox{border-image-width:16px}
-.ribbon,.ribbon.g,.ribbon.b{background:none;border:0;border-radius:0;box-shadow:none;border-image:url(img/kit/ribbon.webp) 28 64 30 64 fill / 18px 40px 20px 40px stretch;padding:7px 46px 12px;color:#fff;text-shadow:0 2px 0 rgba(43,33,24,.55),0 0 3px rgba(43,33,24,.5)}
+.ribbon,.ribbon.g,.ribbon.b{background:none;border:0;border-radius:0;box-shadow:none;border-image:url(img/kit/ribbon.webp) 28 64 30 64 fill / 18px 40px 20px 40px stretch;padding:4px 46px 15px;line-height:1.15;color:#fff;text-shadow:0 2px 0 rgba(43,33,24,.55),0 0 3px rgba(43,33,24,.5)}
 .ribbon{filter:hue-rotate(-38deg) saturate(1.2)}.ribbon.g{filter:hue-rotate(55deg)}.ribbon.b{filter:hue-rotate(165deg)}
 .node,.node.done,.node.locked,.node.boss{background:url(img/kit/node_gold.webp) center/154% no-repeat;border:0;box-shadow:none;filter:drop-shadow(0 4px 0 rgba(43,33,24,.35))}
 .node.done{background-image:url(img/kit/node_done.webp);background-size:104%}.node.done b{opacity:0}
@@ -357,7 +361,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=4"></script>
+<script src="i18n.js?v=6"></script>
 <script src="sfx.js?v=1"></script>
 <script src="core.js?v=10"></script>
 <script>
@@ -724,7 +728,7 @@ function mapHTML() {
   const un = maxUnlocked();
   let h = `<div class="panel squadbar"><div class="grow"><div style="font-size:16px">Твой отряд</div><div class="muted">${S.deck.length}/${DECK} танка в бой</div></div>${S.deck.map(id => `<img src="${icon('t', id, 46)}">`).join('')}<button class="btn sm blue" data-act="tab" data-tab="garage">✎</button></div>`;
   /* Одна сплошная карта кампании: дорога идёт через все области, закрытые области — под туманом, но уровни видны */
-  const X = (n) => 50 + 28 * Math.sin(n * 1.15), TOP = 110, GAP = 100;
+  const X = (n) => 50 + 28 * Math.sin(n * 1.15), TOP = 180, GAP = 100;
   h += '<div class="wmap">';
   LOCS.forEach((L, li) => {
     const cnt = L.to - L.from + 1, H = TOP + (cnt - 1) * GAP + 60, r = rng(L.from * 31), Y = (n) => TOP + (n - L.from) * GAP;
@@ -1431,7 +1435,7 @@ function buildSlots() {
   el.innerHTML = [0, 1, 2, 3].map(i => { const id = L[i]; if (!id) return '<button class="ab sl empty" disabled><span>＋</span><small>&nbsp;</small></button>';
     return barMode === 't' ? `<button class="ab sl" data-sl="${id}"><img src="${tIcon(id, 40)}"><small>${tankById(id).cost} 💵</small></button>`
       : `<button class="ab sl" data-sl="${id}">${supIco(id)}<small>${supById(id).n}</small><b class="n"></b><i class="cd"></i></button>`; }).join('');
-  const sw = $('#bSwap'); sw.classList.toggle('sup', barMode === 's'); sw.innerHTML = barMode === 't' ? '<span>🎒</span><small>Поддержка</small>' : '<span>🛡</span><small>Танки</small>';
+  const sw = $('#bSwap'); sw.classList.toggle('sup', barMode === 's'); sw.innerHTML = barMode === 't' ? '<span>🎒</span><small>Поддержка</small>' : `<span><img src="${icon('t', S.deck[0], 64)}" alt=""></span><small>Танки</small>`;
   updSlots();
 }
 function updSlots() {
