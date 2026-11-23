@@ -126,6 +126,8 @@ const ENEMY = {
   shield:    { n: 'Щитоносец', hp: 1440, speed: 1.35, reward: 60, cost: 0, leak: 8, size: .84, gap: 1.6, from: 20, w: 0, mini: 1, aura: 1, desc: '⭐ Мини-босс. Щит: враги рядом с ним получают вдвое меньше урона. Убивай его первым.' },
   boss:      { n: 'Колосс', hp: 5120, speed: 0.85, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
 };
+/* Баланс: все враги едут на 40% медленнее */
+const ESPK = .6; for (const d of Object.values(ENEMY)) d.speed *= ESPK;
 const ELOOK = {
   light: { h: '#e0763c', tur: 'circle', ts: .22, bar: 1, bl: .45, bw: .08 },
   scout: { h: '#7b8a4a', tur: 'dome', ts: .2, bar: 1, bl: .5, bw: .07, camo: 1 },
@@ -220,6 +222,8 @@ const SUPS = [
   { id: 'orbital', n: 'Орбитальный удар', rar: 'legendary', tgt: 'pt', cost: 400, cd: 40, free: 1, price: { gold: 250 }, desc: 'Через 1 с — огромный взрыв по земле и воздуху.' },
   { id: 'freeze', n: 'Стоп-время', rar: 'limited', tgt: 'now', cost: 500, cd: 90, free: 1, price: { gems: 300 }, desc: 'Все враги на карте замирают на 5 с. Босс — на 2 с.' },
 ];
+/* Баланс: способности в бою в 2 раза дешевле */
+for (const d of SUPS) d.cost = Math.round(d.cost / 2);
 const SDECK = 4, SDEF = ['strike', 'mine'], supById = (id) => SUPS.find(s => s.id === id);
 /* Прокачка поддержки в Гараже: цена 🥈 за уровень × множитель редкости, каждый уровень +25% к силе (урон, длительность, ремонт) */
 const SUPC = [150, 300, 600, 1000], SMAXLV = 5, SUPG = .25;
