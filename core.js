@@ -77,18 +77,18 @@ const TANKS = [
    rg — радиус, slow/slowB — замедление % (обычные / боссы и мини-боссы), spl — сплеш, lim — сколько таких танков можно поставить в бою. null — как было */
 const MAXTW = 25;
 const TUNE = {
-  shmel:   { lim: 10, nst: 4, up: [40, 60, 100, 135], dmg: [6, 9, 13, 32, 50], rate: [.5, .5, .6, 1, 1], rg: [2.5, 2.5, 3.5, 4.35], det: { g: 1, a: 3, h: 3 } },
-  bobr:    { lim: 4, cost: 80, up: [60, 85, 200, 600], dmg: [13, 33, 50, 80, 80], rate: [1.25, 2, 2, 3, 2], rg: [3, 3.5, 4, 4, 5], det: { g: 1, l: 2, a: 5, h: 5 } },
+  shmel:   { lim: 10, nst: 4, up: [40, 60, 100, 135], dmg: [6, 9, 13, 32, 50], rate: [.5, .5, .6, 1, 1], rg: [2.5, 2.5, 3.5, 4.35], det: { g: 1, a: 3, h: 2 } },
+  bobr:    { lim: 4, cost: 80, up: [60, 85, 200, 600], dmg: [13, 33, 50, 80, 80], rate: [1.25, 2, 2, 3, 2], rg: [3, 3.5, 4, 4, 5], det: { g: 1, l: 2, a: 5, h: 2 } },
   zhar:    { lim: 3, cone: 60, cost: 150, up: [50, 165, 350, 750], dps: [10, 13, 20, 25], dmg: [1.2, 1.5, 2.3, 3.3, 4.2], rate: [null, null, null, .08, .05], rg: [2, 2.5, 2.7, 3, 3.3], price: { silver: 600 } },
   sokol:   { lim: 2, cost: 200, up: [150, 300, 500], dmg: [90, 180, 300, 275, 450], rate: [3, 4, 4, 3, 3], rg: [null, 6, 8, 8.5, 12] },
-  moroz:   { lim: 3, cost: 50, up: [150, 175, 325], dps: [2, 3, 5, 8], dmg: [null, null, null, null, 30], rate: [null, null, null, null, .5], slow: [20, 25, 35, 50], slowB: [10, 15, 17.5, 20], spl: [.3, .4, .5, .6], rg: [3, 4, 4, 4.25] },
-  vihr:    { lim: 8, nst: 3, cost: 60, up: [125, 300, 200], dmg: [1.5, 4.5, 6], rate: [null, null, .2], rg: [3, 3.5, 4, 4], det: { g: 1, a: 1, h: 3 }, price: { silver: 900 } },
-  oboz:    { lim: 6, nst: 4, cost: 125, up: [100, 145, 200], giveLv: .05 },
+  moroz:   { lim: 3, cost: 50, up: [150, 175, 325], dps: [2, 3, 5, 8], dmg: [null, null, null, 20, 30], rate: [null, null, null, .7, .5], slow: [20, 25, 35, 38, 40], slowB: [10, 15, 17.5, 20], spl: [.3, .4, .5, .6], rg: [3, 4, 4, 4.25] },
+  vihr:    { lim: 8, nst: 3, cost: 60, up: [125, 300, 200], dmg: [1.5, 4.5, 7], rate: [.3, null, .2], rg: [3.3, 3.8, 4.5], det: { g: 1, a: 2, h: 2 }, price: { silver: 900 } },
+  oboz:    { lim: 6, nst: 4, cost: 100, up: [80, 130, 165], giveLv: .05 },
   kuvalda: { lim: 3, up: [200, 335, 595], dps: [8, 20, 28, 80], rate: [4, 5, 4, 6, 5], spl: [1, 1.1, 1.22, 1.28, 1.44], rg: [3, 3.5, 4.5, 4.5], price: { gold: 75 } },
-  tesla:   { lim: 3, cost: 135, up: [100, 140, 200], dmg: [24, 20, 31, 42, 70], rate: [2, 1.1, null, 1, 1], rg: [2.65, 2.95, 3.5, 4, 4.5], det: { g: 1, a: 4, h: 3, l: 2 } },
+  tesla:   { lim: 3, cost: 135, up: [100, 140, 200], dmg: [24, 22, 31, 42, 70], rate: [2, 1.1, null, 1, 1], rg: [2.65, 2.95, 3.5, 4, 4.5], det: { g: 1, a: 4, h: 3, l: 2 } },
   grad:    { lim: 3, cost: 150, up: [75, 250, 500], dps: [6, 8, 20, 45], spl: [.55, .6, .6, .65, .675], det: { g: 1, a: 1, h: 5, l: 1 } },
   mamont:  { lim: 2, nst: 10, cost: 40, up: [25, 75, 155, 235, 290, 550, 698, 775, 855], dmg: [6, 9.4, 17, 34, 50, 75, 140, 222, 333, 380], rate: [2, 2, 1.7, 1.7, 1.5, 1.5, 1.7, 2, 2, 2],
-             rg: [3, 3.3, 3.5, 4, 4, 4, 4.5, 4.5, 5, 6], det: { g: 1, a: 6, h: 7, l: 8 }, price: { gold: 350 } }, /* ★10: 10% шанс снаряда ×2 */
+             rg: [3, 3.3, 3.5, 4, 4, 4, 4.5, 4.5, 5, 6], det: { g: 1, a: 2, h: 3, l: 5 }, price: { gold: 350 } }, /* ★10: 10% шанс снаряда ×2 */
   polar:   { lim: 4, dps: [3, 5, 8, 9, 15], slow: [30, 33, 38, 45], slowB: [15, 20, 22.5, 25], rg: [3, 3.2, 3.6, 3.7], det: { g: 1, a: 1, h: 1, l: 4 } },
   zavod:   { lim: 4, up: [125, 200, 333] },
   grom:    { lim: 6, up: [null, null, 500], dmg: [15, 20, 28, 50, 78], rate: [2.2, 2.2, 2, 1.8, 1.5], rg: [3, 3.5, 4, 4, 4.25] },
@@ -272,6 +272,7 @@ function calc(t, lv = 1, tier = 1) {
   if ((wd != null || wr != null) && s.dmg > 0 && s.rate > 0) { const k = s.dps * s.rate / s.dmg; if (wd != null) s.dmg = wd * HPU * g; if (wr != null) s.rate = wr; s.dps = k * s.dmg / s.rate; }
   if (wg != null) s.range = wg;
   if (ws != null) { s.spl = ws; if (/^Сплеш/.test(s.aoe)) s.aoe = 'Сплеш ' + ws; }
+  if (tier > 4) { const a = tv(t, 'slow', i), b = tv(t, 'slowB', i); if (a != null) s.slow = a / 100; if (b != null) s.slowB = b / 100; } /* замедление ★5 */
   if (tier > 4) { const d = t.det || {}, has = x => d[x] != null && tier >= d[x]; s.det = s.ally ? { g: has('g'), a: false, h: false, l: has('l') } : { g: has('g'), a: has('a'), h: has('h'), l: has('l') }; }
   return s;
 }
