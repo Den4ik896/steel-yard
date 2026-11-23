@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '50';
+const VER = '51';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,9 +371,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=12"></script>
+<script src="i18n.js?v=13"></script>
 <script src="sfx.js?v=4"></script>
-<script src="core.js?v=27"></script>
+<script src="core.js?v=28"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -897,9 +897,9 @@ function tankModal(id) {
     : `<button class="btn green" data-act="buy" data-id="${id}" ${(t.price.silver && S.silver < t.price.silver) || (t.price.gold && S.gold < t.price.gold) || (t.price.gems && (S.gems || 0) < t.price.gems) ? 'disabled' : ''}>Купить ${priceTxt(t.price)}</button>`;
   else btns = `<button class="btn ${inD ? 'gray' : 'blue'}" data-act="squad" data-id="${id}">${inD ? 'Убрать из отряда' : 'В отряд'}</button>` +
     (lv < MAXLV ? `<button class="btn green" data-act="up" data-id="${id}" ${S.silver < upCost(t, lv) ? 'disabled' : ''}>⬆ ур.${lv + 1} · 🥈 ${upCost(t, lv)}</button>` : '<span class="chip">Макс. уровень</span>');
-  const tiers = [1, 2, 3, 4, 5].map(k => {
+  const tiers = Array.from({ length: maxT(t) }, (_, i) => i + 1).map(k => {
     const c = calc(t, lv || 1, k), p = k > 1 ? calc(t, lv || 1, k - 1).det : {}, nw = k > 1 ? Object.keys(c.det).filter(x => c.det[x] && !p[x]) : [];
-    const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === 4 ? ['⭐ ' + t.perk] : []), ...(k === 5 ? [t.id === 'moroz' ? '🔥 Урон +300%, перезарядка −20%' : t.kind === 'supply' ? '🔥 Доход +35%' : t.kind === 'spawner' ? '🔥 3 тяжёлых танка, +35% силы, выпуск на 20% чаще' : '🔥 Урон +35%, перезарядка −20%'] : [])].join(' · ');
+    const extra = [...nw.map(x => '+ ' + (x === 'g' ? '🛞 Земля' : DETS[x].join(' '))), ...(k === 4 ? ['⭐ ' + t.perk] : []), ...(k === 10 && t.id === 'mamont' ? ['🎯 10% шанс: снаряд ×2'] : []), ...(k === 5 && !tv(t, 'dmg', 4) ? [t.id === 'moroz' ? '🔥 Урон +300%, перезарядка −20%' : t.kind === 'supply' ? '🔥 Доход +35%' : t.kind === 'spawner' ? '🔥 3 тяжёлых танка, +35% силы, выпуск на 20% чаще' : '🔥 Урон +35%, перезарядка −20%'] : [])].join(' · ');
     return `<div class="tr"><b>${'★' + k}</b><span>${k === 1 ? t.cost : '+' + tierUp(t, k)} 💵</span>` +
       (c.sup ? `<span style="grid-column:span 3">+${c.give} 💵 за волну</span>` : `<span>💥 ${hpN(c.dmg)}</span><span>⚡ ${hpN(c.dps)}</span><span>📏 ${c.range.toFixed(1)}</span>`) +
       (extra ? `<div class="nw">${extra}</div>` : '') + `</div>`;
@@ -1446,7 +1446,7 @@ function openRadial(x, y) {
   let items, ang;
   if (tw) {
     items = [];
-    if (tw.tier < MAXT) items.push({ act: 'rup', html: '<span class="ri">⬆️</span>', pr: `${upPrice(tw)} 💵`, cost: upPrice(tw) }); else items.push({ act: 'none', html: '<span class="ri">👑</span>', pr: 'Макс' });
+    if (tw.tier < maxT(tw.t)) items.push({ act: 'rup', html: '<span class="ri">⬆️</span>', pr: `${upPrice(tw)} 💵`, cost: upPrice(tw) }); else items.push({ act: 'none', html: '<span class="ri">👑</span>', pr: 'Макс' });
     items.push({ act: 'rsell', html: '<span class="ri">💰</span>', pr: `+${Math.floor(tw.spent * .6)}` });
     if (tw.t.kind !== 'supply') items.push({ act: 'rmode', html: '<span class="ri">🎯</span>', pr: MODES[tw.mode] });
     ang = [-90, 90, 180];
@@ -1479,8 +1479,8 @@ function showInfo() {
   const tw = towerAt(s.x, s.y), ob = G.obs.get(s.x + ',' + s.y);
   let h = '';
   if (tw) {
-    const st = calc(tw.t, tw.lv, tw.tier), nx = tw.tier < MAXT ? calc(tw.t, tw.lv, tw.tier + 1) : null;
-    h = `<b>${tw.t.name} ${'★'.repeat(tw.tier)}<span style="opacity:.3">${'★'.repeat(MAXT - tw.tier)}</span></b> <span class="muted">${tw.t.role}${st.sup ? '' : ' · цель: ' + MODES[tw.mode]}</span>` +
+    const st = calc(tw.t, tw.lv, tw.tier), nx = tw.tier < maxT(tw.t) ? calc(tw.t, tw.lv, tw.tier + 1) : null;
+    h = `<b>${tw.t.name} ${'★'.repeat(tw.tier)}<span style="opacity:.3">${'★'.repeat(maxT(tw.t) - tw.tier)}</span></b> <span class="muted">${tw.t.role}${st.sup ? '' : ' · цель: ' + MODES[tw.mode]}</span>` +
       (nx ? ` <span class="chip" style="background:#ffe36b">⬆ ★${tw.tier + 1} за ${upPrice(tw)} 💵</span>` : ' <span class="chip ok">👑 Максимум</span>') + ` <span class="chip">Вложено: ${tw.spent} 💵</span>` +
       `<div class="stats">${statRows(st, nx)}</div>` + (tw.t.kind === 'spawner' ? spawnHTML(tw.tier) : '') + (st.sup ? '' : `<div class="dets">${detHTML(nx ? nx.det : st.det, nx ? st.det : null, tw.t.det)}</div>`) +
       `<span class="muted">${tw.tier >= 4 ? '✅ Перк: ' : '⭐ На ★4: '}${tw.t.perk}</span>`;
@@ -1505,7 +1505,7 @@ function radialAct(ra, btn) {
     if (G.cash < c) return toast('Не хватает 💵');
     if (!act('u', s.x, s.y)) return; haptic('medium');
     if (G.vis) G.fx.push({ k: 'txt', x: tw.x, y: tw.y - .4, txt: '★'.repeat(tw.tier), t: 0, life: .9, col: '#ffd23f', big: 1 });
-    if (tw.tier === 5) tip('🔥 ★5: максимальная мощь!', 3000);
+    if (tw.tier >= 5 && tw.tier === maxT(tw.t)) tip(`🔥 ★${tw.tier}: максимальная мощь!`, 3000);
     else if (tw.tier === 4) tip(`Перк открыт: ${tw.t.perk}`, 3000);
     else { const a = calc(tw.t, tw.lv, tw.tier - 1).det, b = calc(tw.t, tw.lv, tw.tier).det, nw = Object.keys(b).filter(k => b[k] && !a[k]); if (nw.length) tip('Новое: ' + nw.map(k => k === 'g' ? '🛞 Земля' : DETS[k].join(' ')).join(', '), 2500); }
     openRadial(s.x, s.y);

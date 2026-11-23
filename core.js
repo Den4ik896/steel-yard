@@ -22,10 +22,10 @@ const MODES = { first: 'Первый', strong: 'Сильный', near: 'Ближ
 const TANKS = [
   /* det: с какого ★ в бою танк видит/бьёт: g — землю, a — ✈ воздух, h — 👁 скрытых, l — 🛡 пробивает броню. Нет ключа — никогда */
   { id: 'shmel', name: 'Шмель', kind: 'mg', rar: 'common', dmg: 5, rate: 0.15, range: 2.3, cost: 70, det: { g: 1, a: 1, h: 3, l: 4 },
-    role: 'Скорострел', desc: 'Сыпет пулями очередью и сбивает авиацию. Броню не пробивает, пока не станет ★4.', perk: 'Бронебойные пули: пробивает 🛡',
+    role: 'Скорострел', desc: 'Сыпет пулями очередью. С ★3 сбивает авиацию. Броню не пробивает.', perk: 'Бронебойные пули: пробивает 🛡',
     look: { h: '#86b84c', tur: 'circle', ts: .21, bar: 2, bl: .58, bw: .042 } },
   { id: 'bobr', name: 'Бобр', kind: 'cannon', rar: 'common', dmg: 28, rate: 1.1, range: 2.6, cost: 90, det: { g: 1, l: 1 },
-    role: 'Пушка', desc: 'Надёжная пушка с хорошим уроном. Пробивает броню.', perk: 'Двойной выстрел',
+    role: 'Пушка', desc: 'Надёжная пушка с хорошим уроном. Броню пробивает с ★2.', perk: 'Двойной выстрел',
     look: { h: '#5f9e4f', tur: 'circle', ts: .27, bar: 1, bl: .62, bw: .13, brake: 1 } },
   { id: 'zhar', name: 'Жар', kind: 'flame', rar: 'rare', dmg: 5, rate: 0.1, range: 1.6, cost: 110, det: { g: 1, l: 1 },
     role: 'Огнемёт', desc: 'Поливает огнём ВСЕХ врагов рядом и поджигает. Огонь прожигает любую броню.', perk: 'Напалм: горение ×2',
@@ -37,7 +37,7 @@ const TANKS = [
     role: 'Криопушка', desc: 'Замораживает: враги и вертолёты едут на 40% медленнее.', perk: 'Глубокая заморозка −60%',
     look: { h: '#4fa8d8', tur: 'circle', ts: .26, bar: 1, bl: .44, bw: .19, extra: 'crystal' }, price: { silver: 400 } },
   { id: 'vihr', name: 'Вихрь', kind: 'aa', rar: 'rare', dmg: 14, rate: 0.3, range: 3.4, cost: 100, det: { g: 1, a: 1, h: 1, l: 1 }, dmgT: [9.5, 13.5, 18, 23],
-    role: 'Зенитка', desc: 'Зенитка с радаром: рвёт авиацию и видит скрытых. По земле бьёт вполсилы, в полную силу — на ★4. Самолёты бьёт первыми.', perk: 'Полный урон по земле',
+    role: 'Зенитка', desc: 'Зенитка: рвёт авиацию, по земле бьёт вполсилы. С ★3 видит скрытых. Броню не пробивает. Самолёты бьёт первыми.', perk: 'Полный урон по земле',
     look: { h: '#8f9c55', tur: 'box', ts: .23, bar: 2, bl: .62, bw: .07, extra: 'dish' }, price: { silver: 400 } },
   { id: 'oboz', name: 'Обоз', kind: 'supply', rar: 'rare', cost: 120, give: [25, 40, 60, 85], range: 0, det: {},
     role: 'Снабжение', desc: 'Не стреляет. В начале каждой волны привозит 💵 на постройку.', perk: '+85 💵 за волну',
@@ -46,13 +46,13 @@ const TANKS = [
     role: 'Гаубица', desc: 'Тяжёлая гаубица: долго перезаряжается, но взрыв накрывает группу врагов.', perk: 'Оглушение на 0.6с',
     look: { h: '#4f6b3a', tur: 'box', ts: .34, bar: 1, bl: .5, bw: .24 }, price: { gold: 90 } },
   { id: 'tesla', name: 'Тесла', kind: 'tesla', rar: 'epic', dmg: 32, rate: 1.2, range: 2.5, cost: 160, chain: 3, det: { g: 1, a: 1, h: 1, l: 1 },
-    role: 'Молния', desc: 'Молния прыгает по 3 врагам, видит всё и игнорирует броню.', perk: 'Цепь из 5 целей',
+    role: 'Молния', desc: 'Молния прыгает по 3 врагам. Броню пробивает с ★2, скрытых видит с ★3, авиацию — с ★4.', perk: 'Цепь из 5 целей',
     look: { h: '#6b5ca5', tur: 'circle', ts: .25, bar: 0, extra: 'coil' }, price: { gold: 110 } },
   { id: 'grad', name: 'Град', kind: 'rockets', rar: 'epic', dmg: 24, rate: 3.2, range: 4.2, cost: 180, splash: 0.55, salvo: 4, det: { g: 1, a: 1, h: 3 },
-    role: 'Ракеты', desc: 'Залп самонаводящихся ракет по нескольким целям, бьёт и авиацию. Броню не пробивает.', perk: '6 ракет в залпе',
+    role: 'Ракеты', desc: 'Залп самонаводящихся ракет по нескольким целям, бьёт и авиацию и пробивает броню.', perk: '6 ракет в залпе',
     look: { h: '#7a8f3d', tur: 'box', ts: .27, bar: 0, extra: 'pod' }, price: { gold: 120 } },
   { id: 'mamont', name: 'Мамонт', kind: 'mammoth', rar: 'legendary', dmg: 55, rate: 1.5, range: 3, cost: 230, det: { g: 1, l: 1, h: 2, a: 4 },
-    role: 'Сверхтяж', desc: 'Двуствольный монстр. Каждое попадание срывает с врага броню — остальные танки бьют его в полную силу.', perk: 'Бьёт и по авиации',
+    role: 'Сверхтяж', desc: 'Двуствольный монстр. Каждое попадание срывает с врага броню — остальные танки бьют его в полную силу.', perk: 'Срывает ещё больше брони',
     look: { h: '#3f6e8c', tur: 'circle', ts: .31, bar: 2, bl: .7, bw: .12, brake: 1 }, price: { gold: 260 } },
   { id: 'polar', name: 'Полярная ночь', kind: 'polar', rar: 'legendary', dmg: 30, rate: 2.2, range: 2.4, cost: 200, slow: 0.5, det: { g: 1, a: 1, h: 1, l: 1 },
     role: 'Ледяной импульс', desc: 'Волна холода бьёт всех вокруг и замедляет на 50%.', perk: 'Полная заморозка на 0.8с',
@@ -77,27 +77,29 @@ const TANKS = [
    rg — радиус, slow/slowB — замедление % (обычные / боссы и мини-боссы), spl — сплеш, lim — сколько таких танков можно поставить в бою. null — как было */
 const MAXTW = 25;
 const TUNE = {
-  shmel:   { lim: 6, up: [30, 60, 110], rg: [2.5, 3, 3.5, 4.35] },
-  bobr:    { lim: 6, up: [null, null, 200], dps: [5, 7, 9, 20], rg: [null, 3, 4, 4] },
-  zhar:    { lim: 3, dps: [10, 13, 20, 25], rg: [2, 2.5, 2.7, 3] },
-  sokol:   { lim: 3, cost: 150, up: [150, 300, 500], dps: [12, 18, 38, 60], rg: [null, 6, 8, 8.5] },
-  moroz:   { lim: 3, cost: 50, up: [150, 175, 325], dps: [2, 3, 5, 8], slow: [20, 25, 35, 50], slowB: [10, 15, 17.5, 20], spl: [.3, .4, .5, .6], rg: [3, 4, 4, 4.25] },
-  vihr:    { lim: 7, cost: 80, up: [25, 100, 200], dps: [9, 10, 17, 25], rg: [3, 3.5, 3.5, 4] },
-  oboz:    { lim: 6, cost: 85, up: [35, 50, 75] },
-  kuvalda: { lim: 3, up: [200, 335, 595], dps: [8, 20, 28, 80], rg: [3, 3.5, 4.5, 4.5] },
-  tesla:   { lim: 4, cost: 135, up: [100, 140, 200], dps: [8, 11, 18, 27], rg: [2.65, 2.95, 3.5, 4] },
-  grad:    { lim: 3, cost: 150, up: [75, 250, 500], dps: [6, 8, 20, 45] },
-  mamont:  { lim: 3, dps: [null, null, null, 33] },
-  polar:   { lim: 4, dps: [3, 5, 8, 10], slow: [30, 33, 38, 45], slowB: [15, 20, 22.5, 25], rg: [3, 3.2, 3.6, 3.7] },
+  shmel:   { lim: 10, nst: 4, up: [40, 60, 100, 135], dmg: [6, 9, 13, 32, 50], rate: [.5, .5, .6, 1, 1], rg: [2.5, 2.5, 3.5, 4.35], det: { g: 1, a: 3, h: 3 } },
+  bobr:    { lim: 4, cost: 80, up: [60, 85, 200, 600], dmg: [13, 33, 50, 80, 80], rate: [1.25, 2, 2, 3, 2], rg: [3, 3.5, 4, 4, 5], det: { g: 1, l: 2, a: 5, h: 5 } },
+  zhar:    { lim: 3, cost: 150, up: [50, 165, 350, 750], dps: [10, 13, 20, 25], dmg: [1.2, 1.5, 2.3, 3.3, 4.2], rate: [null, null, null, .08, .05], rg: [2, 2.5, 2.7, 3, 3.3], price: { silver: 600 } },
+  sokol:   { lim: 2, cost: 200, up: [150, 300, 500], dmg: [90, 180, 300, 275, 450], rate: [3, 4, 4, 3, 3], rg: [null, 6, 8, 8.5, 12] },
+  moroz:   { lim: 3, cost: 50, up: [150, 175, 325], dps: [2, 3, 5, 8], dmg: [null, null, null, null, 30], rate: [null, null, null, null, .5], slow: [20, 25, 35, 50], slowB: [10, 15, 17.5, 20], spl: [.3, .4, .5, .6], rg: [3, 4, 4, 4.25] },
+  vihr:    { lim: 8, nst: 3, cost: 60, up: [125, 300, 200], dmg: [1.5, 4.5, 6], rate: [null, null, .2], rg: [3, 3.5, 4, 4], det: { g: 1, a: 1, h: 3 }, price: { silver: 900 } },
+  oboz:    { lim: 6, nst: 4, cost: 125, up: [100, 145, 200], giveLv: .05 },
+  kuvalda: { lim: 3, up: [200, 335, 595], dps: [8, 20, 28, 80], rate: [4, 5, 4, 6, 5], spl: [1, 1.1, 1.22, 1.28, 1.44], rg: [3, 3.5, 4.5, 4.5], price: { gold: 75 } },
+  tesla:   { lim: 3, cost: 135, up: [100, 140, 200], dmg: [24, 20, 31, 42, 70], rate: [2, 1.1, null, 1, 1], rg: [2.65, 2.95, 3.5, 4, 4.5], det: { g: 1, a: 4, h: 3, l: 2 } },
+  grad:    { lim: 3, cost: 150, up: [75, 250, 500], dps: [6, 8, 20, 45], spl: [.55, .6, .6, .65, .675], det: { g: 1, a: 1, h: 5, l: 1 } },
+  mamont:  { lim: 2, nst: 10, cost: 40, up: [25, 75, 155, 235, 290, 550, 698, 775, 855], dmg: [6, 9.4, 17, 34, 50, 75, 140, 222, 333, 380], rate: [2, 2, 1.7, 1.7, 1.5, 1.5, 1.7, 2, 2, 2],
+             rg: [3, 3.3, 3.5, 4, 4, 4, 4.5, 4.5, 5, 6], det: { g: 1, a: 6, h: 7, l: 8 }, price: { gold: 350 } }, /* ★10: 10% шанс снаряда ×2 */
+  polar:   { lim: 4, dps: [3, 5, 8, 9, 15], slow: [30, 33, 38, 45], slowB: [15, 20, 22.5, 25], rg: [3, 3.2, 3.6, 3.7], det: { g: 1, a: 1, h: 1, l: 4 } },
   zavod:   { lim: 4, up: [125, 200, 333] },
-  grom:    { lim: 3, up: [null, null, 500], dps: [null, null, null, 25], rg: [null, null, 3.45, null] },
-  baraban: { lim: 3, dps: [6.5, 9, 15, null] },
-  relsa:   { lim: 4 },
-  uskor:   { lim: 4, cost: 350, up: [360, 500, 900], dps: [28, 43, 64, 99, 166], rg: [3, 3.3, 3.8, 5] },
-};
-for (const [id, o] of Object.entries(TUNE)) { const t = TANKS.find(x => x.id === id); if (!t) continue; if (o.cost) t.cost = o.cost; t.tune = o; }
-const tierUp = (t, k) => { if (k === 5) return 2 * tierUp(t, 4); const u = t.tune && t.tune.up && t.tune.up[k - 2]; return u != null ? u : Math.round(t.cost * TIER.up[k - 2]); }; /* доплата за ★k */
+  grom:    { lim: 6, up: [null, null, 500], dmg: [15, 20, 28, 50, 78], rate: [2.2, 2.2, 2, 1.8, 1.5], rg: [3, 3.5, 4, 4, 4.25] },
+  baraban: { lim: 2, cost: 800, up: [250, 500, 1100, 1800], dmg: [60, 60, 80, 100, 240], rate: [3, 2, 1.5, 2, 3], rg: [3.15, 3.43, 3.82, 4.4, 5], det: { g: 1, l: 3, a: 2, h: 2 } },
+  relsa:   { lim: 4, rg: [4, 5, 5, 5.6, 6] },
+  uskor:   { lim: 3, cost: 350, up: [360, 500, 900], dps: [28, 43, 64, 99, 166], rg: [3, 3.3, 3.8, 5] },
+}
+for (const [id, o] of Object.entries(TUNE)) { const t = TANKS.find(x => x.id === id); if (!t) continue; if (o.cost) t.cost = o.cost; if (o.price) t.price = o.price; if (o.det) t.det = o.det; t.tune = o; }
+const tierUp = (t, k) => { const u = t.tune && t.tune.up && t.tune.up[k - 2]; if (u != null) return u; if (k >= 5) return 2 * tierUp(t, k - 1); return Math.round(t.cost * TIER.up[k - 2]); }; /* доплата за ★k */
 const tv = (t, key, i) => { const a = t.tune && t.tune[key]; return a && a[i] != null ? a[i] : null; };
+const maxT = (t) => (t.tune && t.tune.nst) || MAXT; /* сколько ★ у башни */
 const tankById = (id) => TANKS.find(t => t.id === id);
 
 /* Враги. HP в бою считается во внутренних единицах; игроку показываем /HPU: лёгкий танк ≈ 5 ❤ */
@@ -259,7 +261,16 @@ function maxUnlocked() { let n = 1; while (n < LEVELS && S.stars[n] > 0) n++; re
 /* Все характеристики танка: lv — уровень в гараже, tier — звёзды в бою (1..4) */
 /* Урон всех танков ×DMGK (Завод: его танки — и ХП, и урон, они считаются от dmg) */
 const DMGK = 2;
-function calc(t, lv = 1, tier = 1) { const s = calc5(t, lv, tier); if (!s.sup) { s.dmg *= DMGK; s.dps *= DMGK; } return s; }
+function calc(t, lv = 1, tier = 1) {
+  const s = calc5(t, lv, tier); if (s.sup) return s; s.dmg *= DMGK; s.dps *= DMGK;
+  /* ручной баланс по ★: dmg — урон выстрела на 1-м уровне (как на странице), rate — перезарядка, rg — радиус, spl — сплеш */
+  const i = tier - 1, g = 1 + 0.2 * (lv - 1), wd = tv(t, 'dmg', i), wr = tv(t, 'rate', i), wg = tv(t, 'rg', i), ws = tv(t, 'spl', i);
+  if ((wd != null || wr != null) && s.dmg > 0 && s.rate > 0) { const k = s.dps * s.rate / s.dmg; if (wd != null) s.dmg = wd * HPU * g; if (wr != null) s.rate = wr; s.dps = k * s.dmg / s.rate; }
+  if (wg != null) s.range = wg;
+  if (ws != null) { s.spl = ws; if (/^Сплеш/.test(s.aoe)) s.aoe = 'Сплеш ' + ws; }
+  if (tier > 4) { const d = t.det || {}, has = x => d[x] != null && tier >= d[x]; s.det = s.ally ? { g: has('g'), a: false, h: false, l: has('l') } : { g: has('g'), a: has('a'), h: has('h'), l: has('l') }; }
+  return s;
+}
 function calc5(t, lv, tier) {
   const s = calc4(t, lv, Math.min(tier, 4)); if (tier < 5) return s;
   s.t5 = 1; if (s.sup) { s.give = Math.round(s.give * 1.35); return s; }
@@ -271,7 +282,7 @@ function calc5(t, lv, tier) {
 }
 function calc4(t, lv, tier) {
   const i = tier - 1, g = 1 + 0.2 * (lv - 1), det = t.det || {}, has = k => det[k] != null && tier >= det[k], perk = tier >= 4;
-  if (t.kind === 'supply') return { sup: 1, give: Math.round(t.give[i] * (1 + .1 * (lv - 1))), det: {}, perk, range: 0 };
+  if (t.kind === 'supply') return { sup: 1, give: Math.round(t.give[i] * (1 + ((t.tune && t.tune.giveLv) ?? .1) * (lv - 1))), det: {}, perk, range: 0 };
   let dmg = (t.dmgT ? t.dmgT[i] : (t.dmg || 0) * TIER.d[i]) * g; const rate = +(t.rate * TIER.r[i]).toFixed(2), range = tv(t, 'rg', i) ?? +(t.range + TIER.rg[i]).toFixed(2);
   const k = t.kind;
   if (k === 'spawner') { const n = tier >= 3 ? 2 : 1; return { dmg, rate, range: 0, dps: dmg * n / rate, shots: n, aoe: 'Свои танки', perk, ally: 1, det: { g: has('g'), a: false, h: false, l: has('l') } }; }
@@ -447,7 +458,7 @@ function fire(tw, s, L) {
     case 'sniper': { const crit = s.perk && G.rnd() < .25; hurt(e, s.dmg * (crit ? 2.5 : 1), { show: 1, crit, pen }); if (G.vis) G.fx.push({ k: 'line', x: m.x, y: m.y, x2: e.x, y2: e.y, t: 0, life: .18, col: '#fff6b0', w: .07 }); G.shake = Math.max(G.shake, 2); break; }
     case 'cryo': shot({ k: 'ice', tgt: e, spd: 9, dmg: s.dmg, splash: s.spl, o: { slow: s.slow, slowB: s.slowB, ice: 1 }, r: .09, col: '#9fe6ff' }); break;
     case 'aa': for (const off of [-.08, .08]) G.shots.push({ k: 'bul', x: m.x + off, y: m.y - off, tgt: e, spd: 16, dmg: e.d.fly || s.perk ? s.dmg : s.dmg / 2, o: {}, r: .05, col: '#ffe36b', delay: off > 0 ? .05 : 0 }); tw.rec = .5; break;
-    case 'kv2': { const sp = e.d.speed * (e.spk || 1) * (e.slowT > 0 ? 1 - e.slowK : 1), p = posAt(e.P, e.dist + (e.stunT > 0 ? 0 : sp * 1.1)); G.shots.push({ k: 'lob', sx: m.x, sy: m.y, tx: p.x, ty: p.y, t: 0, dur: 1.1, dmg: s.dmg, splash: t.splash, o: { stun: s.perk ? .6 : 0, fly: 0 }, delay: 0 }); G.shake = Math.max(G.shake, 3); break; }
+    case 'kv2': { const sp = e.d.speed * (e.spk || 1) * (e.slowT > 0 ? 1 - e.slowK : 1), p = posAt(e.P, e.dist + (e.stunT > 0 ? 0 : sp * 1.1)); G.shots.push({ k: 'lob', sx: m.x, sy: m.y, tx: p.x, ty: p.y, t: 0, dur: 1.1, dmg: s.dmg, splash: s.spl || t.splash, o: { stun: s.perk ? .6 : 0, fly: 0 }, delay: 0 }); G.shake = Math.max(G.shake, 3); break; }
     case 'tesla': {
       const hit = [e]; let cur = e;
       for (let i = 1; i < (s.perk ? 5 : 3); i++) { let best = null, bd = 1.8; for (const x of G.enemies) { if (x.dead || hit.includes(x) || (x.d.hid && !s.hid)) continue; const d = Math.hypot(x.x - cur.x, x.y - cur.y); if (d < bd) { bd = d; best = x; } } if (!best) break; hit.push(best); cur = best; }
@@ -455,8 +466,8 @@ function fire(tw, s, L) {
       if (G.vis) G.fx.push({ k: 'zap', pts, t: 0, life: .22 });
       break;
     }
-    case 'rockets': { const k = s.perk ? 6 : t.salvo; for (let i = 0; i < k; i++) shot({ k: 'rocket', tgt: L[i % L.length], spd: 6.5, dmg: s.dmg, splash: t.splash, o: {}, r: .07, col: '#ddd', delay: i * .09, wob: G.rnd() * 6 }); break; }
-    case 'mammoth': for (const [off, dl] of [[-.1, 0], [.1, .12]]) G.shots.push({ k: 'shell', x: m.x + off * Math.sin(tw.ang), y: m.y - off * Math.cos(tw.ang), tgt: e, spd: 12, dmg: s.dmg, o: { shred: s.perk ? 4 : 3 }, r: .09, col: '#ffb02e', delay: dl }); break;
+    case 'rockets': { const k = s.perk ? 6 : t.salvo; for (let i = 0; i < k; i++) shot({ k: 'rocket', tgt: L[i % L.length], spd: 6.5, dmg: s.dmg, splash: s.spl || t.splash, o: {}, r: .07, col: '#ddd', delay: i * .09, wob: G.rnd() * 6 }); break; }
+    case 'mammoth': for (const [off, dl] of [[-.1, 0], [.1, .12]]) G.shots.push({ k: 'shell', x: m.x + off * Math.sin(tw.ang), y: m.y - off * Math.cos(tw.ang), tgt: e, spd: 12, dmg: s.dmg * (tw.tier >= 10 && G.rnd() < .1 ? 2 : 1), o: { shred: s.perk ? 4 : 3 }, r: .09, col: '#ffb02e', delay: dl }); break;
     case 'drum': for (let i = 0; i < (s.perk ? 5 : 3); i++) { const off = (i % 3 - 1) * .11; G.shots.push({ k: 'shell', x: m.x + off * Math.sin(tw.ang), y: m.y - off * Math.cos(tw.ang), tgt: e, spd: 12, dmg: s.dmg, o: {}, r: .07, col: '#ffb02e', delay: i * .12 }); } break;
     case 'rail': {
       const a = Math.atan2(e.y - m.y, e.x - m.x), cx = Math.cos(a), cy = Math.sin(a), len = s.range + 1.5, hit = [];
@@ -637,7 +648,7 @@ const okXY = (x, y) => Number.isInteger(x) && Number.isInteger(y) && x >= 0 && y
 const freeTile = (x, y) => okXY(x, y) && !G.road.has(x + ',' + y) && !G.obs.has(x + ',' + y) && !towerAt(x, y);
 const ACT = {
   b(id, x, y) { const t = tankById(id); if (!t || !G.deck.includes(id) || !G.lvOf[id] || !freeTile(x, y) || G.cash < t.cost || buildLimit(id)) return false; G.cash -= t.cost; G.towers.push(newTower(t, x, y, G.lvOf[id])); G.built++; G.used[id] = 1; return true; },
-  u(x, y) { const tw = okXY(x, y) && towerAt(x, y); if (!tw || tw.tier >= MAXT) return false; const c = upPrice(tw); if (G.cash < c) return false; G.cash -= c; tw.spent += c; tw.tier++; return true; },
+  u(x, y) { const tw = okXY(x, y) && towerAt(x, y); if (!tw || tw.tier >= maxT(tw.t)) return false; const c = upPrice(tw); if (G.cash < c) return false; G.cash -= c; tw.spent += c; tw.tier++; return true; },
   s(x, y) { const tw = okXY(x, y) && towerAt(x, y); if (!tw) return false; G.cash += Math.floor(tw.spent * .6); G.towers = G.towers.filter(q => q !== tw); return true; },
   m(x, y, mode) { const tw = okXY(x, y) && towerAt(x, y); if (!tw || !MODES[mode] || tw.t.kind === 'supply') return false; tw.mode = mode; return true; },
   w() { if (G.wave >= G.waves.length || (G.wave > 0 && waveBusy())) return false; callWave(true); return true; },
