@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '49';
+const VER = '50';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,9 +371,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=11"></script>
+<script src="i18n.js?v=12"></script>
 <script src="sfx.js?v=4"></script>
-<script src="core.js?v=26"></script>
+<script src="core.js?v=27"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -878,15 +878,17 @@ function supHTML() {
   const own = S.sup || Object.fromEntries(SDEF.map(k => [k, 1])), L = S.sdeck || SDEF;
   return `<div class="panel" style="margin-top:12px"><div style="font-size:17px;text-align:center">🎒 Поддержка в бою (${L.length}/${SDECK})</div><div class="muted" style="text-align:center;margin-top:4px">В бою кнопка 🎒 внизу меняет танки на эти предметы</div></div><div class="grid2">` +
     SUPS.map(d => { const has = own[d.id], inD = L.includes(d.id);
-      return `<button class="tc ${has ? '' : 'lockd'}" style="--rc:${RAR[d.rar].c}" data-act="sup" data-id="${d.id}"><div class="band">${RAR[d.rar].n}</div>${inD ? '<span class="ins">✓</span>' : ''}${supIco(d.id, 1)}<div class="nm">${d.n}</div><div class="role">${d.cd ? '⏱ ' + d.cd + ' с' : '×' + d.uses + ' за бой'}</div><div class="price">${has ? (inD ? 'В наборе' : 'Взять') : priceTxt(d.price)}</div></button>`; }).join('') + '</div>';
+      return `<button class="tc ${has ? '' : 'lockd'}" style="--rc:${RAR[d.rar].c}" data-act="sup" data-id="${d.id}"><div class="band">${RAR[d.rar].n}</div>${inD ? '<span class="ins">✓</span>' : ''}${supIco(d.id, 1)}<div class="nm">${d.n}</div><div class="role">${has ? 'Ур. ' + (+has) + ' · ' : ''}${d.cost} 💵 · ⏱ ${d.cd} с</div><div class="price">${has ? (inD ? 'В наборе' : 'Взять') : priceTxt(d.price)}</div></button>`; }).join('') + '</div>';
 }
 function supModal(id) {
   const d = supById(id), own = (S.sup || {})[id] || SDEF.includes(id), inD = (S.sdeck || SDEF).includes(id), p = d.price || {};
+  const lv = Math.min(SMAXLV, +(S.sup || {})[id] || 1), uc = own && lv < SMAXLV ? supCost(d, lv) : 0;
   const poor = (p.silver && S.silver < p.silver) || (p.gold && S.gold < p.gold) || (p.gems && (S.gems || 0) < p.gems);
   modal(`<button class="x" data-act="close">✕</button><div class="rays" style="--rc:${RAR[d.rar].hex}">${supIco(id, 1)}</div>
-    <div style="font-size:24px">${d.n}</div><div class="rar" style="--rc:${RAR[d.rar].c}">${RAR[d.rar].n} · ${d.cd ? 'перезарядка ' + d.cd + ' с' : d.uses + ' раз за бой'}</div>
+    <div style="font-size:24px">${d.n}</div><div class="rar" style="--rc:${RAR[d.rar].c}">${RAR[d.rar].n}${own ? ` · ур. ${lv}/${SMAXLV}` : ''}</div>
     <p style="margin:8px 0;font-weight:700;font-size:14px">${d.desc}</p>
-    <div class="row c">${own ? `<button class="btn ${inD ? 'gray' : 'blue'}" data-act="supSet" data-id="${id}">${inD ? 'Убрать из набора' : 'В набор'}</button>` : `<button class="btn ${p.gems ? 'purple' : 'green'}" data-act="supBuy" data-id="${id}" ${poor ? 'disabled' : ''}>Купить ${priceTxt(p)}</button>`}</div>`);
+    <p class="muted" style="margin:0 0 8px">💵 ${d.cost} в бою · перезарядка ${d.cd} с${d.free ? ` · первые ${d.free} — бесплатно` : ''}${d.lim ? ` · не больше ${d.lim} на поле` : ''}<br>Сила ×${supK(lv)}${uc ? ` → ×${supK(lv + 1)} на ур. ${lv + 1}` : ''}</p>
+    <div class="row c">${own ? `<button class="btn ${inD ? 'gray' : 'blue'}" data-act="supSet" data-id="${id}">${inD ? 'Убрать из набора' : 'В набор'}</button>${uc ? `<button class="btn green" data-act="supUp" data-id="${id}" ${S.silver < uc ? 'disabled' : ''}>Улучшить 🥈 ${num(uc)}</button>` : lv >= SMAXLV ? '<span class="chip">Максимум</span>' : ''}` : `<button class="btn ${p.gems ? 'purple' : 'green'}" data-act="supBuy" data-id="${id}" ${poor ? 'disabled' : ''}>Купить ${priceTxt(p)}</button>`}</div>`);
 }
 function tankModal(id) {
   const t = tankById(id), lv = S.owned[id], s = calc(t, lv || 1, 1), nx = lv && lv < MAXLV ? calc(t, lv + 1, 1) : null, inD = S.deck.includes(id), R = Math.round;
@@ -1373,7 +1375,7 @@ async function startLevel(n) {
   starting = false;
   if (r.err) { if (r.err === 'fuel') { closeModal(); fuelModal(); } else toast(r.err); return; }
   closeModal();
-  makeMatch(n, S.deck, S.owned, true, seed, S.sdeck || SDEF); G.ticket = ticket; acc = 0; barMode = 't'; G.pick = null; buildSlots();
+  makeMatch(n, S.deck, { ...S.owned, ...supLv() }, true, seed, S.sdeck || SDEF); G.ticket = ticket; acc = 0; barMode = 't'; G.pick = null; buildSlots();
   for (const id of S.deck) { const it = tankById(id).limited && eqItem(id); if (it) G.skin[id] = nftSkin(it.attrs, it.serial); }
   G.running = true; SFX.music(MUS[LOCS.findIndex(l => n >= l.from && n <= l.to)]);
   $('#battle').classList.add('on');
@@ -1563,9 +1565,9 @@ function updSlots() {
   for (const b of document.querySelectorAll('#slots [data-sl]')) {
     const id = b.dataset.sl;
     if (barMode === 't') { b.classList.toggle('poor', G.cash < tankById(id).cost); b.classList.toggle('on', G.pick === id); b.disabled = !!G.over; continue; }
-    const d = supById(id), st = G.sup[id], cd = st.cd > 0 ? Math.ceil(st.cd) + '' : '', out = d.uses && st.left <= 0;
-    b.disabled = !!G.over || !!cd || out; b.classList.toggle('on', G.arm === id);
-    const ci = b.querySelector('.cd'), nn = b.querySelector('.n'), nt = d.uses ? '×' + st.left : '';
+    const d = supById(id), st = G.sup[id], fr = st.free > 0, cd = !fr && st.cd > 0 ? Math.ceil(st.cd) + '' : '', out = d.lim && supOnField(id) >= d.lim;
+    b.disabled = !!G.over || !!cd || out; b.classList.toggle('on', G.arm === id); b.classList.toggle('poor', !fr && G.cash < d.cost);
+    const ci = b.querySelector('.cd'), nn = b.querySelector('.n'), nt = fr ? '×' + st.free : d.cost + '💵';
     if (ci.textContent !== (out ? '✕' : cd)) ci.textContent = out ? '✕' : cd;
     if (nn.textContent !== nt) nn.textContent = nt;
   }
@@ -1576,7 +1578,8 @@ $('#slots').addEventListener('pointerdown', (ev) => {
   const id = b.dataset.sl; closeRadial();
   if (barMode === 't') { G.arm = null; G.pick = G.pick === id ? null : id; if (G.pick) haptic('light'); }
   else {
-    const d = supById(id); G.pick = null;
+    const d = supById(id), st = G.sup[id]; G.pick = null;
+    if (st.free <= 0 && G.cash < d.cost) { tip(`Нужно ${d.cost} 💵`, 1500); return; }
     if (d.tgt === 'now') { G.arm = null; if (act('p', id)) { haptic('heavy'); tip(d.n + '!', 1200); } else if (id === 'repair') tip('База и так целая', 1500); }
     else { G.arm = G.arm === id ? null : id; if (G.arm) tip(d.tgt === 'road' ? 'Тапни по дороге' : 'Тапни, куда ударить', 2000); }
   }
@@ -1627,6 +1630,7 @@ document.addEventListener('click', (ev) => {
     case 'squad': doAct('squad', { id }).then(r => { if (r.err) return toast(r.err); tankModal(id); render(); }); break;
     case 'sup': supModal(id); break;
     case 'supBuy': doAct('supBuy', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(supById(id).n + ' — куплено!'); if (!a.dataset.s) supModal(id); render(); }); break;
+    case 'supUp': doAct('supUp', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(`${supById(id).n} → ур. ${r.lv}!`); supModal(id); render(); }); break;
     case 'supSet': doAct('supSet', { id }).then(r => { if (r.err) return toast(r.err); supModal(id); render(); }); break;
     case 'up': doAct('up', { id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); toast(`${tankById(id).name} → ур. ${r.lv}!`); keepScroll(() => tankModal(id)); render(); }); break;
     case 'buy': doAct('buy', { id }).then(r => {

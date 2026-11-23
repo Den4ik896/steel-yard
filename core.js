@@ -2,7 +2,7 @@
    Всё, что влияет на результат боя, — детерминировано: фиксированный шаг DT, свой ГСЧ G.rnd по сиду матча.
    Визуальные эффекты (G.vis) могут использовать Math.random — на сервере vis=false. */
 /* ======================= Константы ======================= */
-const COLS = 9, ROWS = 14, LEVELS = 32, FCOST = 1, MAXF = 10, FREGEN = 300000, DECK = 4, MAXLV = 10;
+const COLS = 9, ROWS = 14, LEVELS = 32, FCOST = 1, MAXF = 20, FREGEN = 300000, DECK = 4, MAXLV = 10;
 const WAVE_GAP = 5, BOXCD = 4 * 3600000;
 /* Улучшения в бою: 4 уровня ★. Множители урона/перезарядки/дальности и цена (доля от стоимости танка) */
 const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 5; /* ★5: цена ×2 от ★4, урон +35%, перезарядка −20% (Мороз: +300% и −20%) */
@@ -14,8 +14,8 @@ const RAR = {
   epic: { n: 'Эпический', c: 'var(--epic)', hex: '#b45cff' }, legendary: { n: 'Легендарный', c: 'var(--legendary)', hex: '#ffae1a' },
   limited: { n: 'Мифический', c: 'var(--limited)', hex: '#ff3b3b' }
 };
-const UPC = [60, 110, 180, 270, 400, 560, 760, 1000, 1300];
-const RM = { common: 1, rare: 1.5, epic: 2.2, legendary: 3, limited: 3 };
+const UPC = [100, 150, 200, 300, 450, 600, 750, 1000, 1250];
+const RM = { common: 1, rare: 1.3, epic: 1.5, legendary: 2.5, limited: 3 };
 const MODES = { first: 'Первый', strong: 'Сильный', near: 'Ближний' };
 
 /* Танки игрока. kind = уникальная механика */
@@ -105,24 +105,24 @@ const HPU = 6.4, BASE_HP = 100;
 const hpN = v => { const x = v / HPU; return x >= 10 ? Math.round(x) : +x.toFixed(1); };
 const ENEMY = {
   /* arm — 🛡 бронированный (без бронебойности урон ×0.3), hid — 👁 скрытый, fly — ✈ летит напрямую */
-  light:     { n: 'Лёгкий танк', hp: 32, speed: 2, reward: 2.5, cost: 1, leak: 1, size: .5, gap: .55, from: 1, w: 4, desc: 'Быстрый и хлипкий. Берёт числом.' },
-  btr:       { n: 'Броневик', hp: 96, speed: 1, reward: 6, cost: 2, leak: 1, size: .56, gap: .8, from: 2, w: 3, desc: 'Покрепче лёгкого танка.' },
-  tank:      { n: 'Средний танк', hp: 224, speed: .8, arm: 1, reward: 15, cost: 4.5, leak: 2, size: .64, gap: 1.1, from: 4, w: 2, desc: '🛡 Броня: без бронебойности урон всего 30%. Нужен Бобр, Сокол, Жар или Тесла.' },
-  heli:      { n: 'Вертолёт', hp: 109, speed: 1.2, fly: 1, road: 1, reward: 9, cost: 3, leak: 1, size: .62, gap: 1, from: 6, w: 1.6, desc: '✈ Летит над дорогой. Сбивают только танки с ✈.' },
-  medic:     { n: 'Ремонтник', hp: 128, speed: 1, reward: 11, cost: 4, leak: 1, size: .56, gap: 1, from: 7, w: .85, heal: 1, desc: 'Чинит врагов рядом. Убивай его первым.' },
-  scout:     { n: 'Камуфляж', hp: 96, speed: 1.3, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1.3, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
-  transport: { n: 'Грузовик', hp: 160, speed: 1.5, reward: 9, cost: 6, leak: 2, size: .62, gap: 1.1, from: 10, w: 2, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
-  heavy:     { n: 'Тяжёлый танк', hp: 576, speed: .7, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
-  bomber:    { n: 'Бомбардировщик', hp: 510, speed: 1.5, fly: 1, reward: 15, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: летит поперёк поля и сбрасывает бомбу на случайный танк — оглушение 3–8 с. Можно сбить до сброса. Улетает за край карты, базу не бьёт.' },
-  sbomber:   { n: 'Супер-бомбардировщик', hp: 2040, speed: 1.5, fly: 1, reward: 60, cost: 0, leak: 0, size: 1, gap: 1.6, from: 20, w: 0, raid: 1, aoe: 1.5, img: 'bomber', desc: '✈ Тяжёлый налёт: ХП ×4, бомба оглушает все танки в радиусе 1.5 клетки на 1–4 с. Можно сбить до сброса. Улетает за край карты.' },
-  assault:   { n: 'Штурмовой танк', hp: 300, speed: .95, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
-  ghost:     { n: 'Ночной вертолёт', hp: 192, speed: 1.4, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
-  sled:      { n: 'Аэросани', hp: 64, speed: 2.5, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
-  digger:    { n: 'Бурильщик', hp: 288, speed: .95, reward: 16, cost: 5, leak: 2, size: .6, gap: 1.1, from: 20, w: .8, dig: 1, desc: '⛏ Время от времени зарывается под снег — пока он под землёй, по нему не попасть.' },
+  light:     { n: 'Лёгкий танк', hp: 32, speed: 4, reward: 2.5, cost: 1, leak: 1, size: .5, gap: .55, from: 1, w: 4, desc: 'Быстрый и хлипкий. Берёт числом.' },
+  btr:       { n: 'Броневик', hp: 96, speed: 2, reward: 6, cost: 2, leak: 1, size: .56, gap: .8, from: 2, w: 3, desc: 'Покрепче лёгкого танка.' },
+  tank:      { n: 'Средний танк', hp: 224, speed: 1.6, arm: 1, reward: 15, cost: 4.5, leak: 2, size: .64, gap: 1.1, from: 4, w: 2, desc: '🛡 Броня: без бронебойности урон всего 30%. Нужен Бобр, Сокол, Жар или Тесла.' },
+  heli:      { n: 'Вертолёт', hp: 109, speed: 2.4, fly: 1, road: 1, reward: 9, cost: 3, leak: 1, size: .62, gap: 1, from: 6, w: 1.6, desc: '✈ Летит над дорогой. Сбивают только танки с ✈.' },
+  medic:     { n: 'Ремонтник', hp: 128, speed: 2, reward: 11, cost: 4, leak: 1, size: .56, gap: 1, from: 7, w: .85, heal: 1, desc: 'Чинит врагов рядом. Убивай его первым.' },
+  scout:     { n: 'Камуфляж', hp: 96, speed: 2.6, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1.3, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
+  transport: { n: 'Грузовик', hp: 384, speed: 3, reward: 9, cost: 6, leak: 2, size: .62, gap: 1.1, from: 10, w: 2, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
+  heavy:     { n: 'Тяжёлый танк', hp: 576, speed: 1.4, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
+  bomber:    { n: 'Бомбардировщик', hp: 510, speed: 3, fly: 1, reward: 15, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: летит поперёк поля и сбрасывает бомбу на случайный танк — оглушение 3–8 с. Можно сбить до сброса. Улетает за край карты, базу не бьёт.' },
+  sbomber:   { n: 'Супер-бомбардировщик', hp: 2040, speed: 3.5, fly: 1, reward: 60, cost: 0, leak: 0, size: 1, gap: 1.6, from: 20, w: 0, raid: 1, aoe: 1.5, img: 'bomber', desc: '✈ Тяжёлый налёт: ХП ×4, бомба оглушает все танки в радиусе 1.5 клетки на 1–4 с. Можно сбить до сброса. Улетает за край карты.' },
+  assault:   { n: 'Штурмовой танк', hp: 300, speed: 1.9, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
+  ghost:     { n: 'Ночной вертолёт', hp: 192, speed: 3, fly: 1, road: 1, hid: 1, reward: 18, cost: 6, size: .62, gap: 1, from: 20, w: .7, desc: '✈👁 Скрытый вертолёт: нужны ✈ и 👁 сразу.' },
+  sled:      { n: 'Аэросани', hp: 64, speed: 5, reward: 6, cost: 2, leak: 1, size: .52, gap: .5, from: 18, w: 1.2, noslow: 1, desc: 'Очень быстрые. Скользят по льду — замедление на них не действует.' },
+  digger:    { n: 'Бурильщик', hp: 288, speed: 1.9, reward: 16, cost: 5, leak: 2, size: .6, gap: 1.1, from: 20, w: .8, dig: 1, desc: '⛏ Время от времени зарывается под снег — пока он под землёй, по нему не попасть.' },
   /* ⭐ мини-боссы ледяного перевала: приходят каждые 5 волн, в обычный набор волны не попадают (w: 0) */
-  icebreaker:{ n: 'Ледокол', hp: 1760, speed: .61, arm: 1, reward: 70, cost: 0, leak: 10, size: .92, gap: 1.6, from: 17, w: 0, mini: 1, frost: 1, desc: '⭐ Мини-босс. 🛡 Броня. Каждые 7 с бьёт морозом: танки рядом замерзают на 2 с. Оглуши его — и мороза не будет.' },
-  shield:    { n: 'Щитоносец', hp: 1440, speed: .68, reward: 60, cost: 0, leak: 8, size: .84, gap: 1.6, from: 20, w: 0, mini: 1, aura: 1, desc: '⭐ Мини-босс. Щит: враги рядом с ним получают вдвое меньше урона. Убивай его первым.' },
-  boss:      { n: 'Колосс', hp: 5120, speed: .44, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
+  icebreaker:{ n: 'Ледокол', hp: 1760, speed: 1.22, arm: 1, reward: 70, cost: 0, leak: 10, size: .92, gap: 1.6, from: 17, w: 0, mini: 1, frost: 1, desc: '⭐ Мини-босс. 🛡 Броня. Каждые 7 с бьёт морозом: танки рядом замерзают на 2 с. Оглуши его — и мороза не будет.' },
+  shield:    { n: 'Щитоносец', hp: 1440, speed: 1.35, reward: 60, cost: 0, leak: 8, size: .84, gap: 1.6, from: 20, w: 0, mini: 1, aura: 1, desc: '⭐ Мини-босс. Щит: враги рядом с ним получают вдвое меньше урона. Убивай его первым.' },
+  boss:      { n: 'Колосс', hp: 5120, speed: 0.85, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
 };
 const ELOOK = {
   light: { h: '#e0763c', tur: 'circle', ts: .22, bar: 1, bl: .45, bw: .08 },
@@ -170,15 +170,15 @@ const BOXES = [
   { id: 'wood', n: 'Деревянный', col: '#c98d4b', band: '#7a5230', price: { free: 1 }, lim: .1, odds: [['silver', 70, '🥈 50–150'], ['gold', 22, '🥇 2–6'], ['rare', 8, 'Редкий танк']] },
   { id: 'iron', n: 'Железный', col: '#a9b8c6', band: '#55606b', price: { silver: 400 }, lim: .5, odds: [['silver', 40, '🥈 200–500'], ['gold', 27, '🥇 8–20'], ['rare', 25, 'Редкий танк'], ['epic', 8, 'Эпик танк']] },
   { id: 'gold', n: 'Золотой', col: '#ffcf40', band: '#b07d10', price: { gold: 80 }, lim: 1, odds: [['rare', 45, 'Редкий танк'], ['epic', 43, 'Эпик танк'], ['legendary', 12, 'Легенда']] },
-  { id: 'star', n: 'Космический', col: '#b06bff', band: '#6a3aa8', price: { gems: 50 }, lim: 5, odds: [['epic', 75, 'Эпик танк'], ['legendary', 25, 'Легенда']] }
+  { id: 'star', n: 'Космический', col: '#b06bff', band: '#6a3aa8', price: { gems: 50 }, lim: 5, odds: [['epic', 50, 'Эпик танк'], ['legendary', 45, 'Легенда']] }
 ];
-const DUPC = { rare: { silver: 250 }, epic: { gold: 40 }, legendary: { gold: 120 }, limited: { gold: 300 } };
+const DUPC = { rare: { silver: 250 }, epic: { gold: 50 }, legendary: { gold: 150 }, limited: { gems: 300 } };
 const GOLDPACKS = [{ g: 100, st: 50 }, { g: 550, st: 250 }, { g: 1200, st: 500 }];
-const FUELPACK = { f: 10, st: 50 };
+const FUELPACK = { f: 20, st: 50 };
 /* Гемы 💎 — валюта рынка, мификов и Космического контейнера. За Stars продаются только в магазине */
 const GEMPACKS = [{ g: 100, st: 100 }, { g: 550, st: 500 }, { g: 1200, st: 1000 }];
 /* Всё, что продаётся за Telegram Stars: k — вид товара, arg — номер набора или модель мифики. Цену проверяет сервер */
-const X3ST = 30; /* ⭐ за скорость ×3 навсегда (или промокод FREE3X) */
+const X3ST = 50; /* ⭐ за скорость ×3 навсегда (или промокод FREE3X) */
 function starItem(k, arg) {
   if (k === 'gold') { const p = GOLDPACKS[+arg]; return p ? { st: p.st, title: `${p.g} золота`, g: p.g } : null; }
   if (k === 'fuel') return { st: FUELPACK.st, title: `+${FUELPACK.f} топлива` };
@@ -205,19 +205,26 @@ const upCost = (t, lv) => Math.round(UPC[lv - 1] * RM[t.rar]);
 
 /* ======================= Экономика (S — состояние игрока) ======================= */
 /* ---------- Поддержка: расходники в бою (до 4 в наборе, как танки в отряде) ----------
-   tgt: 'pt' — тап в любую точку, 'road' — тап по дороге, 'now' — срабатывает сразу. cd — перезарядка (с), uses — раз за бой. */
+   tgt: 'pt' — тап в любую точку, 'road' — тап по дороге, 'now' — срабатывает сразу.
+   cost — цена в бою 💵, cd — перезарядка после платного применения (с), free — сколько раз в начале боя бесплатно и без перезарядки,
+   lim — сколько штук может быть на поле одновременно (мины, дым). Уровень в Гараже (до SMAXLV) усиливает эффект на SUPG за уровень. */
 const SUPS = [
-  { id: 'strike', n: 'Авиаудар', rar: 'common', tgt: 'pt', cd: 30, desc: 'Самолёт сбрасывает 5 бомб вдоль ближайшей к точке дороги. Бьёт только наземных.' },
-  { id: 'mine', n: 'Мины', rar: 'common', tgt: 'road', uses: 3, desc: 'Ставится на дорогу и взрывается под первым наземным врагом. 3 штуки за бой.' },
-  { id: 'smoke', n: 'Дымовая завеса', rar: 'rare', tgt: 'pt', cd: 25, price: { silver: 400 }, desc: 'Облако на 6 с: все враги внутри — и наземные, и воздушные — едут вдвое медленнее, босс — на четверть.' },
-  { id: 'repair', n: 'Ремкомплект', rar: 'rare', tgt: 'now', uses: 1, price: { silver: 450 }, desc: 'Сразу чинит базу на 20% 🏰. Один раз за бой.' },
-  { id: 'barrage', n: 'Артобстрел', rar: 'epic', tgt: 'pt', cd: 40, price: { gold: 100 }, desc: '10 снарядов за 2,5 с по кругу вокруг точки. Бьёт только наземных.' },
-  { id: 'emp', n: 'ЭМИ', rar: 'epic', tgt: 'pt', cd: 45, price: { gold: 120 }, desc: 'Оглушает всех врагов в большом круге на 3 с — и наземных, и воздушных. Босса — на 1 с.' },
-  { id: 'orbital', n: 'Орбитальный удар', rar: 'legendary', tgt: 'pt', uses: 2, price: { gold: 250 }, desc: 'Через 1 с — огромный взрыв по земле и воздуху. 2 раза за бой.' },
-  { id: 'freeze', n: 'Стоп-время', rar: 'limited', tgt: 'now', uses: 1, price: { gems: 300 }, desc: 'Все враги на карте замирают на 5 с. Босс — на 2 с. Один раз за бой.' },
+  { id: 'strike', n: 'Авиаудар', rar: 'common', tgt: 'pt', cost: 100, cd: 10, free: 0, desc: 'Самолёт сбрасывает 5 бомб вдоль ближайшей к точке дороги. Бьёт только наземных.' },
+  { id: 'mine', n: 'Мины', rar: 'common', tgt: 'road', cost: 50, cd: 20, free: 3, lim: 5, desc: 'Ставится на дорогу и взрывается под первым наземным врагом.' },
+  { id: 'smoke', n: 'Дымовая завеса', rar: 'rare', tgt: 'pt', cost: 75, cd: 15, free: 0, lim: 2, price: { silver: 400 }, desc: 'Облако на 6 с: все враги внутри — и наземные, и воздушные — едут вдвое медленнее, босс — на четверть.' },
+  { id: 'repair', n: 'Ремкомплект', rar: 'rare', tgt: 'now', cost: 300, cd: 60, free: 1, price: { silver: 450 }, desc: 'Сразу чинит базу на 20% 🏰.' },
+  { id: 'barrage', n: 'Артобстрел', rar: 'epic', tgt: 'pt', cost: 150, cd: 20, free: 0, price: { gold: 100 }, desc: '10 снарядов за 2,5 с по кругу вокруг точки. Бьёт только наземных.' },
+  { id: 'emp', n: 'ЭМИ', rar: 'epic', tgt: 'pt', cost: 150, cd: 25, free: 0, price: { gold: 120 }, desc: 'Оглушает всех врагов в большом круге на 3 с — и наземных, и воздушных. Босса — на 1 с.' },
+  { id: 'orbital', n: 'Орбитальный удар', rar: 'legendary', tgt: 'pt', cost: 400, cd: 40, free: 1, price: { gold: 250 }, desc: 'Через 1 с — огромный взрыв по земле и воздуху.' },
+  { id: 'freeze', n: 'Стоп-время', rar: 'limited', tgt: 'now', cost: 500, cd: 90, free: 1, price: { gems: 300 }, desc: 'Все враги на карте замирают на 5 с. Босс — на 2 с.' },
 ];
 const SDECK = 4, SDEF = ['strike', 'mine'], supById = (id) => SUPS.find(s => s.id === id);
+/* Прокачка поддержки в Гараже: цена 🥈 за уровень × множитель редкости, каждый уровень +25% к силе (урон, длительность, ремонт) */
+const SUPC = [150, 300, 600, 1000], SMAXLV = 5, SUPG = .25;
+const supCost = (d, lv) => Math.round(SUPC[lv - 1] * RM[d.rar]), supK = (lv) => 1 + SUPG * ((lv || 1) - 1);
+const supOnField = (id) => id === 'mine' ? G.mines.length : id === 'smoke' ? G.zones.length : 0;
 const sOwn = () => (S.sup ||= Object.fromEntries(SDEF.map(k => [k, 1]))), sDeck = () => (S.sdeck ||= SDEF.slice());
+const supLv = () => Object.fromEntries(sDeck().map(k => ['s_' + k, Math.min(SMAXLV, +sOwn()[k] || 1)]));
 const DEF = () => ({ silver: 150, gold: 10, gems: 0, fuel: MAXF, fTs: Date.now(), stars: {}, owned: { shmel: 1, bobr: 1 }, deck: ['bobr', 'shmel'],
   boxTs: 0, pity: 0, tut: false, q: [], qDay: '' });
 function tickFuel() {
@@ -250,7 +257,10 @@ function qAdd(id, k) { if (!k) return; for (const q of quests()) if (q.id === id
 const qReady = () => quests().some(q => !q.c && q.p >= QPOOL.find(x => x.id === q.id).g);
 function maxUnlocked() { let n = 1; while (n < LEVELS && S.stars[n] > 0) n++; return n; }
 /* Все характеристики танка: lv — уровень в гараже, tier — звёзды в бою (1..4) */
-function calc(t, lv = 1, tier = 1) {
+/* Урон всех танков ×DMGK (Завод: его танки — и ХП, и урон, они считаются от dmg) */
+const DMGK = 2;
+function calc(t, lv = 1, tier = 1) { const s = calc5(t, lv, tier); if (!s.sup) { s.dmg *= DMGK; s.dps *= DMGK; } return s; }
+function calc5(t, lv, tier) {
   const s = calc4(t, lv, Math.min(tier, 4)); if (tier < 5) return s;
   s.t5 = 1; if (s.sup) { s.give = Math.round(s.give * 1.35); return s; }
   const fr = t.id === 'moroz', D = fr ? 4 : 1.35, R = .8;
@@ -306,7 +316,7 @@ function posAt(P, d) {
 }
 /* Модификаторы врагов: Раздутый — ×2 ХП (случайно, со 2-й волны), Колосс — ×5 ХП (только последние волны, с 6-го уровня).
    Награда за убийство растёт так же, как ХП. Волны по-прежнему детерминированы (сид = номер уровня). */
-const MODS = { b: { n: 'Раздутый', hp: 2, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 5, sc: 1.4, col: '#b45cff' }, t: { n: 'Титан', hp: 7, sc: 1.55, col: '#e0362c' } };
+const MODS = { b: { n: 'Раздутый', hp: 3, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 6, sc: 1.4, col: '#b45cff' }, t: { n: 'Титан', hp: 9, sc: 1.55, col: '#e0362c' } };
 function makeWaves(n, np) {
   const r = rng(n * 7919 + 13), boss = n % 8 === 0, nw = n <= 16 ? Math.min(15, 6 + Math.floor(n / 2)) : n === 17 ? 18 : n === 18 ? 24 : Math.min(34, 30 + Math.floor((n - 19) / 3)), waves = [];
   const minis = Object.keys(ENEMY).filter(k => ENEMY[k].mini && ENEMY[k].from <= n);
@@ -348,7 +358,7 @@ function makeMatch(n, deck, lvOf, vis, seed = n * 977 + 3, sdeck = SDEF) {
   }
   G = { n, L, paths, air, road, obs, deck: deck.slice(), lvOf, vis, waves: makeWaves(n, paths.length), wave: 0, spawnQ: [], spawnT: 0, nextT: null,
     enemies: [], towers: [], shots: [], fx: [], parts: [], decals: [], mines: [], bombs: [], amb: [], allies: [], cash: L.cash, lives: L.lives,
-    kills: 0, airKills: 0, built: 0, leak: {}, t: 0, time: 0, speed: 1, sel: null, prev: null, arm: null, sdeck, sup: Object.fromEntries(sdeck.map(k => [k, { cd: 0, left: supById(k).uses || 0 }])), zones: [],
+    kills: 0, airKills: 0, built: 0, leak: {}, t: 0, time: 0, speed: 1, sel: null, prev: null, arm: null, sdeck, sup: Object.fromEntries(sdeck.map(k => [k, { cd: 0, free: supById(k).free || 0, lv: Math.min(SMAXLV, +lvOf['s_' + k] || 1) }])), zones: [],
     over: false, paused: false, running: false, shake: 0, seed, tut: 0, rnd: rng(seed), tick: 0, log: [], used: {}, skin: {} };
   return G;
 }
@@ -478,9 +488,9 @@ function callWave(manual) {
 }
 /* Ближайшая к точке позиция на дороге — чтобы авиаудар всегда ложился на дорогу, а не мимо */
 function nearRoad(x, y) { let best = null; for (const P of G.paths) for (let d = 0; d <= P.total; d += .2) { const p = posAt(P, d), q = Math.hypot(p.x - x, p.y - y); if (!best || q < best.q) best = { P, d, q }; } return best; }
-function strike(x, y) {
+function strike(x, y, K = 1) {
   const b = nearRoad(x, y);
-  for (let i = 0; i < 5; i++) { const p = b ? posAt(b.P, Math.min(b.P.total, Math.max(0, b.d + (i - 2) * .6))) : { x: x + (i - 2) * .55, y }; G.bombs.push({ x: p.x, y: p.y, delay: .35 + i * .1, dmg: 50 * G.L.scale }); }
+  for (let i = 0; i < 5; i++) { const p = b ? posAt(b.P, Math.min(b.P.total, Math.max(0, b.d + (i - 2) * .6))) : { x: x + (i - 2) * .55, y }; G.bombs.push({ x: p.x, y: p.y, delay: .35 + i * .1, dmg: 50 * G.L.scale * K }); }
   if (G.vis) { G.fx.push({ k: 'plane', y: b ? posAt(b.P, b.d).y : y, t: 0, life: 1.1 }); haptic('heavy'); }
 }
 /* Ускоритель: луч не отрывается от цели, пока она жива и в радиусе; урон идёт каждый кадр (каждые 0.01с по описанию) */
@@ -636,19 +646,20 @@ const ACT = {
   n(x, y) { return useSup('mine', x, y); }
 };
 function useSup(id, x, y) {
-  const d = supById(id), st = G.sup && Object.hasOwn(G.sup, id) && G.sup[id]; if (!d || !st || st.cd > 0 || (d.uses && st.left <= 0)) return false;
+  const d = supById(id), st = G.sup && Object.hasOwn(G.sup, id) && G.sup[id]; if (!d || !st || (st.free <= 0 && (st.cd > 0 || G.cash < d.cost))) return false;
+  if (d.lim && supOnField(id) >= d.lim) return false;
   if (d.tgt === 'pt' && !(typeof x === 'number' && typeof y === 'number' && x >= -1 && x <= COLS && y >= -1 && y <= ROWS)) return false;
   if (d.tgt === 'road' && !(okXY(x, y) && G.road.has(x + ',' + y))) return false;
-  const sc = G.L.scale;
-  if (id === 'strike') strike(x, y);
-  else if (id === 'mine') G.mines.push({ x, y, dmg: 110 * sc });
-  else if (id === 'smoke') G.zones.push({ x, y, r: 1.5, t: 6, life: 6 });
-  else if (id === 'repair') { if (G.lives >= G.L.lives) return false; G.lives = Math.min(G.L.lives, G.lives + Math.ceil(G.L.lives * .2)); }
-  else if (id === 'barrage') { for (let i = 0; i < 10; i++) { const a = G.rnd() * Math.PI * 2, r = Math.sqrt(G.rnd()) * 1.7; G.bombs.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r, delay: .3 + i * .25, dmg: 45 * sc, r: .75 }); } }
-  else if (id === 'emp') { for (const e of G.enemies) if (!e.dead && Math.hypot(e.x - x, e.y - y) < 2.2) e.stunT = Math.max(e.stunT, e.d.boss ? 1 : 3); if (G.vis) G.fx.push({ k: 'emp', x, y, r: 2.2, t: 0, life: .6 }); }
-  else if (id === 'orbital') G.bombs.push({ x, y, delay: 1, dmg: 400 * sc, r: 1.6, air: 1, big: 1 });
-  else if (id === 'freeze') { for (const e of G.enemies) if (!e.dead) e.stunT = Math.max(e.stunT, e.d.boss ? 2 : 5); G.frozeT = 5; }
-  if (d.cd) st.cd = d.cd; if (d.uses) st.left--;
+  const sc = G.L.scale, K = supK(st.lv);
+  if (id === 'strike') strike(x, y, K);
+  else if (id === 'mine') G.mines.push({ x, y, dmg: 110 * sc * K });
+  else if (id === 'smoke') G.zones.push({ x, y, r: 1.5, t: 6 * K, life: 6 * K });
+  else if (id === 'repair') { if (G.lives >= G.L.lives) return false; G.lives = Math.min(G.L.lives, G.lives + Math.ceil(G.L.lives * .2 * K)); }
+  else if (id === 'barrage') { for (let i = 0; i < 10; i++) { const a = G.rnd() * Math.PI * 2, r = Math.sqrt(G.rnd()) * 1.7; G.bombs.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r, delay: .3 + i * .25, dmg: 45 * sc * K, r: .75 }); } }
+  else if (id === 'emp') { for (const e of G.enemies) if (!e.dead && Math.hypot(e.x - x, e.y - y) < 2.2) e.stunT = Math.max(e.stunT, (e.d.boss ? 1 : 3) * K); if (G.vis) G.fx.push({ k: 'emp', x, y, r: 2.2, t: 0, life: .6 }); }
+  else if (id === 'orbital') G.bombs.push({ x, y, delay: 1, dmg: 400 * sc * K, r: 1.6, air: 1, big: 1 });
+  else if (id === 'freeze') { for (const e of G.enemies) if (!e.dead) e.stunT = Math.max(e.stunT, (e.d.boss ? 2 : 5) * K); G.frozeT = 5 * K; }
+  if (st.free > 0) st.free--; else { G.cash -= d.cost; st.cd = d.cd; }
   G.arm = null; return true;
 }
 function act(a, ...args) {
@@ -720,6 +731,11 @@ const ECON = {
     const L = sDeck(), i = L.indexOf(id);
     if (i >= 0) L.splice(i, 1); else { if (L.length >= SDECK) return { err: `В наборе максимум ${SDECK} — сначала убери один` }; L.push(id); }
     return { ok: 1 };
+  },
+  supUp({ id }) {
+    const d = supById(id), lv = +sOwn()[id] || 0; if (!d || !lv) return { err: 'Сначала купи' };
+    if (lv >= SMAXLV) return { err: 'Максимум' }; const c = supCost(d, lv); if (S.silver < c) return { err: 'Не хватает серебра' };
+    S.silver -= c; sOwn()[id] = lv + 1; qAdd('upg', 1); return { ok: 1, lv: lv + 1 };
   },
   up({ id }) {
     const t = tankById(id), lv = S.owned[id]; if (!t || !lv) return { err: 'Нет такого танка' };
