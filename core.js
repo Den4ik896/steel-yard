@@ -178,9 +178,11 @@ const FUELPACK = { f: 10, st: 50 };
 /* Гемы 💎 — валюта рынка, лимиток и Космического контейнера. За Stars продаются только в магазине */
 const GEMPACKS = [{ g: 100, st: 100 }, { g: 550, st: 500 }, { g: 1200, st: 1000 }];
 /* Всё, что продаётся за Telegram Stars: k — вид товара, arg — номер набора или модель лимитки. Цену проверяет сервер */
+const X3ST = 30; /* ⭐ за скорость ×3 навсегда (или промокод FREE3X) */
 function starItem(k, arg) {
   if (k === 'gold') { const p = GOLDPACKS[+arg]; return p ? { st: p.st, title: `${p.g} золота`, g: p.g } : null; }
   if (k === 'fuel') return { st: FUELPACK.st, title: `+${FUELPACK.f} топлива` };
+  if (k === 'x3') return { st: X3ST, title: 'Скорость ×3 в бою' };
   if (k === 'gems') { const p = GEMPACKS[+arg]; return p ? { st: p.st, title: `${p.g} гемов`, gm: p.g } : null; }
   return null;
 }

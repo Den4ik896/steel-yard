@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '44';
+const VER = '45';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -372,7 +372,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=10"></script>
 <script src="sfx.js?v=1"></script>
-<script src="core.js?v=24"></script>
+<script src="core.js?v=25"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -915,6 +915,7 @@ async function usePromo() {
   const code = ($('#promo') || {}).value || ''; if (!code.trim()) return toast('Введи промокод');
   let r;
   if (ON) r = await api('promo', { code });
+  else if (code.trim().toUpperCase() === 'FREE3X') { r = S.x3 ? { err: 'Скорость ×3 уже открыта' } : { ok: 1, x3: 1 }; if (r.ok) { S.x3 = 1; save(); } }
   else { /* офлайн: код на танк проверяем прямо в игре */
     const tc = { FACTORY: 'zavod', ACCELERATOR: 'uskor' }[code.trim().toUpperCase()], used = S.tpromo ||= {};
     r = !tc ? { err: 'Неверный промокод' } : used[tc] ? { err: 'Промокод уже использован' } : S.owned[tc] ? { err: 'Этот танк уже есть в гараже' } : { ok: 1, tank: tc };
@@ -922,6 +923,7 @@ async function usePromo() {
   }
   if (r.err) return toast(r.err);
   hapticN('success'); const d = r.drop;
+  if (r.x3) { modal(`<div class="ribbon g">⏩ Скорость ×3!</div><div style="font-size:64px">⏩</div><p style="font-weight:700">В бою кнопка скорости теперь переключает ×1 → ×2 → ×3.</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`); return render(); }
   if (r.tank) { const t = tankById(r.tank); modal(`<div class="ribbon g">Новый танк!</div><div class="rays" style="--rc:${RAR[t.rar].hex}"><img src="${icon('t', t.id, 140)}"></div>
       <div style="font-size:24px">${t.name}</div><div class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n} · ${t.role}</div>
       <p style="font-weight:700">${t.desc}</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`); return render(); }
@@ -955,6 +957,7 @@ function shopHTML() {
   for (const p of GEMPACKS) h += `<div class="boxc"><div style="font-size:44px">💎</div><div class="nm">${p.g} гемов</div><button class="btn sm purple" data-act="stars" data-k="gems" data-i="${GEMPACKS.indexOf(p)}">⭐ ${p.st}</button></div>`;
   h += `</div><div class="muted" style="margin-top:8px">Гемы нужны для Космического контейнера, лимиток и рынка.<br>Бесплатно: 10 гемов каждый 10-й день входа и 20 — за первую победу над каждым боссом.</div>`;
   h += `<div class="sect ttl">Золото</div><div class="grid2">`;
+  if (!S.x3) h += `<div class="boxc"><div style="font-size:44px">⏩</div><div class="nm">Скорость ×3</div><button class="btn sm purple" data-act="stars" data-k="x3" data-i="0">⭐ ${X3ST}</button></div>`;
   for (const p of GOLDPACKS) h += `<div class="boxc"><div style="font-size:44px">🥇</div><div class="nm">${p.g} золота</div><button class="btn sm purple" data-act="stars" data-i="${GOLDPACKS.indexOf(p)}">⭐ ${p.st}</button></div>`;
   return h + `</div><div class="muted" style="margin-top:8px">⭐ — Telegram Stars. ${ON && IN_TG ? 'Оплата в окне Telegram, покупка придёт сразу после платежа.' : 'Оплата работает только в Telegram-версии.'}</div>`;
 }
@@ -1573,7 +1576,12 @@ $('#slots').addEventListener('pointerdown', (ev) => {
   }
   showInfo(); hud();
 });
-$('#bSpeed').addEventListener('click', () => { G.speed = G.speed === 1 ? 2 : 1; $('#bSpeed').innerHTML = G.speed === 1 ? '<span><i class="mi speed x1"></i></span><small>x1</small>' : '<span><i class="mi speed"></i></span><small>x2</small>'; });
+/* скорость боя: ×1 → ×2 → ×3 (×3 — покупка за ⭐ или промокод FREE3X; без неё раз за бой предлагаем открыть) */
+$('#bSpeed').addEventListener('click', () => {
+  let n = G.speed === 1 ? 2 : G.speed === 2 ? 3 : 1;
+  if (n === 3 && !S.x3) { n = 1; if (!G.x3ask) { G.x3ask = 1; modal(`<div class="ribbon">⏩ Скорость ×3</div><p style="font-weight:700">Открой скорость ×3 навсегда — за ⭐ ${X3ST} или промокодом.</p><div class="row c"><button class="btn purple" data-act="stars" data-k="x3" data-i="0">⭐ ${X3ST}</button><button class="btn" data-act="close">Потом</button></div>`); } }
+  G.speed = n; $('#bSpeed').innerHTML = n === 1 ? '<span><i class="mi speed x1"></i></span><small>x1</small>' : `<span><i class="mi speed"></i></span><small>x${n}</small>`;
+});
 if (IN_TG && TG.BackButton) { try { TG.BackButton.onClick(() => { if (G.running) pauseMenu(); }); } catch (e) {} }
 function pauseMenu() {
   if (G.over) return;
