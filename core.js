@@ -127,7 +127,7 @@ const ENEMY = {
   boss:      { n: 'Колосс', hp: 5120, speed: 0.85, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
 };
 /* Баланс: все враги едут на 40% медленнее */
-const ESPK = .6; for (const d of Object.values(ENEMY)) d.speed *= ESPK;
+const ESPK = .6; for (const d of Object.values(ENEMY)) { d.speed *= ESPK; if (d.boss || d.mini) d.hp = Math.round(d.hp * .85); } /* боссы и мини-боссы: −15% HP */
 const ELOOK = {
   light: { h: '#e0763c', tur: 'circle', ts: .22, bar: 1, bl: .45, bw: .08 },
   scout: { h: '#7b8a4a', tur: 'dome', ts: .2, bar: 1, bl: .5, bw: .07, camo: 1 },
@@ -332,7 +332,7 @@ function posAt(P, d) {
 }
 /* Модификаторы врагов: Раздутый — ×2 ХП (случайно, со 2-й волны), Колосс — ×5 ХП (только последние волны, с 6-го уровня).
    Награда за убийство растёт так же, как ХП. Волны по-прежнему детерминированы (сид = номер уровня). */
-const MODS = { b: { n: 'Раздутый', hp: 3, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 6, sc: 1.4, col: '#b45cff' }, t: { n: 'Титан', hp: 9, sc: 1.55, col: '#e0362c' } };
+const MODS = { b: { n: 'Раздутый', hp: 2, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 5, sc: 1.4, col: '#b45cff' }, t: { n: 'Титан', hp: 7, sc: 1.55, col: '#e0362c' } };
 function makeWaves(n, np) {
   const r = rng(n * 7919 + 13), boss = n % 8 === 0, nw = n <= 16 ? Math.min(15, 6 + Math.floor(n / 2)) : n === 17 ? 18 : n === 18 ? 24 : Math.min(34, 30 + Math.floor((n - 19) / 3)), waves = [];
   const minis = Object.keys(ENEMY).filter(k => ENEMY[k].mini && ENEMY[k].from <= n);

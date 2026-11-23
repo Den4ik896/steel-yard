@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '57';
+const VER = '58';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -373,7 +373,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 
 <script src="i18n.js?v=16"></script>
 <script src="sfx.js?v=4"></script>
-<script src="core.js?v=31"></script>
+<script src="core.js?v=32"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
