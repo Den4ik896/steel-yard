@@ -26,7 +26,7 @@ const SFX = (() => {
 
   const get = (u) => fetch(u).then(r => r.arrayBuffer()).then(b => new Promise((ok, no) => ac.decodeAudioData(b, ok, no)));
   function init() {
-    if (ac) { if (ac.state === 'suspended' && !document.hidden) ac.resume(); if (mvol > 0) { if (cur && cur.k === want) { if (cur.el.paused) cur.el.play().catch(() => {}); } else musicStart(); } return; }
+    if (ac) { if (ac.state === 'suspended' && !document.hidden) ac.resume(); musicStart(); return; }
     try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
     master = ac.createGain(); master.gain.value = vol; master.connect(ac.destination);
     mg = ac.createGain(); mg.gain.value = mvol; mg.connect(ac.destination); musicStart();
@@ -37,7 +37,7 @@ const SFX = (() => {
   }
   /* Браузер разрешает звук только после касания — запускаем по первому тапу */
   ['pointerdown', 'touchend', 'keydown'].forEach(ev => addEventListener(ev, init, true));
-  document.addEventListener('visibilitychange', () => { if (!ac) return; if (document.hidden) { flameOff(); ac.suspend(); if (cur) cur.el.pause(); } else { ac.resume(); if (cur && mvol > 0) cur.el.play().catch(() => {}); } });
+  document.addEventListener('visibilitychange', () => { if (!ac) return; if (document.hidden) { flameOff(); ac.suspend(); } else ac.resume(); });
 
   function play(k, o = {}) {
     if (!vol || !ac || ac.state !== 'running') return;
@@ -109,21 +109,29 @@ const SFX = (() => {
     init(); if (master) master.gain.value = vol; if (!vol) flameOff();
   }
   function toggle() { setVol(vol > 0 ? 0 : lastVol); if (vol) play('click'); return vol > 0; }
-  /* 🎵 Музыка: music/<k>.mp3, плавная смена трека (кроссфейд) */
-  function musicStart() {
-    if (!ac || !mg || !want || mvol <= 0 || (cur && cur.k === want)) return;
-    const k = want, el = new Audio('music/' + k + '.mp3' + V); el.loop = true;
-    let src; try { src = ac.createMediaElementSource(el); } catch (e) { return; }
-    const g = ac.createGain(), now = ac.currentTime; g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(1, now + 2); src.connect(g); g.connect(mg);
-    el.play().catch(() => {});
-    const old = cur; cur = { k, el, g };
-    if (old) { old.g.gain.cancelScheduledValues(now); old.g.gain.setValueAtTime(old.g.gain.value, now); old.g.gain.linearRampToValueAtTime(0, now + 1.5); setTimeout(() => { old.el.pause(); old.el.removeAttribute('src'); old.el.load(); }, 1700); }
+  /* 🎵 Музыка: music/<k>.mp3 — раскодированный буфер с бесшовным повтором, плавная смена трека (кроссфейд). k = null — тишина */
+  const mbufs = {};
+  function loopPts(b) { /* срезаем тишину-набивку mp3 по краям (до 0.12 с), чтобы петля была без щелчка */
+    const d = b.getChannelData(0), lim = Math.floor(b.sampleRate * .12); let i = 0, j = d.length - 1;
+    while (i < lim && Math.abs(d[i]) < 2e-4) i++; while (d.length - 1 - j < lim && Math.abs(d[j]) < 2e-4) j--;
+    return [i / b.sampleRate, (j + 1) / b.sampleRate];
   }
-  function music(k) { want = k; musicStart(); }
+  function fadeOut(o) { const now = ac.currentTime; o.g.gain.cancelScheduledValues(now); o.g.gain.setValueAtTime(o.g.gain.value, now); o.g.gain.linearRampToValueAtTime(0, now + 1.5); setTimeout(() => { try { o.src.stop(); } catch (e) {} }, 1700); }
+  function musicStart() {
+    if (!ac || !mg || mvol <= 0 || (cur ? cur.k === want : !want)) return;
+    if (!want) { fadeOut(cur); cur = null; return; }
+    const k = want, b = mbufs[k];
+    if (b === undefined) { mbufs[k] = null; get('music/' + k + '.mp3' + V).then(x => { mbufs[k] = x; musicStart(); }).catch(() => { delete mbufs[k]; }); return; }
+    if (!b) return; /* ещё грузится */
+    const src = ac.createBufferSource(), g = ac.createGain(), now = ac.currentTime, [s0, s1] = loopPts(b);
+    src.buffer = b; src.loop = true; src.loopStart = s0; src.loopEnd = s1;
+    g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(1, now + 2); src.connect(g); g.connect(mg); src.start(0, s0);
+    if (cur) fadeOut(cur); cur = { k, src, g };
+  }
+  function music(k) { want = k || null; musicStart(); }
   function setMusic(v) {
     mvol = Math.max(0, Math.min(1, v)); try { localStorage.mv = mvol; } catch (e) {}
-    init(); if (mg) mg.gain.value = mvol;
-    if (!mvol) { if (cur) cur.el.pause(); } else if (cur && cur.k === want) cur.el.play().catch(() => {}); else musicStart();
+    init(); if (mg) mg.gain.value = mvol; musicStart();
   }
   return { play, fire, toggle, setVol, setMusic, music, get on() { return vol > 0; }, get vol() { return vol; }, get mvol() { return mvol; } };
 })();
