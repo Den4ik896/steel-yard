@@ -28,7 +28,7 @@ const TANKS = [
     role: 'Пушка', desc: 'Надёжная пушка с хорошим уроном. Броню пробивает с ★2.', perk: 'Двойной выстрел',
     look: { h: '#5f9e4f', tur: 'circle', ts: .27, bar: 1, bl: .62, bw: .13, brake: 1 } },
   { id: 'zhar', name: 'Жар', kind: 'flame', rar: 'rare', dmg: 5, rate: 0.1, range: 1.6, cost: 110, det: { g: 1, l: 1 },
-    role: 'Огнемёт', desc: 'Поливает огнём ВСЕХ врагов рядом и поджигает. Огонь прожигает любую броню.', perk: 'Напалм: горение ×2',
+    role: 'Огнемёт', desc: 'Бьёт струёй огня конусом: горят все враги в конусе перед ним. Огонь прожигает любую броню.', perk: 'Напалм: горение ×2',
     look: { h: '#d9782f', tur: 'box', ts: .25, bar: 1, bl: .42, bw: .17, extra: 'fuel' }, price: { silver: 500 } },
   { id: 'sokol', name: 'Сокол', kind: 'sniper', rar: 'rare', dmg: 120, rate: 2.8, range: 5, cost: 130, mode: 'strong', det: { g: 1, h: 1, l: 1 },
     role: 'Снайпер', desc: 'Огромная дальность и видит скрытых. Стреляет редко, но очень больно — по самому крепкому.', perk: 'Крит 25%: урон ×2.5',
@@ -79,7 +79,7 @@ const MAXTW = 25;
 const TUNE = {
   shmel:   { lim: 10, nst: 4, up: [40, 60, 100, 135], dmg: [6, 9, 13, 32, 50], rate: [.5, .5, .6, 1, 1], rg: [2.5, 2.5, 3.5, 4.35], det: { g: 1, a: 3, h: 3 } },
   bobr:    { lim: 4, cost: 80, up: [60, 85, 200, 600], dmg: [13, 33, 50, 80, 80], rate: [1.25, 2, 2, 3, 2], rg: [3, 3.5, 4, 4, 5], det: { g: 1, l: 2, a: 5, h: 5 } },
-  zhar:    { lim: 3, cost: 150, up: [50, 165, 350, 750], dps: [10, 13, 20, 25], dmg: [1.2, 1.5, 2.3, 3.3, 4.2], rate: [null, null, null, .08, .05], rg: [2, 2.5, 2.7, 3, 3.3], price: { silver: 600 } },
+  zhar:    { lim: 3, cone: 60, cost: 150, up: [50, 165, 350, 750], dps: [10, 13, 20, 25], dmg: [1.2, 1.5, 2.3, 3.3, 4.2], rate: [null, null, null, .08, .05], rg: [2, 2.5, 2.7, 3, 3.3], price: { silver: 600 } },
   sokol:   { lim: 2, cost: 200, up: [150, 300, 500], dmg: [90, 180, 300, 275, 450], rate: [3, 4, 4, 3, 3], rg: [null, 6, 8, 8.5, 12] },
   moroz:   { lim: 3, cost: 50, up: [150, 175, 325], dps: [2, 3, 5, 8], dmg: [null, null, null, null, 30], rate: [null, null, null, null, .5], slow: [20, 25, 35, 50], slowB: [10, 15, 17.5, 20], spl: [.3, .4, .5, .6], rg: [3, 4, 4, 4.25] },
   vihr:    { lim: 8, nst: 3, cost: 60, up: [125, 300, 200], dmg: [1.5, 4.5, 6], rate: [null, null, .2], rg: [3, 3.5, 4, 4], det: { g: 1, a: 1, h: 3 }, price: { silver: 900 } },
@@ -293,7 +293,7 @@ function calc4(t, lv, tier) {
   if (k === 'beam' && perk) dps *= 1.5;
   const want = tv(t, 'dps', i); if (want != null && dps > 0) { const f = want * HPU * g / dps; dmg *= f; dps *= f; } /* DPS из ручного баланса */
   const sl = tv(t, 'slow', i), slow = sl != null ? sl / 100 : k === 'cryo' ? (perk ? .6 : .4) : k === 'polar' ? .5 : 0, sb = tv(t, 'slowB', i), slowB = sb != null ? sb / 100 : slow / 2, spl = tv(t, 'spl', i) || 0;
-  const aoe = k === 'kv2' || k === 'rockets' ? `Сплеш ${t.splash}` : spl ? `Сплеш ${spl}` : k === 'flame' || k === 'polar' ? 'Все в радиусе' : k === 'tesla' ? `Цепь ${perk ? 5 : 3}` : k === 'rail' ? 'Насквозь' : '';
+  const aoe = k === 'kv2' || k === 'rockets' ? `Сплеш ${t.splash}` : spl ? `Сплеш ${spl}` : k === 'flame' ? `Конус ${(t.tune && t.tune.cone) || 60}°` : k === 'polar' ? 'Все в радиусе' : k === 'tesla' ? `Цепь ${perk ? 5 : 3}` : k === 'rail' ? 'Насквозь' : '';
   return { dmg, rate, range, dps, shots, aoe, perk, slow, slowB, spl, det: { g: has('g'), a: has('a'), h: has('h'), l: has('l') } };
 }
 function rollBox(id, rnd = Math.random) {
@@ -452,8 +452,12 @@ function fire(tw, s, L) {
     case 'cannon': shot({ k: 'shell', tgt: e, spd: 11, dmg: s.dmg, o: {}, r: .08, col: '#ffb02e' }); if (s.perk) shot({ k: 'shell', tgt: e, spd: 11, dmg: s.dmg, o: {}, r: .08, col: '#ffb02e', delay: .15 }); break;
     case 'flame':
       tw.rec = .2; tw.flash = 0;
-      for (const x of L) { hurt(x, s.dmg, { pen, quiet: 1 }); x.burnT = 2; x.burnD = Math.max(x.burnD, s.dmg * 2 * (s.perk ? 2 : 1)); }
-      if (G.vis) for (let i = 0; i < 3; i++) { const a = tw.ang + (Math.random() - .5) * .5, v = 3 + Math.random() * 2; G.parts.push({ x: m.x, y: m.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: .3 + Math.random() * .15, r: .12, col: '#ff7a1a', flame: 1 }); }
+      { /* конус: горят только враги в секторе ±cone/2 вокруг направления на цель */
+        const a0 = Math.atan2(e.y - tw.y, e.x - tw.x), half = ((t.tune && t.tune.cone) || 60) * Math.PI / 360;
+        for (const x of L) { const d = Math.atan2(x.y - tw.y, x.x - tw.x) - a0, dd = Math.abs(Math.atan2(Math.sin(d), Math.cos(d)));
+          if (x !== e && dd > half) continue; hurt(x, s.dmg, { pen, quiet: 1 }); x.burnT = 2; x.burnD = Math.max(x.burnD, s.dmg * 2 * (s.perk ? 2 : 1)); }
+        tw.ang = a0; }
+      if (G.vis) for (let i = 0; i < 5; i++) { const a = tw.ang + (Math.random() - .5) * ((t.tune && t.tune.cone) || 60) * Math.PI / 180, v = (s.range / .4) * (.6 + Math.random() * .4); G.parts.push({ x: m.x, y: m.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: .3 + Math.random() * .15, r: .12, col: '#ff7a1a', flame: 1 }); }
       break;
     case 'sniper': { const crit = s.perk && G.rnd() < .25; hurt(e, s.dmg * (crit ? 2.5 : 1), { show: 1, crit, pen }); if (G.vis) G.fx.push({ k: 'line', x: m.x, y: m.y, x2: e.x, y2: e.y, t: 0, life: .18, col: '#fff6b0', w: .07 }); G.shake = Math.max(G.shake, 2); break; }
     case 'cryo': shot({ k: 'ice', tgt: e, spd: 9, dmg: s.dmg, splash: s.spl, o: { slow: s.slow, slowB: s.slowB, ice: 1 }, r: .09, col: '#9fe6ff' }); break;
