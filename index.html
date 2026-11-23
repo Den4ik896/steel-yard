@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '47';
+const VER = '48';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -1393,7 +1393,7 @@ async function startLevel(n) {
 /* ⚙ ползунки громкости */
 document.addEventListener('input', e => { const t = e.target, k = t.dataset && t.dataset.vol; if (!k) return; const v = t.value / 100; if (k === 's') SFX.setVol(v); else SFX.setMusic(v); t.nextElementSibling.textContent = t.value + '%'; });
 document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.vol === 's') sfx('click'); });
-const MUS = ['meadow', null, 'ice']; /* 🏜 пустыня пока без музыки; music/event_desert.mp3 — для ивента */
+const MUS = ['meadow', 'desert', 'ice']; /* music/event_desert.mp3 — для ивента */
 function exitBattle() {
   if (G.running && !G.over && !ON) { qAdd('kill', G.kills); qAdd('build', G.built); qAdd('air', G.airKills); save(); }
   G.running = false; closeModal(); closeRadial();
