@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '53';
+const VER = '54';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,7 +371,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=15"></script>
+<script src="i18n.js?v=16"></script>
 <script src="sfx.js?v=4"></script>
 <script src="core.js?v=29"></script>
 <script>
@@ -922,7 +922,10 @@ async function usePromo() {
   else if (code.trim().toUpperCase() === 'FREE3X') { r = S.x3 ? { err: 'Скорость ×3 уже открыта' } : { ok: 1, x3: 1 }; if (r.ok) { S.x3 = 1; save(); } }
   else { /* офлайн: код на танк проверяем прямо в игре */
     const tc = { FACTORY: 'zavod', ACCELERATOR: 'uskor' }[code.trim().toUpperCase()], used = S.tpromo ||= {};
-    if (code.trim().toUpperCase() === 'SY-4657AF83') { /* случайный мифик, один раз на аккаунт */
+    if (code.trim().toUpperCase() === 'SY-03BE1C2C') { /* +100 000 всех денег, один раз на аккаунт */
+      r = S.cpromo ? { err: 'Промокод уже использован' } : { ok: 1, cash: 100000 };
+      if (r.ok) { S.silver += r.cash; S.gold += r.cash; S.gems = (S.gems || 0) + r.cash; S.cpromo = 1; save(); }
+    } else if (code.trim().toUpperCase() === 'SY-4657AF83') { /* случайный мифик, один раз на аккаунт */
       const pool = TANKS.filter(t => t.rar === 'limited' && !S.owned[t.id]), pk = pool[Math.floor(Math.random() * pool.length)];
       r = S.promo ? { err: 'Промокод уже использован' } : !pk ? { err: 'Все мифики уже есть в гараже' } : { ok: 1, tank: pk.id };
       if (r.ok) { S.owned[pk.id] = 1; if (S.deck.length < DECK) S.deck.push(pk.id); S.promo = 1; save(); }
@@ -932,6 +935,7 @@ async function usePromo() {
   }
   if (r.err) return toast(r.err);
   hapticN('success'); const d = r.drop;
+  if (r.cash) { modal(`<div class="ribbon g">💰 Бонус!</div><div style="font-size:56px">💰</div><p style="font-weight:800">+${num(r.cash)} серебра, золота и кристаллов</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`); return render(); }
   if (r.x3) { modal(`<div class="ribbon g">⏩ Скорость ×3!</div><div style="font-size:64px">⏩</div><p style="font-weight:700">В бою кнопка скорости теперь переключает ×1 → ×2 → ×3.</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`); return render(); }
   if (r.tank) { const t = tankById(r.tank); modal(`<div class="ribbon g">Новый танк!</div><div class="rays" style="--rc:${RAR[t.rar].hex}"><img src="${icon('t', t.id, 140)}"></div>
       <div style="font-size:24px">${t.name}</div><div class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n} · ${t.role}</div>
