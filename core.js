@@ -476,7 +476,8 @@ function fire(tw, s, L) {
       break;
     }
     case 'rockets': { const k = s.perk ? 6 : t.salvo; for (let i = 0; i < k; i++) shot({ k: 'rocket', tgt: L[i % L.length], spd: 6.5, dmg: s.dmg, splash: s.spl || t.splash, o: {}, r: .07, col: '#ddd', delay: i * .09, wob: G.rnd() * 6 }); break; }
-    case 'mammoth': for (const [off, dl] of [[-.1, 0], [.1, .12]]) G.shots.push({ k: 'shell', x: m.x + off * Math.sin(tw.ang), y: m.y - off * Math.cos(tw.ang), tgt: e, spd: 12, dmg: s.dmg * (tw.tier >= 10 && G.rnd() < .1 ? 2 : 1), o: { shred: s.perk ? 4 : 3 }, r: .09, col: '#ffb02e', delay: dl }); break;
+    case 'mammoth': /* 2 снаряда: второй — во второго врага; если цель умерла в полёте, снаряд перенаводится */
+      for (const [off, dl, tg] of [[-.1, 0, e], [.1, .12, L[1] || e]]) G.shots.push({ k: 'shell', x: m.x + off * Math.sin(tw.ang), y: m.y - off * Math.cos(tw.ang), tgt: tg, alt: L, spd: 12, dmg: s.dmg * (tw.tier >= 10 && G.rnd() < .1 ? 2 : 1), o: { shred: s.perk ? 4 : 3 }, r: .09, col: '#ffb02e', delay: dl }); break;
     case 'drum': for (let i = 0; i < (s.perk ? 5 : 3); i++) { const off = (i % 3 - 1) * .11; G.shots.push({ k: 'shell', x: m.x + off * Math.sin(tw.ang), y: m.y - off * Math.cos(tw.ang), tgt: e, spd: 12, dmg: s.dmg, o: {}, r: .07, col: '#ffb02e', delay: i * .12 }); } break;
     case 'rail': {
       const a = Math.atan2(e.y - m.y, e.x - m.x), cx = Math.cos(a), cy = Math.sin(a), len = s.range + 1.5, hit = [];
@@ -628,7 +629,7 @@ function update(dt) {
   for (const sh of G.shots) {
     if (sh.delay > 0) { sh.delay -= dt; continue; }
     if (sh.k === 'lob') { sh.t += dt; if (sh.t >= sh.dur) { sh.done = 1; explode(sh.tx, sh.ty, sh.splash, sh.dmg, sh.o); } continue; }
-    const e = sh.tgt;
+    let e = sh.tgt; if (e.dead && sh.alt) { const n = sh.alt.find(x => !x.dead); if (n) e = sh.tgt = n; }
     if (!e.dead) { sh.lx = e.x; sh.ly = e.y - (e.d.fly ? .45 : 0); }
     else if (sh.k !== 'rocket' || sh.lx == null) { sh.done = 1; continue; }
     const tx = sh.lx, ty = sh.ly, dx = tx - sh.x, dy = ty - sh.y, d = Math.hypot(dx, dy), st = sh.spd * dt;
