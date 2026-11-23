@@ -17,3 +17,5 @@ Object.assign(DICT["fa"], {"Support":"پشتیبانی","Battle support":"پشت
 Object.assign(DICT["fa"], {"Mythic":"افسانه‌ای برتر","Mythic tank":"تانک افسانه‌ای برتر","Lightning hits harder than Tesla and jumps further.":"صاعقه از تسلا قوی‌تر می‌زند و دورتر می‌پرد.","Coming Soon!":"به‌زودی!"});
 
 Object.assign(DICT["fa"], {"Wave cleared!":"موج پاک شد!"});
+
+Object.assign(DICT["fa"], {"Settings":"تنظیمات","⚙ Settings":"⚙ تنظیمات","🔊 Sounds":"🔊 صداها","🎵 Music":"🎵 موسیقی","🌐 Language":"🌐 زبان","Sounds":"صداها","Music":"موسیقی","Language":"زبان"});

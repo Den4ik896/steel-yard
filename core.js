@@ -175,9 +175,9 @@ const BOXES = [
 const DUPC = { rare: { silver: 250 }, epic: { gold: 40 }, legendary: { gold: 120 }, limited: { gold: 300 } };
 const GOLDPACKS = [{ g: 100, st: 50 }, { g: 550, st: 250 }, { g: 1200, st: 500 }];
 const FUELPACK = { f: 10, st: 50 };
-/* Гемы 💎 — валюта рынка, лимиток и Космического контейнера. За Stars продаются только в магазине */
+/* Гемы 💎 — валюта рынка, мификов и Космического контейнера. За Stars продаются только в магазине */
 const GEMPACKS = [{ g: 100, st: 100 }, { g: 550, st: 500 }, { g: 1200, st: 1000 }];
-/* Всё, что продаётся за Telegram Stars: k — вид товара, arg — номер набора или модель лимитки. Цену проверяет сервер */
+/* Всё, что продаётся за Telegram Stars: k — вид товара, arg — номер набора или модель мифики. Цену проверяет сервер */
 const X3ST = 30; /* ⭐ за скорость ×3 навсегда (или промокод FREE3X) */
 function starItem(k, arg) {
   if (k === 'gold') { const p = GOLDPACKS[+arg]; return p ? { st: p.st, title: `${p.g} золота`, g: p.g } : null; }
@@ -734,7 +734,7 @@ const ECON = {
     if (p.silver) S.silver -= p.silver; if (p.gold) S.gold -= p.gold; if (p.gems) S.gems -= p.gems;
     S.owned[id] = 1; if (S.deck.length < DECK) S.deck.push(id); return { ok: 1 };
   },
-  box({ id }, rnd, lim) {   // lim — сервер уже выбил лимитку: она и есть приз, обычный не выдаём
+  box({ id }, rnd, lim) {   // lim — сервер уже выбил мифик: она и есть приз, обычный не выдаём
     const b = BOXES.find(x => x.id === id); if (!b) return { err: 'Нет такого ящика' }; const p = b.price;
     if (p.gems) { if ((S.gems || 0) < p.gems) return { err: 'Не хватает гемов' }; S.gems -= p.gems; }
     if (p.free) { if (Date.now() - S.boxTs < BOXCD) return { err: 'Ещё рано' }; S.boxTs = Date.now(); }
@@ -761,7 +761,7 @@ const ECON = {
   }
 };
 
-/* ======================= Лимитки (NFT): атрибуты ======================= */
+/* ======================= Мифики (NFT): атрибуты ======================= */
 /* Каждый атрибут выпадает с весом w; редкость = w / сумма весов. Атрибуты — только внешний вид, на силу не влияют */
 const NFT = {
   fee: .05,

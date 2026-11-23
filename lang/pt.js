@@ -17,3 +17,5 @@ Object.assign(DICT["pt"], {"Support":"Suporte","Battle support":"Suporte em bata
 Object.assign(DICT["pt"], {"Mythic":"Mítico","Mythic tank":"Tanque mítico","Lightning hits harder than Tesla and jumps further.":"O raio bate mais forte que o Tesla e salta mais longe.","Coming Soon!":"Em breve!"});
 
 Object.assign(DICT["pt"], {"Wave cleared!":"Onda concluída!"});
+
+Object.assign(DICT["pt"], {"Settings":"Configurações","⚙ Settings":"⚙ Configurações","🔊 Sounds":"🔊 Sons","🎵 Music":"🎵 Música","🌐 Language":"🌐 Idioma","Sounds":"Sons","Music":"Música","Language":"Idioma"});

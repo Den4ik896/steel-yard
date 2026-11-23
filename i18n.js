@@ -41,7 +41,7 @@ var DICT = {
     'Мне есть 18 лет, либо вывод делает мой взрослый (родитель) на свой кошелёк': "I'm 18+, or my adult (parent) withdraws to their own wallet",
     'Бой сыгран подозрительно быстро — награда не начислена': 'The battle was played suspiciously fast — no reward given',
     'Сервер не смог подтвердить бой — награда не начислена': "The server couldn't verify the battle — no reward given",
-    'Лимитки работают только в Telegram-версии с сервером игры.': 'Limited tanks only work in the Telegram version with the game server.',
+    'Мифики работают только в Telegram-версии с сервером игры.': 'Mythic tanks only work in the Telegram version with the game server.',
     'Пока нет. Они падают с боссов (ур. 8, 16, 24, 32) и за 3★.': 'None yet. They drop from bosses (lv. 8, 16, 24, 32) and for 3★ wins.',
     '3. За уничтоженных врагов — 💵, на них ставь и улучшай танки до ★4.': '3. Destroyed enemies give 💵 — spend it to place tanks and upgrade them up to ★4.',
     '4. Смотри обнаружение: ✈ авиация летит напрямую, 👁 скрытых видят не все, по 🛡 броне без бронебойности урон всего 30%.': '4. Watch detection: ✈ aircraft fly straight, 👁 hidden enemies are not seen by everyone, 🛡 armor takes only 30% damage without armor piercing.',
@@ -52,9 +52,9 @@ var DICT = {
     'Прорвалась 🛡 броня. Без бронебойности урон всего 30% — ставь Бобра, Сокола, Жара или улучши Шмеля до ★4.': '🛡 Armor broke through. Without armor piercing it takes only 30% damage — use Beaver, Falcon, Blaze or upgrade Bumblebee to ★4.',
     'Ремонтники чинят врагов — уничтожай их первыми (режим цели «Сильный»).': 'Mechanics repair enemies — kill them first (target mode "Strongest").',
     'Прокачай танки в гараже (+20% урона за уровень) или купи новые в магазине. И улучшай танки в бою до ★4!': 'Upgrade tanks in the garage (+20% damage per level) or buy new ones in the shop. And upgrade tanks in battle up to ★4!',
-    '🛡 Tank Defense — танковая башенная защита.\nСтавь танки, отбивай волны, выбивай лимитки с боссов!': '🛡 Tank Defense — tank tower defense.\nPlace tanks, hold off the waves, win limited tanks from bosses!',
+    '🛡 Tank Defense — танковая башенная защита.\nСтавь танки, отбивай волны, выбивай мифики с боссов!': '🛡 Tank Defense — tank tower defense.\nPlace tanks, hold off the waves, win mythic tanks from bosses!',
     'Проблема с оплатой? Опиши её ответным сообщением — разберёмся вручную. Возврат Stars делается через бота.': "Payment problem? Describe it in a reply and we'll sort it out manually. Stars refunds are made via the bot.",
-    'Золото — игровая валюта, не выводится и не продаётся. Лимитки — игровые предметы, торговля ими в TON доступна с 18 лет.': 'Gold is an in-game currency: it cannot be withdrawn or sold. Limited tanks are in-game items; trading them for TON is 18+ only.',
+    'Золото — игровая валюта, не выводится и не продаётся. Мифики — игровые предметы, торговля ими в TON доступна с 18 лет.': 'Gold is an in-game currency: it cannot be withdrawn or sold. Mythic tanks are in-game items; trading them for TON is 18+ only.',
     'Продать и купить можно на Рынке за': 'Buy and sell on the Market for',
 
     /* танки */
@@ -86,7 +86,7 @@ var DICT = {
     'Бьёт и по авиации': 'Also hits aircraft',
     'Волна холода бьёт всех вокруг и замедляет на': 'A cold wave hits everyone around and slows them by',
     'Полная заморозка на': 'Full freeze for',
-    'Лимитка: молния бьёт сильнее Теслы и дальше прыгает.': 'Limited: lightning hits harder than Tesla and jumps further.',
+    'Мифик: молния бьёт сильнее Теслы и дальше прыгает.': 'Mythic: lightning hits harder than Tesla and jumps further.',
     /* враги */
     'Лёгкий танк': 'Light tank', 'Броневик': 'Armored car', 'Средний танк': 'Medium tank', 'Вертолёт': 'Helicopter', 'Ремонтник': 'Mechanic',
     'Аэросани': 'Aerosled', 'Бурильщик': 'Driller', 'Ледокол': 'Icebreaker', 'Щитоносец': 'Shield bearer',
@@ -113,7 +113,7 @@ var DICT = {
     'Гигантский танк-босс. Вызывает подкрепление.': 'A giant boss tank. Calls in reinforcements.',
     /* локации, редкость, режимы, обнаружение */
     'Зелёные луга': 'Green Meadows', 'Жаркая пустыня': 'Hot Desert', 'Ледяной перевал': 'Icy Pass',
-    'Обычный': 'Common', 'Редкий': 'Rare', 'Эпический': 'Epic', 'Легендарный': 'Legendary', 'Лимитка': 'Limited', 'Лимитка.': 'Limited.',
+    'Обычный': 'Common', 'Редкий': 'Rare', 'Эпический': 'Epic', 'Легендарный': 'Legendary', 'Мифик': 'Mythic', 'Мифик.': 'Mythic.',
     'Первый': 'First', 'Сильный': 'Strongest', 'Ближний': 'Closest',
     'Воздух': 'Air', 'Скрытые': 'Hidden', 'Броня': 'Armor', 'Земля': 'Ground',
     /* контейнеры, задания */
@@ -122,7 +122,7 @@ var DICT = {
     'Победи на уровнях': 'Win levels', 'Уничтожь врагов': 'Destroy enemies', 'Поставь танков в боях': 'Place tanks in battles', 'Пройди уровень на': 'Clear a level with',
     'Сбей авиацию': 'Shoot down aircraft', 'Открой контейнер': 'Open a crate', 'Улучши танк в гараже': 'Upgrade a tank in the garage',
     'Бесплатно': 'Free', 'Сплеш': 'Splash', 'Все в радиусе': 'All in radius', 'Цепь': 'Chain', 'Круг': 'Area',
-    /* атрибуты лимиток */
+    /* атрибуты мификов */
     'Выстрел': 'Shot', 'Попадание': 'Hit', 'Добивание': 'Finisher', 'Эмблема': 'Emblem',
     'Заводской': 'Factory', 'Хаки': 'Khaki', 'Пустыня': 'Desert', 'Арктика': 'Arctic', 'Ночь': 'Night', 'Кровь': 'Blood', 'Мята': 'Mint', 'Неон': 'Neon', 'Золото': 'Gold', 'Хром': 'Chrome',
     'Синий трассер': 'Blue tracer', 'Зелёный трассер': 'Green tracer', 'Фиолетовая плазма': 'Purple plasma', 'Розовый лазер': 'Pink laser', 'Тёмная материя': 'Dark matter',
@@ -151,7 +151,7 @@ var DICT = {
     'Тираж': 'Supply', 'Тираж закончился': 'Supply is sold out',
     'шт., у каждой свой номер и случайные атрибуты (камуфляж, выстрел, попадание, добивание, эмблема). Атрибуты — только внешний вид. Добывается только в бою: боссы (ур.': 'pcs. Each one has its own serial number and random traits (camo, shot, hit, finisher, emblem). Traits are cosmetic only. Drops only in battle: bosses (lv.',
     'го уровня. Продать и купить можно на Рынке за': 'th level. Buy and sell on the Market for',
-    'Лимитки работают только в': 'Limited tanks only work in', 'версии с сервером игры.': 'version with the game server.', 'На рынке': 'On the market', 'тест': 'test', 'Тест': 'Test',
+    'Мифики работают только в': 'Mythic tanks only work in', 'версии с сервером игры.': 'version with the game server.', 'На рынке': 'On the market', 'тест': 'test', 'Тест': 'Test',
     'Этот экземпляр в бою': 'This one is in battle', 'Взять в бой': 'Use in battle', 'Аукцион': 'Auction', 'ставка': 'bid', 'старт': 'start', 'до конца': 'ends in', 'Выставлено за': 'Listed for', 'Снять': 'Unlist',
     'Продать можно через': 'Can be sold in', 'защита от перепродаж и мошенников)': 'protection against flipping and scams)', 'Цена': 'Price', 'ч': 'h', 'ч.': 'h.', 'Продать': 'Sell',
     'Комиссия рынка': 'Market fee', 'Для аукциона цена — стартовая ставка, срок — справа.': 'For an auction the price is the starting bid; duration is on the right.',
@@ -159,10 +159,10 @@ var DICT = {
     'Шаг': 'Step', 'Ставка в последние 2 минуты продлевает аукцион — снайпинг не работает.': 'A bid in the last 2 minutes extends the auction — sniping does not work.',
     'Твоя цена': 'Your price', 'Предложить': 'Make offer', 'замораживаются на': 'are frozen for', 'ч. Не примут — вернутся.': "h. If it's declined, they come back.",
     'Сделки': 'Sales', 'Побед с ним': 'Wins with it', 'Происхождение': 'Origin',
-    'Рынок лимиток': 'Limited tank market', 'версии игры: там сервер проверяет каждую сделку. Здесь игра запущена без сервера.': 'version of the game: there the server checks every deal. Here the game runs without a server.',
+    'Рынок мификов': 'Mythic tank market', 'версии игры: там сервер проверяет каждую сделку. Здесь игра запущена без сервера.': 'version of the game: there the server checks every deal. Here the game runs without a server.',
     'Баланс': 'Balance', 'Кошелёк': 'Wallet', 'Все': 'All', 'Загрузка...': 'Loading...', 'Аукционы': 'Auctions', 'Продаются': 'For sale',
-    'Пока никто не продаёт. Выбей лимитку в бою с боссом — и стань первым!': 'Nobody is selling yet. Win a limited tank from a boss — and be the first!',
-    'Мои предложения': 'My offers', 'Отменить': 'Cancel', 'Мои лимитки': 'My limited tanks', 'Пока нет. Они падают с боссов (ур.': 'None yet. They drop from bosses (lv.', 'и за': 'and for',
+    'Пока никто не продаёт. Выбей мифик в бою с боссом — и стань первым!': 'Nobody is selling yet. Win a mythic tank from a boss — and be the first!',
+    'Мои предложения': 'My offers', 'Настройки': 'Settings', '⚙ Настройки': '⚙ Settings', '🔊 Звуки': '🔊 Sounds', '🎵 Музыка': '🎵 Music', '🌐 Язык': '🌐 Language', 'Отменить': 'Cancel', 'Мои мифики': 'My mythic tanks', 'Пока нет. Они падают с боссов (ур.': 'None yet. They drop from bosses (lv.', 'и за': 'and for',
     'Прототип: тестовая сеть': 'Prototype: testnet', 'Все сделки проверяет сервер, комиссия': 'Every deal is checked by the server, fee', 'После покупки танк можно перепродать через': 'After buying, a tank can be resold in',
     'ждёт': 'pending', 'выплачено': 'paid', 'Пополнить': 'Top up', 'Отправь': 'Send', 'на адрес': 'to the address', 'с комментарием': 'with the comment',
     'Без комментария сервер не поймёт, чьи это': "Without the comment the server won't know whose", 'Открыть': 'Open',
@@ -189,7 +189,7 @@ var DICT = {
     'Аукцион запущен': 'Auction started', 'Выставлено на продажу': 'Listed for sale', 'Снято с продажи': 'Removed from sale', 'Покупка': 'Purchase', 'спишутся с баланса в игре.': 'will be taken from your in-game balance.',
     'Куплено! Танк уже в гараже': 'Bought! The tank is already in your garage', 'Ставка принята': 'Bid accepted', 'заморожены до конца аукциона': 'are frozen until the auction ends',
     'Предложение отправлено владельцу': 'Offer sent to the owner', 'Продано!': 'Sold!', 'Предложение отменено': 'Offer cancelled', 'вернулись': 'returned',
-    'Заявка на вывод создана': 'Withdrawal request created', 'тестовых': 'test', 'Тестовая лимитка выдана': 'Test limited tank granted',
+    'Заявка на вывод создана': 'Withdrawal request created', 'тестовых': 'test', 'Тестовый мифик выдан': 'Test mythic tank granted',
     'Нет связи с сервером': 'No connection to the server', 'Сервер недоступен': 'Server unavailable', 'Тестер': 'Tester', 'Игрок': 'Player', 'Казна игры': 'Game treasury',
     'Победи': 'Win', 'и': 'and', 'с': 'with', 'до': 'to', 'или через взрослого': 'or via an adult', 'Вывод — только для': 'Withdrawals are only for',
     /* ошибки (сервер и core) */
@@ -197,7 +197,7 @@ var DICT = {
     'Не хватает серебра': 'Not enough silver', 'Не хватает золота': 'Not enough gold', 'Этот танк так не купить': "This tank can't be bought this way", 'Уже есть': 'Already owned',
     'Нет такого ящика': 'No such crate', 'Этот ящик пока недоступен': 'This crate is not available yet', 'Ещё рано': 'Too early', 'Ещё не выполнено': 'Not completed yet',
     'Реклама доступна раз в 3 минуты': 'Ads are available once every 3 minutes', 'Новые уровни скоро!': 'New levels coming soon!',
-    'Нет такой лимитки': 'No such limited tank', 'Цена от': 'Price from', 'Нет такого действия': 'No such action', 'Плохой': 'Bad', 'Это не твой танк': "That's not your tank",
+    'Нет такого мифика': 'No such mythic tank', 'Цена от': 'Price from', 'Нет такого действия': 'No such action', 'Плохой': 'Bad', 'Это не твой танк': "That's not your tank",
     'Билет на бой не найден': 'Battle ticket not found', 'Этот бой уже засчитан': 'This battle has already been counted', 'Нет такого танка ': 'No such tank',
     'Этот танк недавно куплен — продать можно позже': 'This tank was bought recently — you can sell it later', 'Уже выставлен': 'Already listed', 'Нет такого лота': 'No such listing',
     'На аукционе уже есть ставки — снять нельзя': 'The auction already has bids — it cannot be removed', 'Лот уже продан или снят': 'The listing is already sold or removed', 'Это твой лот': "That's your listing",
@@ -209,7 +209,7 @@ var DICT = {
     'на балансе': 'on balance', 'тестовая сеть': 'testnet', 'основная сеть': 'mainnet',
     /* бот */
     'Играть': 'Play', 'Золото для': 'Gold for', 'Спасибо! Зачислено': 'Thanks! Added', 'Заказ устарел, попробуй ещё раз': 'The order is outdated, please try again',
-    'танковая башенная защита.': 'tank tower defense.', 'Ставь танки, отбивай волны, выбивай лимитки с боссов!': 'Place tanks, hold off the waves, win limited tanks from bosses!',
+    'танковая башенная защита.': 'tank tower defense.', 'Ставь танки, отбивай волны, выбивай мифики с боссов!': 'Place tanks, hold off the waves, win mythic tanks from bosses!',
     'делается через бота.': 'are made via the bot.', 'доступна с': 'is available from', 'лет.': 'years old.',
     /* обрывки длинных подсказок (на случай другой сборки фразы) */
     'Авиация пролетает напрямую к базе! Возьми танк с': 'Aircraft fly straight to the base! Take a tank with', 'Шмель, Мороз, Вихрь, Тесла или Град.': 'Bumblebee, Frost, Whirlwind, Tesla or Hail.',
@@ -264,7 +264,7 @@ function tr(s, lang = LANG) {
 /* В браузере: переводим всё, что появляется на странице (текст, placeholder, title). Элементы с data-notr не трогаем */
 if (typeof document !== 'undefined') {
   document.documentElement.lang = LANG;
-  if (LANG !== 'ru' && LANG !== 'en') document.write('<script src="lang/' + LANG + '.js?v=4"><\/script>');
+  if (LANG !== 'ru' && LANG !== 'en') document.write('<script src="lang/' + LANG + '.js?v=5"><\/script>');
   /* Тот же проход меняет эмодзи валют и значков (🥈 🥇 ⛽ ⭐ 💎 🔒 🎁 🎟 🏰 💵 🎒 🔥 💀 ✈ 🛡 ⏱ 💥) на нарисованные иконки (<i class="ing …">) — для всех языков, включая русский */
   {
     const CYR = /[А-Яа-яЁё]/, ING = /\u{1F948}|\u{1F947}|\u26FD|\u2B50|\u{1F48E}|\u{1F512}|\u{1F381}|\u{1F39F}|\u{1F3F0}|\u{1F4B5}|\u{1F392}|\u{1F525}|\u{1F480}|\u2708|\u{1F6E1}|\u23F1|\u{1F4A5}/u, ICO = { '🥈': 's', '🥇': 'g', '⛽': 'f', '⭐': 'st', '💎': 'gem', '🔒': 'lk', '🎁': 'gift', '🎟': 'tk', '🏰': 'base', '💵': 'cash', '🎒': 'bag', '🔥': 'fire', '💀': 'skull', '✈': 'air', '🛡': 'armor', '⏱': 'timer', '💥': 'boom' }, SKIP = 'script,style,[data-notr]', DONE = new WeakMap();
@@ -294,17 +294,17 @@ if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => walk(document.body));
   }
 }
-/* Подарки дня, топливо, лимитки за звёзды, новые камуфляжи и эффекты */
-Object.assign(DICT.en, {"Подарок дня ждёт!":"Daily gift is waiting!","Подарок дня получен":"Daily gift claimed","Серия заходов:":"Login streak:","Серия:":"Streak:","дн.":"d.","каждые":"every","дней":"days","бонус":"bonus","через":"in","Подарки":"Gifts","День":"Day","Заходи каждый день — пропуск обнуляет серию.":"Come back every day — missing a day resets the streak.","Приходи завтра":"Come back tomorrow","1 бой = 1 ⛽. Восстанавливается 1 ⛽ каждые 5 минут до 10. Купленное и подаренное топливо не ограничено.":"1 battle = 1 ⛽. Restores 1 ⛽ every 5 minutes up to 10. Bought and gifted fuel has no limit.","после ур.":"after lv.","Как получить: босс или сундук — шанс 0,1%, покупка за звёзды Telegram или Рынок за TON.":"How to get: boss or chest — 0.1% chance, buy with Telegram Stars or on the Market for TON.","ЛИМИТКА!":"LIMITED!","Покупка зачислена!":"Purchase credited!","Подарок уже получен — приходи завтра":"Gift already claimed — come back tomorrow","Тираж закончился — звёзды вернули":"Supply sold out — your Stars were refunded","топлива":"fuel","Лесной":"Woodland","Городской":"Urban","Цифровой":"Digital","Осколки":"Splinter","Тигр":"Tiger","Зебра":"Zebra","Карамель":"Candy","Пламя":"Flames","Карбон":"Carbon","Гекс-сетка":"Hex grid","Схема":"Circuit","Лава":"Lava","Галактика":"Galaxy","Голограмма":"Hologram","Ледяной луч":"Ice beam","Токсичный":"Toxic","Кровавый":"Crimson","Солнечный":"Solar","Радужный":"Rainbow","Ледяные":"Icy","Кибер":"Cyber","Тьма":"Darkness","Переливы":"Iridescent"});
-/* 4 новые лимитки и промокод */
+/* Подарки дня, топливо, мифики за звёзды, новые камуфляжи и эффекты */
+Object.assign(DICT.en, {"Подарок дня ждёт!":"Daily gift is waiting!","Подарок дня получен":"Daily gift claimed","Серия заходов:":"Login streak:","Серия:":"Streak:","дн.":"d.","каждые":"every","дней":"days","бонус":"bonus","через":"in","Подарки":"Gifts","День":"Day","Заходи каждый день — пропуск обнуляет серию.":"Come back every day — missing a day resets the streak.","Приходи завтра":"Come back tomorrow","1 бой = 1 ⛽. Восстанавливается 1 ⛽ каждые 5 минут до 10. Купленное и подаренное топливо не ограничено.":"1 battle = 1 ⛽. Restores 1 ⛽ every 5 minutes up to 10. Bought and gifted fuel has no limit.","после ур.":"after lv.","Как получить: босс или сундук — шанс 0,1%, покупка за звёзды Telegram или Рынок за TON.":"How to get: boss or chest — 0.1% chance, buy with Telegram Stars or on the Market for TON.","МИФИК!":"MYTHIC!","Покупка зачислена!":"Purchase credited!","Подарок уже получен — приходи завтра":"Gift already claimed — come back tomorrow","Тираж закончился — звёзды вернули":"Supply sold out — your Stars were refunded","топлива":"fuel","Лесной":"Woodland","Городской":"Urban","Цифровой":"Digital","Осколки":"Splinter","Тигр":"Tiger","Зебра":"Zebra","Карамель":"Candy","Пламя":"Flames","Карбон":"Carbon","Гекс-сетка":"Hex grid","Схема":"Circuit","Лава":"Lava","Галактика":"Galaxy","Голограмма":"Hologram","Ледяной луч":"Ice beam","Токсичный":"Toxic","Кровавый":"Crimson","Солнечный":"Solar","Радужный":"Rainbow","Ледяные":"Icy","Кибер":"Cyber","Тьма":"Darkness","Переливы":"Iridescent"});
+/* 4 новые мифики и промокод */
 Object.assign(DICT.en, {"Барабан":"Drum","Рельса":"Railgun","Завод":"Factory","Ускоритель":"Accelerator","Барабанная пушка":"Drum cannon","Рельсотрон":"Rail cannon","Танковый завод":"Tank factory","Лучевая пушка":"Beam cannon","Три ствола: выпускает 3 снаряда подряд, потом перезаряжает барабан.":"Three barrels: fires 3 shells in a row, then reloads the drum.","Разгоняет снаряд магнитами и прошивает насквозь всех врагов на линии.":"Launches a magnet-driven slug that pierces every enemy in a line.","Выпускает свои танки: они едут по дороге навстречу врагам, стреляют и таранят их. С ★ танки сильнее и их больше.":"Builds allied tanks that drive down the road toward enemies, shooting and ramming them. With ★ they get stronger and more numerous.","Непрерывный луч бьёт каждые 0.01с. Держит цель, пока она жива, и сразу переключается на следующую.":"A continuous beam hits every 0.01s. It holds the target until it dies, then instantly switches to the next.","Барабан на 5 снарядов":"Drum holds 5 shells","Без потери урона на каждой цели":"No damage loss per target","Тяжёлые танки по 2 за раз":"Heavy tanks, 2 at a time","Перегрев: урон по одной цели растёт до ×2":"Overheat: damage on one target grows up to ×2","Насквозь":"Pierces","Свои танки":"Allied tanks","Промокод":"Promo code","Введи промокод":"Enter promo code","Активировать":"Activate","Неверный промокод":"Invalid promo code","Промокод уже использован":"Promo code already used","Промокод закончился":"Promo code has run out","Как получить: босс или сундук — шанс 0,1–5%, покупка за звёзды Telegram или Рынок за TON.":"How to get: boss or chest — 0.1–5% chance, buy with Telegram Stars or on the Market for TON."});
 
 Object.assign(DICT.en, {"Сначала купи контейнер за ⭐":"Buy the crate for ⭐ first","Контейнер «Звёздный»":"Crate «Star»"});
 
 Object.assign(DICT.en, {"Бак и так полный":"Your tank is already full"});
 
-Object.assign(DICT.en, {"Космический":"Cosmic","Не хватает гемов":"Not enough gems","гемов":"gems","Гемы":"Gems","тестовых гемов":"test gems","Гемы нужны для Космического контейнера, лимиток и рынка.":"Gems are spent on the Cosmic crate, limited tanks and the market.","Бесплатно: 10 гемов каждый 10-й день входа и 20 — за первую победу над каждым боссом.":"Free: 10 gems every 10th login day and 20 for the first win over each boss.","покупка придёт сразу после платежа.":"your purchase arrives right after payment.","Как получить: босс или сундук — шанс 0,1–5%, покупка за гемы или на Рынке.":"How to get: boss or chest — 0.1–5% chance, buy for gems or on the Market.","Ставка принята — гемы заморожены до конца аукциона":"Bid accepted — gems are frozen until the auction ends","Предложение отменено, гемы вернулись":"Offer cancelled, gems returned","Цена — целое число гемов от 1 до 1000000":"Price must be a whole number of gems from 1 to 1000000","Цена в гемах":"Price in gems","Твоя цена в гемах":"Your price in gems"});
-Object.assign(DICT.en, {"Гемы замораживаются на 48 ч. Не примут — вернутся.":"Gems are frozen for 48 h. If declined, they come back.","Золото и гемы — игровые валюты, их нельзя вывести или обменять на деньги. Лимитки — игровые предметы.":"Gold and gems are in-game currencies; they can't be withdrawn or exchanged for money. Limited tanks are in-game items."});
+Object.assign(DICT.en, {"Космический":"Cosmic","Не хватает гемов":"Not enough gems","гемов":"gems","Гемы":"Gems","тестовых гемов":"test gems","Гемы нужны для Космического контейнера, мификов и рынка.":"Gems are spent on the Cosmic crate, mythic tanks and the market.","Бесплатно: 10 гемов каждый 10-й день входа и 20 — за первую победу над каждым боссом.":"Free: 10 gems every 10th login day and 20 for the first win over each boss.","покупка придёт сразу после платежа.":"your purchase arrives right after payment.","Как получить: босс или сундук — шанс 0,1–5%, покупка за гемы или на Рынке.":"How to get: boss or chest — 0.1–5% chance, buy for gems or on the Market.","Ставка принята — гемы заморожены до конца аукциона":"Bid accepted — gems are frozen until the auction ends","Предложение отменено, гемы вернулись":"Offer cancelled, gems returned","Цена — целое число гемов от 1 до 1000000":"Price must be a whole number of gems from 1 to 1000000","Цена в гемах":"Price in gems","Твоя цена в гемах":"Your price in gems"});
+Object.assign(DICT.en, {"Гемы замораживаются на 48 ч. Не примут — вернутся.":"Gems are frozen for 48 h. If declined, they come back.","Золото и гемы — игровые валюты, их нельзя вывести или обменять на деньги. Мифики — игровые предметы.":"Gold and gems are in-game currencies; they can't be withdrawn or exchanged for money. Mythic tanks are in-game items."});
 
 Object.assign(DICT.en, {"У каждой свой номер и случайные атрибуты: камуфляж, эффекты, снаряжение. Атрибуты — только внешний вид.":"Each one has its own serial and random attributes: camo, effects, equipment. Attributes are cosmetic only."});
 

@@ -17,3 +17,5 @@ Object.assign(DICT["id"], {"Support":"Dukungan","Battle support":"Dukungan tempu
 Object.assign(DICT["id"], {"Mythic":"Mitis","Mythic tank":"Tank mitis","Lightning hits harder than Tesla and jumps further.":"Petir menyerang lebih keras dari Tesla dan melompat lebih jauh.","Coming Soon!":"Segera hadir!"});
 
 Object.assign(DICT["id"], {"Wave cleared!":"Gelombang selesai!"});
+
+Object.assign(DICT["id"], {"Settings":"Pengaturan","⚙ Settings":"⚙ Pengaturan","🔊 Sounds":"🔊 Suara","🎵 Music":"🎵 Musik","🌐 Language":"🌐 Bahasa","Sounds":"Suara","Music":"Musik","Language":"Bahasa"});

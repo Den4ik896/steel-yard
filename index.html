@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '45';
+const VER = '46';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -175,7 +175,8 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .sw{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink);margin-right:4px;vertical-align:-1px}
 /* Слитки вместо 🥈/🥇 (подставляет i18n.js) */
 .mi{display:inline-block;width:1.3em;height:1.3em;vertical-align:middle;background:center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}.mi.x1{opacity:.55}
-.mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}.mi.smoke{background-image:url(img/ui/smoke.webp)}.mi.repair{background-image:url(img/ui/repair.webp)}.mi.barrage{background-image:url(img/ui/barrage.webp)}.mi.emp{background-image:url(img/ui/emp.webp)}.mi.orbital{background-image:url(img/ui/orbital.webp)}.mi.freeze{background-image:url(img/ui/freeze.webp)}.mi.zone1{background-image:url(img/ui/zone1.webp)}.mi.zone2{background-image:url(img/ui/zone2.webp)}.mi.zone3{background-image:url(img/ui/zone3.webp)}
+.mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.vrow{display:grid;grid-template-columns:auto 1fr 44px;gap:10px;align-items:center;font-weight:800;padding:6px 2px}.vrow input{width:100%;accent-color:#f2a23a}.vrow b{text-align:right;font-variant-numeric:tabular-nums}
+.mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}.mi.smoke{background-image:url(img/ui/smoke.webp)}.mi.repair{background-image:url(img/ui/repair.webp)}.mi.barrage{background-image:url(img/ui/barrage.webp)}.mi.emp{background-image:url(img/ui/emp.webp)}.mi.orbital{background-image:url(img/ui/orbital.webp)}.mi.freeze{background-image:url(img/ui/freeze.webp)}.mi.zone1{background-image:url(img/ui/zone1.webp)}.mi.zone2{background-image:url(img/ui/zone2.webp)}.mi.zone3{background-image:url(img/ui/zone3.webp)}
 nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45em}.hcard .big .mi{width:1.6em;height:1.6em}
 .ing{display:inline-block;width:1.35em;height:1.35em;vertical-align:-.3em;margin:0 .08em;background:center/contain no-repeat}
 .ing.s{background-image:url(img/ui/silver.webp)}.ing.base{background-image:url(img/deco/fort.webp)}.ing.cash{background-image:url(img/ui/cash.webp)}.ing.bag{background-image:url(img/ui/bag.webp)}.ing.fire{background-image:url(img/ui/fire.webp)}.ing.skull{background-image:url(img/ui/skull.webp)}.ing.air{background-image:url(img/ui/air.webp)}.ing.armor{background-image:url(img/ui/armor.webp)}.ing.timer{background-image:url(img/ui/timer.webp)}.ing.boom{background-image:url(img/ui/boom.webp)}.ing.g{background-image:url(img/ui/gold.webp)}.ing.f{background-image:url(img/ui/fuel.webp)}.ing.st{background-image:url(img/ui/star.webp)}
@@ -286,7 +287,7 @@ nav button.home.on{background:linear-gradient(#8ff06a,#4fbf3a);box-shadow:inset 
 .gday.now{background:linear-gradient(#c9f7b0,#7fe05a);animation:pls 1.2s infinite}
 .gday.done{background:#e9dcc2}.gday.done>*{opacity:.5}.gday.done::after{content:'';position:absolute;top:-8px;right:-8px;width:28px;height:28px;background:url(img/kit/node_done.webp) center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(43,33,24,.35))}
 .gifth{position:relative}.gifth .dot{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--r);border:3px solid var(--ink)}
-/* Лимитки и рынок */
+/* Мифики и рынок */
 .nftl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
 .nftc{position:relative;background:#fff;border:3px solid var(--limited);border-radius:14px;padding:6px;font-weight:900;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .nftc img{width:64px;height:64px}.nftc small{font-size:10px;color:#7a6a58;font-weight:800;line-height:1.15}
@@ -335,7 +336,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
     <div class="cur" id="hGems" data-act="tab" data-tab="shop">💎 0<span class="pl">+</span></div>
     <span class="grow"></span>
     <div class="cur" id="hFuel" data-act="fuel">⛽ 30</div>
-    <div class="cur" data-act="lang" data-notr title="Language"><i class="mi lang"></i></div>
+    <div class="cur" data-act="settings" title="Settings"><i class="mi settings"></i></div>
   </header>
   <main id="main"></main>
   <nav>
@@ -370,9 +371,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=10"></script>
-<script src="sfx.js?v=1"></script>
-<script src="core.js?v=25"></script>
+<script src="i18n.js?v=11"></script>
+<script src="sfx.js?v=2"></script>
+<script src="core.js?v=26"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -401,7 +402,7 @@ function rr(c, x, y, w, h, r) { r = Math.max(0, Math.min(r, w / 2, h / 2)); c.be
 function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, Math.max(0, r), 0, 7); }
 function fs(c, fill) { c.fillStyle = fill; c.fill(); c.stroke(); }
 
-/* Узоры камуфляжа лимиток: внутри корпуса, без случайности (одинаково на всех устройствах) */
+/* Узоры камуфляжа мификов: внутри корпуса, без случайности (одинаково на всех устройствах) */
 function drawPat(c, s, L, lw) {
   const R = (i) => { const x = Math.sin(i * 12.9898 + 4.1) * 43758.5453; return x - Math.floor(x); }, p = L.p2, W = s * .92, H = s * .6, X = -s * .46, Y = -s * .3;
   c.save(); rr(c, X, Y, W, H, s * .12); c.clip(); c.fillStyle = p; c.strokeStyle = p; c.lineCap = 'round'; c.lineJoin = 'round';
@@ -468,7 +469,7 @@ function drawTank(c, x, y, s, L, bodyA, turA, o = {}) {
   if (o.gear === 'mg') { c.lineWidth = lw * .8; rr(c, -ts * .2, -ts * .98, ts * 2.1, ts * .3, ts * .1); fs(c, '#2f3338'); rr(c, -ts * .45, -ts * 1.18, ts * .7, ts * .7, ts * .15); fs(c, '#6b737d'); c.lineWidth = lw; }
   c.restore();
 }
-/* Снаряжение лимитки: рисуется на корпусе (координаты корпуса, перед танка — +x) */
+/* Снаряжение мифики: рисуется на корпусе (координаты корпуса, перед танка — +x) */
 function drawGear(c, s, lw, g) {
   if (g === 'antenna') {
     c.strokeStyle = OL; c.lineWidth = lw * .7; c.beginPath(); c.moveTo(-s * .36, -s * .2); c.quadraticCurveTo(-s * .5, -s * .28, -s * .58, -s * .4); c.stroke();
@@ -686,7 +687,7 @@ function drawGift(c, s, col, rib) {
   rr(c, -s * .05, -s * .23, s * .1, s * .08, s * .03); fs(c, shade(rib, -.15));
   c.fillStyle = 'rgba(255,255,255,.45)'; rr(c, -s * .28, s * .0, s * .07, s * .3, s * .03); c.fill();
 }
-/* Лимитка с камуфляжем: та же модель, другой цвет корпуса */
+/* Мифик с камуфляжем: та же модель, другой цвет корпуса */
 const SKL = {};
 function skinLook(t, sk) {
   if (!sk || !sk.h) return t.look; const k = t.id + sk.h + (sk.pt || ''); if (SKL[k]) return SKL[k];
@@ -696,7 +697,7 @@ const ICON = {};
 const GIFTC = { red: ['#ff5b4f', '#ffd23f'], blue: ['#45a6ff', '#ffffff'], green: ['#5fcb45', '#ff5b4f'], purple: ['#b06bff', '#ffd23f'], gold: ['#ffc83a', '#ff4f9a'] };
 function icon(kind, id, size = 96, attrs, serial) {
   if (kind === 'b' || kind === 'bo') return `img/ui/box_${id}${kind === 'bo' ? '_o' : ''}.webp`;   // сундуки — нарисованные картинки (bo = открытый)
-  if ((kind === 't' && !attrs) || kind === 'e') return `img/units/i_${kind}_${id}.webp?v=2`;   // танки и враги — нарисованные картинки (лимитки с камуфляжем — кодом)
+  if ((kind === 't' && !attrs) || kind === 'e') return `img/units/i_${kind}_${id}.webp?v=2`;   // танки и враги — нарисованные картинки (мифики с камуфляжем — кодом)
   if (kind === 'g') return `img/ui/gift${GIFTC[id] && id !== 'red' ? '_' + id : ''}.webp`;   // подарки дня — картинки 5 цветов
   const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
   const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
@@ -728,8 +729,8 @@ function flush() { if (!saveT || !S) return; clearTimeout(saveT); saveT = null; 
 addEventListener('pagehide', flush); document.addEventListener('visibilitychange', () => document.hidden && flush());
 
 /* ======================= Сервер ======================= */
-/* Онлайн (игра открыта с нашего сервера): прогресс, награды, лимитки и рынок решает только сервер.
-   Офлайн (просто файл) — всё как раньше, в localStorage, без лимиток и рынка. */
+/* Онлайн (игра открыта с нашего сервера): прогресс, награды, мифики и рынок решает только сервер.
+   Офлайн (просто файл) — всё как раньше, в localStorage, без мификов и рынка. */
 let ON = false, ME = null, ITEMS = [], TON = 0, DEVMODE = false;
 function devUser() { let u = null; try { u = localStorage.getItem('sy_dev_uid'); if (!u) { u = String(100000 + Math.floor(Math.random() * 900000)); localStorage.setItem('sy_dev_uid', u); } } catch (e) { u = '100001'; } return u; }
 async function api(path, body = {}) {
@@ -764,6 +765,7 @@ function renderHeader() {
   });
 }
 function render() {
+  if (!G.running) SFX.music('menu');
   renderHeader();
   const m = $('#main'), st = m.scrollTop;
   m.innerHTML = tab === 'home' ? homeHTML() : tab === 'map' ? mapHTML() : tab === 'garage' ? garageHTML() : tab === 'shop' ? shopHTML() : tab === 'market' ? marketHTML() : questsHTML();
@@ -927,7 +929,7 @@ async function usePromo() {
   if (r.tank) { const t = tankById(r.tank); modal(`<div class="ribbon g">Новый танк!</div><div class="rays" style="--rc:${RAR[t.rar].hex}"><img src="${icon('t', t.id, 140)}"></div>
       <div style="font-size:24px">${t.name}</div><div class="rar" style="--rc:${RAR[t.rar].c}">${RAR[t.rar].n} · ${t.role}</div>
       <p style="font-weight:700">${t.desc}</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`); return render(); }
-  modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', d.model, 140, d.attrs, d.serial)}"></div><div style="font-size:24px">${tankById(d.model).name} #${d.serial}</div><div class="muted">${nftBest(d)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${d.id}">Открыть</button></div>`);
+  modal(`<div class="ribbon g">✨ МИФИК!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', d.model, 140, d.attrs, d.serial)}"></div><div style="font-size:24px">${tankById(d.model).name} #${d.serial}</div><div class="muted">${nftBest(d)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${d.id}">Открыть</button></div>`);
   render();
 }
 function shopHTML() {
@@ -955,7 +957,7 @@ function shopHTML() {
   h += `<div class="muted" style="margin-top:2px">Набор собирается в Гараже. В бою кнопка 🎒 внизу.</div>`;
   h += `<div class="sect ttl" id="gemShop">💎 Гемы</div><div class="grid2">`;
   for (const p of GEMPACKS) h += `<div class="boxc"><div style="font-size:44px">💎</div><div class="nm">${p.g} гемов</div><button class="btn sm purple" data-act="stars" data-k="gems" data-i="${GEMPACKS.indexOf(p)}">⭐ ${p.st}</button></div>`;
-  h += `</div><div class="muted" style="margin-top:8px">Гемы нужны для Космического контейнера, лимиток и рынка.<br>Бесплатно: 10 гемов каждый 10-й день входа и 20 — за первую победу над каждым боссом.</div>`;
+  h += `</div><div class="muted" style="margin-top:8px">Гемы нужны для Космического контейнера, мификов и рынка.<br>Бесплатно: 10 гемов каждый 10-й день входа и 20 — за первую победу над каждым боссом.</div>`;
   h += `<div class="sect ttl">Золото</div><div class="grid2">`;
   if (!S.x3) h += `<div class="boxc"><div style="font-size:44px">⏩</div><div class="nm">Скорость ×3</div><button class="btn sm purple" data-act="stars" data-k="x3" data-i="0">⭐ ${X3ST}</button></div>`;
   for (const p of GOLDPACKS) h += `<div class="boxc"><div style="font-size:44px">🥇</div><div class="nm">${p.g} золота</div><button class="btn sm purple" data-act="stars" data-i="${GOLDPACKS.indexOf(p)}">⭐ ${p.st}</button></div>`;
@@ -971,12 +973,12 @@ function questsHTML() {
   }
   h += `<div class="sect ttl">Как играть</div><div class="panel" style="font-weight:700;font-size:14px">
     1. Тапни по клетке у дороги → выбери танк из отряда.<br>2. Нажми «В бой!» — враги поедут к базе.<br>3. За уничтоженных врагов — 💵, на них ставь и улучшай танки до ★4.<br>4. Смотри обнаружение: ✈ авиация летит напрямую, 👁 скрытых видят не все, по 🛡 броне без бронебойности урон всего 30%.<br>5. Проиграл? Прокачай танки в гараже или купи новые за 🥈/🥇.</div>
-    <div class="row c" style="margin-top:14px"><button class="btn gray" data-act="snd">${sndTxt()}</button></div>
+    <div class="row c" style="margin-top:14px"><button class="btn gray" data-act="settings"><i class="mi settings"></i> Настройки</button></div>
     <button class="reset" data-act="reset">Сбросить прогресс (для теста)</button>`;
   return h;
 }
 
-/* ---------- Лимитки (NFT) и рынок ---------- */
+/* ---------- Мифики (NFT) и рынок ---------- */
 const tIcon = (id, size) => { const it = ON && tankById(id).limited && eqItem(id); return icon('t', id, size, it ? it.attrs : undefined); };
 /* Самый редкий атрибут экземпляра — его «фишка» в списках */
 function nftBest(i) {
@@ -989,8 +991,8 @@ function nftCard(i, sub = '') {
   return `<button class="nftc" data-act="item" data-id="${i.id}"><img src="${icon('t', i.model, 64, i.attrs, i.serial)}"><b>${tankById(i.model).name} #${i.serial}</b><small>${sub || nftBest(i)}</small>${eq ? '<span class="eqb">В бою</span>' : ''}</button>`;
 }
 function limSection(t) {
-  let h = `<div class="tipbox" style="text-align:left">✨ <b>Лимитка.</b> Тираж: <b>${num(t.limited)}</b><br>У каждой свой номер и случайные атрибуты: камуфляж, эффекты, снаряжение. Атрибуты — только внешний вид.<br>Как получить: босс или сундук — шанс 0,1–5%, покупка за гемы или на Рынке.</div>`;
-  if (!ON) return h + '<div class="muted">Лимитки работают только в Telegram-версии с сервером игры.</div>';
+  let h = `<div class="tipbox" style="text-align:left">✨ <b>Мифик.</b> Тираж: <b>${num(t.limited)}</b><br>У каждой свой номер и случайные атрибуты: камуфляж, эффекты, снаряжение. Атрибуты — только внешний вид.<br>Как получить: босс или сундук — шанс 0,1–5%, покупка за гемы или на Рынке.</div>`;
+  if (!ON) return h + '<div class="muted">Мифики работают только в Telegram-версии с сервером игры.</div>';
   const my = myItems(t.id);
   if (my.length) h += `<div class="nftl">${my.map(i => nftCard(i)).join('')}</div>`;
   return h + `<div class="row c">${t.gems ? `<button class="btn purple" data-act="nftBuy" data-id="${t.id}">Купить · 💎 ${num(t.gems)}</button>` : ''}<button class="btn blue" data-act="mkf" data-id="${t.id}" onclick="closeModal();setTab('market')">✨ На рынке</button>${DEVMODE ? `<button class="btn gray sm" data-act="devdrop" data-id="${t.id}">+ тест (dev)</button>` : ''}</div>`;
@@ -1023,7 +1025,7 @@ async function itemModal(id) {
   const hist = r.history.length ? `<div class="sect" style="font-size:15px">Сделки</div><div class="muted" style="text-align:left">${r.history.map(h => `${new Date(h.ts).toLocaleDateString(LOCALE)} — ${tonTxt(h.price)}`).join('<br>')}</div>` : '';
   modal(`<button class="x" data-act="close">✕</button><div class="rays" style="--rc:${RAR.limited.hex}"><img src="${icon('t', i.model, 120, i.attrs, i.serial)}"></div>
     <div style="font-size:22px">${t.name} <span class="chip">#${i.serial} / ${t.limited}</span></div>
-    <div class="rar" style="--rc:${RAR.limited.c}">💎 Лимитка · ${t.role}</div>
+    <div class="rar" style="--rc:${RAR.limited.c}">💎 Мифик · ${t.role}</div>
     <div class="stats">${rows}<div class="st"><span>📜 Происхождение</span><b>${i.origin}</b></div></div>
     ${act}${hist}`);
 }
@@ -1070,9 +1072,9 @@ function marketHTML() {
   if (!d) return h + '<div class="muted" style="text-align:center">Загрузка...</div>';
   const auc = mkSorted(d.listings.filter(x => x.kind === 'auction')), fix = mkSorted(d.listings.filter(x => x.kind === 'fixed'));
   if (auc.length) h += `<div class="sect ttl">🔨 Аукционы</div>` + auc.map(mkRow).join('');
-  h += `<div class="sect ttl">🏷 Продаются</div>` + (fix.length ? fix.map(mkRow).join('') : nf ? '<div class="muted" style="text-align:center">Ничего не найдено — сбрось фильтры</div>' : '<div class="muted" style="text-align:center">Пока никто не продаёт. Выбей лимитку в бою с боссом — и стань первым!</div>');
+  h += `<div class="sect ttl">🏷 Продаются</div>` + (fix.length ? fix.map(mkRow).join('') : nf ? '<div class="muted" style="text-align:center">Ничего не найдено — сбрось фильтры</div>' : '<div class="muted" style="text-align:center">Пока никто не продаёт. Выбей мифик в бою с боссом — и стань первым!</div>');
   if (d.myOffers.length) h += `<div class="sect ttl">Мои предложения</div>` + d.myOffers.map(o => `<div class="panel hrow mkrow"><img src="${icon('t', o.item.model, 44, o.item.attrs, o.item.serial)}"><div class="grow"><b>#${o.item.serial}</b> — ${tonTxt(o.price)}<div class="muted" style="font-size:11px">ещё ${left(o.expires)}</div></div><button class="btn gray sm" data-act="offCancel" data-o="${o.id}">Отменить</button></div>`).join('');
-  h += `<div class="sect ttl">Мои лимитки</div>` + (ITEMS.length ? `<div class="nftl">${ITEMS.map(i => nftCard(i)).join('')}</div>` : '<div class="muted" style="text-align:center">Пока нет. Они падают с боссов (ур. 8, 16, 24, 32) и за 3★.</div>');
+  h += `<div class="sect ttl">Мои мифики</div>` + (ITEMS.length ? `<div class="nftl">${ITEMS.map(i => nftCard(i)).join('')}</div>` : '<div class="muted" style="text-align:center">Пока нет. Они падают с боссов (ур. 8, 16, 24, 32) и за 3★.</div>');
   return h + `<div class="muted" style="margin-top:10px;font-size:12px">Все сделки проверяет сервер, комиссия ${NFT.fee * 100}%. После покупки танк можно перепродать через 24 ч.</div>`;
 }
 /* Золото за Telegram Stars: сервер создаёт счёт, оплата в окне Telegram, золото начисляет сервер после платежа */
@@ -1110,7 +1112,7 @@ async function openBox(id) {
   haptic('medium'); sfx('latch');
   setTimeout(() => {
     hapticN('success'); sfx('reveal');
-    if (r.res.lim && drop) modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', drop.model, 140, drop.attrs, drop.serial)}"></div><div style="font-size:24px">${tankById(drop.model).name} #${drop.serial}</div><div class="muted">${nftBest(drop)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${drop.id}">Открыть</button></div>`);
+    if (r.res.lim && drop) modal(`<div class="ribbon g">✨ МИФИК!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', drop.model, 140, drop.attrs, drop.serial)}"></div><div style="font-size:24px">${tankById(drop.model).name} #${drop.serial}</div><div class="muted">${nftBest(drop)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${drop.id}">Открыть</button></div>`);
     else if (res.t) modal(`<div class="ribbon ${res.dup ? 'b' : 'g'}">${res.dup ? 'Повтор' : 'Новый танк!'}</div><div class="rays" style="--rc:${RAR[res.t.rar].hex}"><img src="${icon('t', res.t.id, 140)}"></div>
       <div style="font-size:24px">${res.t.name}</div><div class="rar" style="--rc:${RAR[res.t.rar].c}">${RAR[res.t.rar].n} · ${res.t.role}</div>
       <p style="font-weight:700">${res.dup ? `Уже есть в гараже → ${res.dup}` : res.t.desc}</p><div class="row c"><button class="btn green" data-act="close">Круто!</button></div>`);
@@ -1373,7 +1375,7 @@ async function startLevel(n) {
   closeModal();
   makeMatch(n, S.deck, S.owned, true, seed, S.sdeck || SDEF); G.ticket = ticket; acc = 0; barMode = 't'; G.pick = null; buildSlots();
   for (const id of S.deck) { const it = tankById(id).limited && eqItem(id); if (it) G.skin[id] = nftSkin(it.attrs, it.serial); }
-  G.running = true;
+  G.running = true; SFX.music(MUS[LOCS.findIndex(l => n >= l.from && n <= l.to)] || 'meadow');
   $('#battle').classList.add('on');
   closeRadial();
   $('#bSpeed').innerHTML = '<span><i class="mi speed x1"></i></span><small>x1</small>';
@@ -1388,6 +1390,10 @@ async function startLevel(n) {
   if (IN_TG && TG.BackButton) { try { TG.BackButton.show(); } catch (e) {} }
   last = performance.now(); requestAnimationFrame(loop);
 }
+/* ⚙ ползунки громкости */
+document.addEventListener('input', e => { const t = e.target, k = t.dataset && t.dataset.vol; if (!k) return; const v = t.value / 100; if (k === 's') SFX.setVol(v); else SFX.setMusic(v); t.nextElementSibling.textContent = t.value + '%'; });
+document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.vol === 's') sfx('click'); });
+const MUS = ['meadow', 'desert', 'ice'];
 function exitBattle() {
   if (G.running && !G.over && !ON) { qAdd('kill', G.kills); qAdd('build', G.built); qAdd('air', G.airKills); save(); }
   G.running = false; closeModal(); closeRadial();
@@ -1636,7 +1642,7 @@ document.addEventListener('click', (ev) => {
     case 'daily': dailyModal(); break;
     case 'dailyGet': doAct('daily').then(r => { if (r.err) return toast(r.err); hapticN('success'); dailyModal(r); render(); }); break;
     case 'fuelAd': doAct('fuelAd').then(r => { if (r.err) return toast(r.err); closeModal(); renderHeader(); }); break;
-    /* лимитки и рынок */
+    /* мифики и рынок */
     case 'item': itemModal(+id); break;
     case 'mkf': mk.model = id || ''; mk.ts = 0; render(); break;
     case 'mksort': mk.sort = id; render(); break;
@@ -1662,10 +1668,14 @@ document.addEventListener('click', (ev) => {
     case 'gemShop': closeModal(); setTab('shop'); setTimeout(() => { const g = $('#gemShop'); if (g) g.scrollIntoView({ block: 'start' }); }, 150); break;
     case 'nftBuy': { const t = tankById(id); modal(`<div class="ribbon b">Покупка</div><div class="rays" style="--rc:${RAR.limited.hex}"><img src="${icon('t', id, 110)}"></div><div style="font-size:22px">${t.name}</div><div style="font-size:20px;margin:6px 0">💎 ${num(t.gems)}</div><div class="row c"><button class="btn green" data-act="doNftBuy" data-id="${id}">Купить</button><button class="btn gray" data-act="close">Отмена</button></div>`); break; }
     case 'doNftBuy': api('nft/buy', { model: id }).then(r => { if (r.err) return toast(r.err); hapticN('success'); const d = r.drop;
-      modal(`<div class="ribbon g">✨ ЛИМИТКА!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', d.model, 140, d.attrs, d.serial)}"></div><div style="font-size:24px">${tankById(d.model).name} #${d.serial}</div><div class="muted">${nftBest(d)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${d.id}">Открыть</button></div>`); render(); }); break;
+      modal(`<div class="ribbon g">✨ МИФИК!</div><div class="rays" style="--rc:#c86bff"><img src="${icon('t', d.model, 140, d.attrs, d.serial)}"></div><div style="font-size:24px">${tankById(d.model).name} #${d.serial}</div><div class="muted">${nftBest(d)}</div><div class="row c"><button class="btn green" data-act="item" data-id="${d.id}">Открыть</button></div>`); render(); }); break;
     case 'faucet': api('dev/faucet').then(r => { if (r.err) return toast(r.err); toast('+1000 тестовых гемов'); mk.ts = 0; render(); }); break;
-    case 'devdrop': api('dev/drop', { model: id }).then(r => { if (r.err) return toast(r.err); toast('Тестовая лимитка выдана'); render(); }); break;
+    case 'devdrop': api('dev/drop', { model: id }).then(r => { if (r.err) return toast(r.err); toast('Тестовый мифик выдан'); render(); }); break;
     case 'close': closeModal(); render(); break;
+    case 'settings': {
+      const sl = (k, ic, t, v) => `<label class="vrow"><span>${ic} ${t}</span><input type="range" min="0" max="100" step="5" data-vol="${k}" value="${Math.round(v * 100)}"><b>${Math.round(v * 100)}%</b></label>`;
+      modal(`<div class="ribbon">⚙ Настройки</div><div class="panel">${sl('s', '🔊', 'Звуки', SFX.vol)}${sl('m', '🎵', 'Музыка', SFX.mvol)}</div><div class="sect ttl">🌐 Язык</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn sm ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
+    }
     case 'lang': modal(`<div class="ribbon">🌐 Language</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
     case 'setLang': setLang(a.dataset.l); break;
     case 'reset': modal(`<div class="ribbon">Сбросить?</div><p class="muted">Все танки, серебро и звёзды удалятся.</p><div class="row c"><button class="btn red" data-act="doReset">Сбросить</button><button class="btn gray" data-act="close">Отмена</button></div>`); break;

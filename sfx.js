@@ -21,14 +21,15 @@ const SFX = (() => {
     tesla: ['zap'], rail: ['zap', { rate: .6, vol: 1.3 }], polar: ['zap', { rate: .5, vol: .8 }],
   };
   const FLAME_VOL = .55;
-  let ac = null, master = null, on = true, bufs = {}, last = {}, lastAny = 0, FL = null, flame = null, flameUntil = 0;
-  try { on = localStorage.snd !== '0'; } catch (e) {}
+  let ac = null, master = null, vol = 1, mvol = .5, mg = null, cur = null, want = null, bufs = {}, last = {}, lastAny = 0, FL = null, flame = null, flameUntil = 0;
+  try { const sv = localStorage.sv, mv = localStorage.mv; vol = sv != null ? +sv : localStorage.snd === '0' ? 0 : 1; if (mv != null) mvol = +mv; } catch (e) {}
 
   const get = (u) => fetch(u).then(r => r.arrayBuffer()).then(b => new Promise((ok, no) => ac.decodeAudioData(b, ok, no)));
   function init() {
-    if (ac) { if (ac.state === 'suspended' && !document.hidden) ac.resume(); return; }
+    if (ac) { if (ac.state === 'suspended' && !document.hidden) ac.resume(); if (mvol > 0) { if (cur && cur.k === want) { if (cur.el.paused) cur.el.play().catch(() => {}); } else musicStart(); } return; }
     try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
-    master = ac.createGain(); master.gain.value = on ? 1 : 0; master.connect(ac.destination);
+    master = ac.createGain(); master.gain.value = vol; master.connect(ac.destination);
+    mg = ac.createGain(); mg.gain.value = mvol; mg.connect(ac.destination); musicStart();
     const names = new Set(); Object.values(L).forEach(d => d[0].forEach(n => names.add(n)));
     names.forEach(n => get('snd/' + n + '.mp3' + V).then(b => bufs[n] = b).catch(() => {}));
     get('snd/flame.wav' + V).then(b => FL = flameLoop(b)).catch(() => {});
@@ -36,10 +37,10 @@ const SFX = (() => {
   }
   /* Браузер разрешает звук только после касания — запускаем по первому тапу */
   ['pointerdown', 'touchend', 'keydown'].forEach(ev => addEventListener(ev, init, true));
-  document.addEventListener('visibilitychange', () => { if (!ac) return; if (document.hidden) { flameOff(); ac.suspend(); } else ac.resume(); });
+  document.addEventListener('visibilitychange', () => { if (!ac) return; if (document.hidden) { flameOff(); ac.suspend(); if (cur) cur.el.pause(); } else { ac.resume(); if (cur && mvol > 0) cur.el.play().catch(() => {}); } });
 
   function play(k, o = {}) {
-    if (!on || !ac || ac.state !== 'running') return;
+    if (!vol || !ac || ac.state !== 'running') return;
     if (k === 'flame') return flameOn();
     const d = L[k]; if (!d) return;
     const now = ac.currentTime;
@@ -102,12 +103,29 @@ const SFX = (() => {
   setInterval(() => { if (flame && ac.currentTime > flameUntil) flameOff(); }, 100);
 
   function fire(kind) { if (kind === 'flame') return play('flame'); const k = KIND[kind]; if (k) play(k[0], k[1]); }
-  function toggle() {
-    on = !on; try { localStorage.snd = on ? '1' : '0'; } catch (e) {}
-    init(); if (master) master.gain.value = on ? 1 : 0; if (!on) flameOff(); else play('click');
-    return on;
+  let lastVol = 1;
+  function setVol(v) {
+    vol = Math.max(0, Math.min(1, v)); if (vol > 0) lastVol = vol; try { localStorage.sv = vol; } catch (e) {}
+    init(); if (master) master.gain.value = vol; if (!vol) flameOff();
   }
-  return { play, fire, toggle, get on() { return on; } };
+  function toggle() { setVol(vol > 0 ? 0 : lastVol); if (vol) play('click'); return vol > 0; }
+  /* 🎵 Музыка: music/<k>.mp3, плавная смена трека (кроссфейд) */
+  function musicStart() {
+    if (!ac || !mg || !want || mvol <= 0 || (cur && cur.k === want)) return;
+    const k = want, el = new Audio('music/' + k + '.mp3' + V); el.loop = true;
+    let src; try { src = ac.createMediaElementSource(el); } catch (e) { return; }
+    const g = ac.createGain(), now = ac.currentTime; g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(1, now + 2); src.connect(g); g.connect(mg);
+    el.play().catch(() => {});
+    const old = cur; cur = { k, el, g };
+    if (old) { old.g.gain.cancelScheduledValues(now); old.g.gain.setValueAtTime(old.g.gain.value, now); old.g.gain.linearRampToValueAtTime(0, now + 1.5); setTimeout(() => { old.el.pause(); old.el.removeAttribute('src'); old.el.load(); }, 1700); }
+  }
+  function music(k) { want = k; musicStart(); }
+  function setMusic(v) {
+    mvol = Math.max(0, Math.min(1, v)); try { localStorage.mv = mvol; } catch (e) {}
+    init(); if (mg) mg.gain.value = mvol;
+    if (!mvol) { if (cur) cur.el.pause(); } else if (cur && cur.k === want) cur.el.play().catch(() => {}); else musicStart();
+  }
+  return { play, fire, toggle, setVol, setMusic, music, get on() { return vol > 0; }, get vol() { return vol; }, get mvol() { return mvol; } };
 })();
 function sfx(k, a) { if (k === 'fire') SFX.fire(a); else SFX.play(k, a); }
 /* Кнопка: «клик», крестик/назад — «закрыть». Клик откладывается на тик: если обработчик сам сыграл звук (покупка, окно…) — клик не нужен */
