@@ -26,17 +26,18 @@ const SFX = (() => {
 
   const get = (u) => fetch(u).then(r => r.arrayBuffer()).then(b => new Promise((ok, no) => ac.decodeAudioData(b, ok, no)));
   function init() {
-    if (ac) { if (ac.state === 'suspended' && !document.hidden) ac.resume(); musicStart(); return; }
+    if (ac) { if (ac.state !== 'running' && ac.state !== 'closed') ac.resume().catch(() => {}); musicStart(); return; }
     try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
     master = ac.createGain(); master.gain.value = vol; master.connect(ac.destination);
     mg = ac.createGain(); mg.gain.value = mvol; mg.connect(ac.destination); musicStart();
+    ac.onstatechange = () => { if (ac.state === 'running') musicStart(); };
     const names = new Set(); Object.values(L).forEach(d => d[0].forEach(n => names.add(n)));
     names.forEach(n => get('snd/' + n + '.mp3' + V).then(b => bufs[n] = b).catch(() => {}));
     get('snd/flame.wav' + V).then(b => FL = flameLoop(b)).catch(() => {});
-    if (ac.state === 'suspended') ac.resume();
+    if (ac.state !== 'running') ac.resume().catch(() => {});
   }
   /* Браузер разрешает звук только после касания — запускаем по первому тапу */
-  ['pointerdown', 'touchend', 'keydown'].forEach(ev => addEventListener(ev, init, true));
+  ['pointerdown', 'pointerup', 'click', 'touchend', 'keydown'].forEach(ev => addEventListener(ev, init, true));
   document.addEventListener('visibilitychange', () => { if (!ac) return; if (document.hidden) { flameOff(); ac.suspend(); } else ac.resume(); });
 
   function play(k, o = {}) {
