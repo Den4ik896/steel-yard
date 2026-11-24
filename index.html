@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '62';
+const VER = '63';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -625,7 +625,12 @@ function drawEnemy(c, type, x, y, s, a, tm, e) {
     const fly = type === 'heli' || type === 'ghost' || type === 'bomber', ga = c.globalAlpha;
     if (e && (type === 'scout' || type === 'ghost')) c.globalAlpha = ga * (.55 + .12 * Math.sin(tm * 5));
     const sway = type === 'bomber' ? Math.sin(tm * 2) * .05 : fly ? Math.sin(tm * 3) * .06 : 0;
-    drawSpr(c, im, x, y, s, a + sway, { k: (SPR_K[type] || 1) * 1.12, alt: fly ? s * (type === 'bomber' ? .5 : .45) : 0, jit: !fly && e ? Math.sin(e.tread * 9) * s * .012 : 0,
+    if (!fly && e) {   // цельные спрайты: выхлопной дым сзади, чтобы было видно движение
+      const bx = x - Math.cos(a) * s * .75, by = y - Math.sin(a) * s * .75;
+      for (let i = 0; i < 3; i++) { const q = (tm * 1.6 + i / 3) % 1; c.fillStyle = `rgba(90,90,90,${.32 * (1 - q)})`; circ(c, bx - Math.cos(a) * q * s * .5 + Math.sin(tm * 7 + i) * s * .05, by - Math.sin(a) * q * s * .5, s * (.08 + q * .14)); c.fill(); }
+    }
+    drawSpr(c, im, x, y, s, a + sway + (!fly && e ? Math.sin(e.tread * 7) * .025 : 0), { k: (SPR_K[type] || 1) * 1.12, alt: fly ? s * (type === 'bomber' ? .5 : .45) : 0, jit: !fly && e ? Math.sin(e.tread * 9) * s * .03 : 0,
+      sc: !fly && e ? 1 + Math.sin(e.tread * 13) * .018 : 0,
       props: type === 'bomber' ? [[-.18, -.133, .045], [.18, -.133, .045]] : null, ptm: tm });
     if (type === 'heli' || type === 'ghost') {   // винт крутится поверх нарисованного
       c.save(); c.translate(x, y - s * .45); c.rotate(tm * 22); c.fillStyle = 'rgba(255,255,255,.1)'; circ(c, 0, 0, s * .72); c.fill();
@@ -680,9 +685,9 @@ const ALLY_LOOK = [{ h: '#3f7fd0', tur: 'dome', ts: .27, bar: 1, bl: .5, bw: .14
 /* Спрайты юнитов: img/units/{t|e}_id.webp — вид сверху, смотрят вверх, центр картинки = центр корпуса.
    Пока картинка не загрузилась — рисуем кодом (drawTank/drawEnemy). */
 const SPR = {};
-function spr(k) { let im = SPR[k]; if (!im) { im = SPR[k] = new Image(); im.src = `img/units/${k}.webp?v=2`; } return im.complete && im.naturalWidth ? im : null; }
+function spr(k) { let im = SPR[k]; if (!im) { im = SPR[k] = new Image(); im.src = `img/units/${k}.webp?v=3`; } return im.complete && im.naturalWidth ? im : null; }
 /* дуло: доля размера картинки от центра вверх */
-const SPR_TIP = { baraban: .275, bobr: .288, grad: .238, grom: .258, kuvalda: .275, mamont: .283, moroz: .288, oboz: .225, polar: .233, relsa: .308, shmel: .296, sokol: .35, tesla: .271, uskor: .312, vihr: .308, zavod: .238, zhar: .288 };
+const SPR_TIP = { baraban: .275, bobr: .288, grad: .238, grom: .258, kuvalda: .275, mamont: .283, moroz: .288, oboz: .225, polar: .233, relsa: .308, shmel: .296, sokol: .35, tesla: .02, uskor: .312, vihr: .308, zavod: .238, zhar: .288 };
 const SPR_K = { boss: .8, heli: .78, ghost: .78, bomber: .8 };
 /* Корпус h_id + башня u_id (вырезаны из цельных спрайтов): [смещение оси башни x, y; дуло] — доли картинки.
    h_id_1, h_id_2 — кадры бегущих траков. Без башни — цельный спрайт стоит, не крутится (SPR_STATIC). */
@@ -787,7 +792,7 @@ const ICON = {};
 const GIFTC = { red: ['#ff5b4f', '#ffd23f'], blue: ['#45a6ff', '#ffffff'], green: ['#5fcb45', '#ff5b4f'], purple: ['#b06bff', '#ffd23f'], gold: ['#ffc83a', '#ff4f9a'] };
 function icon(kind, id, size = 96, attrs, serial) {
   if (kind === 'b' || kind === 'bo') return `img/ui/box_${id}${kind === 'bo' ? '_o' : ''}.webp`;   // сундуки — нарисованные картинки (bo = открытый)
-  if ((kind === 't' && !attrs) || kind === 'e' && !(ENEMY[id] && ENEMY[id].code)) return `img/units/i_${kind}_${id}.webp?v=2`;   // танки и враги — нарисованные картинки (мифики с камуфляжем — кодом)
+  if ((kind === 't' && !attrs) || kind === 'e' && !(ENEMY[id] && ENEMY[id].code)) return `img/units/i_${kind}_${id}.webp?v=3`;   // танки и враги — нарисованные картинки (мифики с камуфляжем — кодом)
   if (kind === 'g') return `img/ui/gift${GIFTC[id] && id !== 'red' ? '_' + id : ''}.webp`;   // подарки дня — картинки 5 цветов
   const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
   const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
