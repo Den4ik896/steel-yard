@@ -349,6 +349,8 @@ const BUFT = ['light', 'btr', 'tank', 'heli', 'medic', 'scout', 'transport'];
 const MODS = { b: { n: 'Раздутый', hp: 2, sc: 1.18, col: '#7bd94f' }, c: { n: 'Колосс', hp: 5, sc: 1.4, col: '#b45cff' }, t: { n: 'Титан', hp: 7, sc: 1.55, col: '#e0362c' }, x: { n: 'Гигант', hp: 10, sc: 1.7, col: '#ff9f1a' }, y: { n: 'Мегатитан', hp: 15, sc: 1.85, col: '#ffe23a' } };
 function makeWaves(n, np) {
   const r = rng(n * 7919 + 13), boss = n % 8 === 0, nw = n <= 16 ? Math.min(15, 6 + Math.floor(n / 2)) : n === 17 ? 18 : n === 18 ? 24 : Math.min(34, 30 + Math.floor((n - 19) / 3)), waves = [], bt = ({ 16: 'carrier', 24: 'bastion', 32: 'emperor' })[n] || 'boss';
+  /* 👥 на случайных уровнях 20+ в волне может быть пара мини-боссов (отдельный ГСЧ — остальные волны не меняются) */
+  const r2 = rng(n * 4241 + 17), multi = n >= 20 && r2() < .5;
   const minis = Object.keys(ENEMY).filter(k => ENEMY[k].mini && ENEMY[k].from <= n), oldM = minis.filter(k => !ENEMY[k].minW), newM = minis.filter(k => ENEMY[k].minW);
   const unl = Object.keys(ENEMY).filter(k => ENEMY[k].from <= n && !ENEMY[k].mini && !ENEMY[k].raid && !ENEMY[k].grp && !ENEMY[k].elite), fresh = unl.find(k => ENEMY[k].from === n);
   const pick = (pool) => { let x = r() * pool.reduce((a, k) => a + ENEMY[k].w, 0); for (const k of pool) { x -= ENEMY[k].w; if (x <= 0) return k; } return pool[0]; };
@@ -362,7 +364,7 @@ function makeWaves(n, np) {
     }
     while (budget > .5) { let k = pick(pool); if (fresh && w >= 1 && ENEMY[fresh].cost <= cap && r() < .2) k = fresh; list.push(k); budget -= ENEMY[k].cost; }
     /* ⭐ мини-босс каждые 5 волн (с ур. 27 — по два на каждой 10-й); на ур. 32 босса ведут оба мини-босса */
-    if (minis.length && ((n >= 17 ? w % 3 === 2 : w % 5 === 4) || n >= 17 && w >= 9 && r() < .25) && w < nw - 1) { const mp = w >= 24 && newM.length ? newM : oldM, m = Math.floor(w / 5); list.push(mp[m % mp.length]); if (n >= 27 && w % 10 === 9 && mp.length > 1) list.push(mp[(m + 1) % mp.length]); }
+    if (minis.length && ((n >= 17 ? w % 3 === 2 : w % 5 === 4) || n >= 17 && w >= 9 && r() < .25) && w < nw - 1) { const mp = w >= 24 && newM.length ? newM : oldM, m = Math.floor(w / 5); list.push(mp[m % mp.length]); if (n >= 27 && w % 10 === 9 && mp.length > 1) list.push(mp[(m + 1) % mp.length]); if (multi && w >= 5 && r2() < .45) { list.push(mp[(m + 1 + Math.floor(r2() * mp.length)) % mp.length]); if (w >= 19 && r2() < .25) list.push(mp[Math.floor(r2() * mp.length)]); } }
     /* 🚁 Тайфун (ур. 17+): чаще вместе с мини-боссом, иногда сам; мини-боссом не считается */
     if (n >= ENEMY.typhoon.from && w >= 5 && w < nw - 1 && r() < (list.some(k => ENEMY[k].mini) ? .45 : .08)) list.push('typhoon');
     if (boss && w === nw - 1) { list.push(bt); if (n >= 32) list.push(...oldM); }
