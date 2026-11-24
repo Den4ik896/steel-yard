@@ -22,7 +22,7 @@ var RX = {
     [/Тираж (\d+) шт\., у каждой свой номер[\s\S]*?за TON\./, 'Supply: $1. Each one has its own serial number and random traits (camo, shot, hit, finisher, emblem). Traits are cosmetic only. Drops only in battle: bosses (lv. 8, 16, 24) and 3★ wins from level 5. Buy and sell on the Market for TON.'],
     [/Гарантия: каждый 10-й Золотой контейнер — Легенда \(осталось (\d+)\)/, 'Guarantee: every 10th Golden crate is a Legend ($1 left)'],
     [/^1 уровень = (\d+) ⛽\. Восстанавливается 1 ⛽ каждые 3 минуты \(макс\. (\d+)\)\.$/, '1 level = $1 ⛽. Refills 1 ⛽ every 3 minutes (max $2).'],
-    [/В отряде максимум (\d+) танка — сначала убери один/, 'Your squad can hold $1 tanks — remove one first'],
+    [/В отряде максимум (\d+) танк(?:а|ов) — сначала убери один/, 'Your squad can hold $1 tanks — remove one first'],
     [/с (\d+)-го уровня/g, 'from level $1'],
     [/(\d+) золота/g, '$1 gold'],
     [/(\d) ?с(?![А-Яа-яЁё])/g, '$1s'],
@@ -320,3 +320,4 @@ Object.assign(DICT.en, {"Сыпет пулями очередью. С ★3 сб�
 Object.assign(DICT.en, {"Бьёт струёй огня конусом: горят все враги в конусе перед ним. Огонь прожигает любую броню.":"Sprays fire in a cone: every enemy in the cone in front of it burns. Fire burns through any armor.","Конус":"Cone"});
 Object.assign(DICT.en, {"Все мифики уже есть в гараже":"You already own every mythic"});
 Object.assign(DICT.en, {"Бонус!":"Bonus!","серебра, золота и кристаллов":"silver, gold and gems"});
+Object.assign(DICT.en, {"танков в бой":"tanks for battle"});

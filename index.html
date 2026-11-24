@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '60';
+const VER = '61';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -132,8 +132,8 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 @keyframes hov{0%,100%{transform:none}50%{transform:translateY(-5px)}}
 @keyframes ping{from{transform:scale(.85);opacity:.9}to{transform:scale(1.35);opacity:0}}
 .slots{display:flex;gap:8px;justify-content:center}
-.slot{width:64px;height:64px;border:3px dashed rgba(43,33,24,.4);border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.4)}
-.slot img{width:58px;height:58px}
+.slot{width:min(64px,15vw);height:min(64px,15vw);border:3px dashed rgba(43,33,24,.4);border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.4)}
+.slot img{width:90%;height:90%}
 .slot.f{border-style:solid;border-color:var(--ink);background:var(--cream)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tc{position:relative;background:var(--cream);border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 rgba(43,33,24,.3);padding:0 8px 8px;text-align:center;overflow:hidden}
@@ -249,7 +249,7 @@ nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45e
 #wbar{display:flex;align-items:center;gap:6px;padding:3px 6px 3px 0;background:#2e333b;border-bottom:2px solid #000}
 #wbar #wprev{flex:1;min-width:0;overflow:hidden;border:0;white-space:nowrap}
 #wbar #bSpeed{width:44px;font-size:16px;padding:2px 0;box-shadow:0 3px 0 #000}#wbar #bSpeed small{font-size:9px}
-#slots{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;min-width:0}
+#slots{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;min-width:0}
 #ctrl .ab{touch-action:manipulation}#ctrl .ab *{pointer-events:none}
 .ab.sl{width:auto;min-width:0}.ab.sl img{width:40px;height:40px;display:block;margin:0 auto}
 .ab.sl.poor{filter:grayscale(.6);opacity:.65}.ab.sl.empty{opacity:.35}
@@ -371,9 +371,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=16"></script>
+<script src="i18n.js?v=17"></script>
 <script src="sfx.js?v=4"></script>
-<script src="core.js?v=34"></script>
+<script src="core.js?v=35"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -814,7 +814,7 @@ const MAPDEC = [['tree', 'tree', 'bush', 'rock', 'tent', 'bags', 'tree'], ['cact
 const flagSvg = (c) => `<img class="flg" src="img/kit/flag_${c === '#c43a30' ? 'red' : c === '#3d8bff' ? 'blue' : 'yellow'}.webp" alt="">`;
 function mapHTML() {
   const un = maxUnlocked();
-  let h = `<div class="panel squadbar"><div class="grow"><div style="font-size:16px">Твой отряд</div><div class="muted">${S.deck.length}/${DECK} танка в бой</div></div>${S.deck.map(id => `<img src="${icon('t', id, 46)}">`).join('')}<button class="btn sm blue" data-act="tab" data-tab="garage">✎</button></div>`;
+  let h = `<div class="panel squadbar"><div class="grow"><div style="font-size:16px">Твой отряд</div><div class="muted">${S.deck.length}/${DECK} танков в бой</div></div>${S.deck.map(id => `<img src="${icon('t', id, 46)}">`).join('')}<button class="btn sm blue" data-act="tab" data-tab="garage">✎</button></div>`;
   /* Одна сплошная карта кампании: дорога идёт через все области, закрытые области — под туманом, но уровни видны */
   const X = (n) => 50 + 28 * Math.sin(n * 1.15), TOP = 180, GAP = 100;
   h += '<div class="wmap">';
@@ -1560,7 +1560,7 @@ function supIco(id, big) { const d = supById(id), img = id;
   return `<span class="sic${big ? ' big' : ''}" style="--rc:${RAR[d.rar].hex}"><i class="mi ${img}"></i></span>`; }
 function buildSlots() {
   const L = barMode === 't' ? G.deck : G.sdeck, el = $('#slots');
-  el.innerHTML = [0, 1, 2, 3].map(i => { const id = L[i]; if (!id) return '<button class="ab sl empty" disabled><span>＋</span><small>&nbsp;</small></button>';
+  el.innerHTML = Array.from({ length: DECK }, (_, i) => i).map(i => { const id = L[i]; if (!id) return '<button class="ab sl empty" disabled><span>＋</span><small>&nbsp;</small></button>';
     return barMode === 't' ? `<button class="ab sl" data-sl="${id}"><img src="${tIcon(id, 40)}"><small>${tankById(id).cost} 💵</small></button>`
       : `<button class="ab sl" data-sl="${id}">${supIco(id)}<small>${supById(id).n}</small><b class="n"></b><i class="cd"></i></button>`; }).join('');
   const sw = $('#bSwap'); sw.classList.toggle('sup', barMode === 's'); sw.innerHTML = barMode === 't' ? '<span>🎒</span><small>Поддержка</small>' : `<span><img src="${icon('t', S.deck[0], 64)}" alt=""></span><small>Танки</small>`;

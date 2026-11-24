@@ -2,7 +2,7 @@
    Всё, что влияет на результат боя, — детерминировано: фиксированный шаг DT, свой ГСЧ G.rnd по сиду матча.
    Визуальные эффекты (G.vis) могут использовать Math.random — на сервере vis=false. */
 /* ======================= Константы ======================= */
-const COLS = 9, ROWS = 14, LEVELS = 32, FCOST = 1, MAXF = 20, FREGEN = 300000, DECK = 4, MAXLV = 10;
+const COLS = 9, ROWS = 14, LEVELS = 32, FCOST = 1, MAXF = 20, FREGEN = 300000, DECK = 5, MAXLV = 10;
 const WAVE_GAP = 5, BOXCD = 4 * 3600000;
 /* Улучшения в бою: 4 уровня ★. Множители урона/перезарядки/дальности и цена (доля от стоимости танка) */
 const TIER = { d: [1, 1.3, 1.65, 2.2], r: [1, 1, .92, .85], rg: [0, .25, .5, .75], up: [.6, .9, 1.3] }, MAXT = 5; /* ★5: цена ×2 от ★4, урон +35%, перезарядка −20% (Мороз: +300% и −20%) */
@@ -225,7 +225,7 @@ const SUPS = [
 ];
 /* Баланс: способности в бою в 2 раза дешевле */
 for (const d of SUPS) d.cost = Math.round(d.cost / 2);
-const SDECK = 4, SDEF = ['strike', 'mine'], supById = (id) => SUPS.find(s => s.id === id);
+const SDECK = 5, SDEF = ['strike', 'mine'], supById = (id) => SUPS.find(s => s.id === id);
 /* Прокачка поддержки в Гараже: цена 🥈 за уровень × множитель редкости, каждый уровень +25% к силе (урон, длительность, ремонт) */
 const SUPC = [150, 300, 600, 1000], SMAXLV = 5, SUPG = .25;
 const supCost = (d, lv) => Math.round(SUPC[lv - 1] * RM[d.rar]), supK = (lv) => 1 + SUPG * ((lv || 1) - 1);
@@ -738,7 +738,7 @@ const ECON = {
     if (!S.owned[id]) return { err: 'Нет такого танка' };
     const i = S.deck.indexOf(id);
     if (i >= 0) { if (S.deck.length === 1) return { err: 'Нужен хотя бы 1 танк' }; S.deck.splice(i, 1); }
-    else { if (S.deck.length >= DECK) return { err: `В отряде максимум ${DECK} танка — сначала убери один` }; S.deck.push(id); }
+    else { if (S.deck.length >= DECK) return { err: `В отряде максимум ${DECK} танков — сначала убери один` }; S.deck.push(id); }
     return { ok: 1 };
   },
   supBuy({ id }) {
