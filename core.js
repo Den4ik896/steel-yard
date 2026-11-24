@@ -114,7 +114,7 @@ const ENEMY = {
   medic:     { n: 'Ремонтник', hp: 128, speed: 2, reward: 11, cost: 4, leak: 1, size: .56, gap: 1, from: 7, w: .85, heal: 1, desc: 'Чинит врагов рядом. Убивай его первым.' },
   scout:     { n: 'Камуфляж', hp: 96, speed: 2.6, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1.3, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
   transport: { n: 'Грузовик', hp: 384, speed: 3, reward: 9, cost: 6, leak: 2, size: .62, gap: 1.1, from: 10, w: 2, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
-  heavy:     { n: 'Тяжёлый танк', hp: 576, speed: 1.4, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все.' },
+  heavy:     { n: 'Тяжёлый танк', hp: 576, speed: 1.4, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все. С 16-й волны раз в ~10 с стреляет по твоему танку рядом: оглушение 15 с, а с шансом 10% танк уничтожен.' },
   bomber:    { n: 'Бомбардировщик', hp: 510, speed: 3, fly: 1, reward: 15, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: летит поперёк поля и сбрасывает бомбу на случайный танк — оглушение 3–8 с. Можно сбить до сброса. Улетает за край карты, базу не бьёт.' },
   sbomber:   { n: 'Супер-бомбардировщик', hp: 2040, speed: 3.5, fly: 1, reward: 60, cost: 0, leak: 0, size: 1, gap: 1.6, from: 20, w: 0, raid: 1, aoe: 1.5, img: 'bomber', desc: '✈ Тяжёлый налёт: ХП ×4, бомба оглушает все танки в радиусе 1.5 клетки на 1–4 с. Можно сбить до сброса. Улетает за край карты.' },
   assault:   { n: 'Штурмовой танк', hp: 300, speed: 1.9, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
@@ -435,6 +435,7 @@ function spawn(type, pi, dist = 0, mod, o = {}) {
   const p = posAt(P, dist);
   G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: Math.round(d.reward * (M ? M.hp : 1) * rewK(d) * (.75 + G.rnd() * .5) * 10) / 10, x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
   if (d.taunt && G.vis && !G.tnTip) { G.tnTip = 1; tip('🎯 Провокатор: танки рядом стреляют только по нему!', 2400); }
+  if (type === 'heavy' && G.wave >= 16) { G.enemies[G.enemies.length - 1].hvS = 1; if (G.vis && !G.hvTip) { G.hvTip = 1; tip('💥 Тяжёлые танки стреляют по твоим танкам!', 2400); } }
   if (o.ph) { G.enemies[G.enemies.length - 1].ph = 1; if (G.vis && !G.phTip) { G.phTip = 1; tip('🌀 Фаза: первую четверть дороги неуязвим, до середины не получает урон', 2600); } }
   if (d.raid) { const E = G.enemies[G.enemies.length - 1]; E.tw = tw; if (G.rnd() < .3) E.spk = 1.2 + G.rnd() * .2; } /* ✈ иногда самолёт быстрее */
 }
@@ -635,6 +636,8 @@ function update(dt) {
     if (e.d.frost) { e.frT = (e.frT == null ? 4 : e.frT) - dt; if (e.frT <= 0) { e.frT = 7; for (const tw of G.towers) if (Math.hypot(tw.x - e.x, tw.y - e.y) < 1.9) tw.frz = 2;
       if (G.vis) G.fx.push({ k: 'ring', x: e.x, y: e.y, r: 1.9, t: 0, life: .6, col: '#9fe6ff' }); } }
     /* 💀 Колосс: каждые 10 с 3 снаряда по танкам (оглушение 5 с); Император: каждые 12 с 5 ракет (2 с) */
+    /* 💥 тяжёлый танк с 16-й волны: раз в ~10 с снаряд по танку в радиусе 3.5 — оглушение 15 с, 10% — уничтожает */
+    if (e.hvS) { e.hvT = (e.hvT == null ? 3 + G.rnd() * 7 : e.hvT) - dt; if (e.hvT <= 0) { const P = G.towers.filter(t => Math.hypot(t.x - e.x, t.y - e.y) < 3.5); if (P.length) { e.hvT = 9 + G.rnd() * 2; G.eshots.push({ sx: e.x, sy: e.y, tw: P[Math.floor(G.rnd() * P.length)], t: 0, life: .6, st: 15, k: 'shell', kill: G.rnd() < .1 }); } else e.hvT = .5; } }
     if (e.d.zap || e.d.salvo) { e.zapT = (e.zapT == null ? 5 : e.zapT) - dt; if (e.zapT <= 0 && G.towers.length) { const Z = e.d.zap, N = Z ? 3 : 5; e.zapT = Z ? 10 : 12;
       let P = G.towers.filter(t => !(t.stn > 0)); if (P.length < N) P = G.towers.slice();
       for (let i = 0; i < N && P.length; i++) G.eshots.push({ sx: e.x, sy: e.y, tw: P.splice(Math.floor(G.rnd() * P.length), 1)[0], t: -i * .25, life: Z ? .7 : .9, st: Z ? 5 : 2, k: Z ? 'shell' : 'rocket' });
@@ -666,7 +669,7 @@ function update(dt) {
   for (const b of G.bombs) { b.delay -= dt; if (b.delay <= 0) { b.done = 1; explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1 }); if (b.air) explode(b.x, b.y, b.r || .85, b.dmg, { pen: 1, fly: 1 }); } }
   G.bombs = G.bombs.filter(b => !b.done);
   /* 💥 снаряды боссов по танкам */
-  for (const s of G.eshots || []) { s.t += dt; if (s.t >= s.life) { s.done = 1; if (G.towers.includes(s.tw)) s.tw.stn = Math.max(s.tw.stn || 0, s.st); if (G.vis) { G.fx.push({ k: 'boom', x: s.tw.x, y: s.tw.y, r: .6, t: 0, life: .4 }); G.shake = Math.max(G.shake, 6); } } }
+  for (const s of G.eshots || []) { s.t += dt; if (s.t >= s.life) { s.done = 1; if (G.towers.includes(s.tw)) { if (s.kill) { G.towers = G.towers.filter(q => q !== s.tw); if (G.sel && G.sel.x === s.tw.x && G.sel.y === s.tw.y) G.sel = null; if (G.vis) { G.fx.push({ k: 'boom', x: s.tw.x, y: s.tw.y, r: 1.1, t: 0, life: .6 }); tip('💀 Твой танк уничтожен!', 1600); } } else s.tw.stn = Math.max(s.tw.stn || 0, s.st); } if (G.vis) { G.fx.push({ k: 'boom', x: s.tw.x, y: s.tw.y, r: .6, t: 0, life: .4 }); G.shake = Math.max(G.shake, 6); } } }
   if (G.eshots) G.eshots = G.eshots.filter(s => !s.done);
   /* ❄ Метель (ур. 25+): каждые 50 с на 8 с дальность танков −25% */
   if (G.L.bliz) { const b = G.wave > 0 && G.time % 50 > 42; if (b && !G.bliz && G.vis) tip('🌨 Метель! Дальность танков −25%', 1800); G.bliz = b; }
