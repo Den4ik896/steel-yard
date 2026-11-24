@@ -372,7 +372,10 @@ function makeWaves(n, np) {
       if (!d.boss && !d.mini) { const x = r(); let acc = 0; for (const [m, p] of [['y', pY], ['x', pX], ['t', pT], ['c', pC], ['b', pB]]) { acc += p; if (x < acc) { if (!(d.raid && 'txy'.includes(m)) && !(lim[m] && cnt[m] >= lim[m])) { q.mod = m; if (lim[m]) cnt[m]++; } break; } } }
       return q; });
     /* ур. 6–16: на последней волне ровно один ×10 */
-    if (n >= 6 && n <= 16 && w === nw - 1) { const c = qs.filter(q => !ENEMY[q.type].boss && !ENEMY[q.type].mini && !ENEMY[q.type].fly); if (c.length) c[Math.floor(r() * c.length)].mod = 'x'; }
+    if (n >= 6 && n <= 16 && w === nw - 1) { const c = qs.filter(q => !ENEMY[q.type].boss && !ENEMY[q.type].mini && !ENEMY[q.type].fly), cm = c.filter(q => q.type === 'tank'); const p = cm.length && r() < .5 ? cm : c; if (p.length) p[Math.floor(r() * p.length)].mod = 'x'; }
+    /* ×7/×10/×15 чаще достаются средним/штурмовым/тяжёлым — такие почти как мини-боссы */
+    const MID = ['tank', 'assault', 'heavy'];
+    for (const q of qs) if ('txy'.includes(q.mod || '-') && !MID.includes(q.type) && r() < .6) { const m = qs.filter(o => MID.includes(o.type) && !'txy'.includes(o.mod || '-')); if (m.length) { const o = m[Math.floor(r() * m.length)]; o.mod = q.mod; delete q.mod; } }
     waves.push(qs);
   }
   return waves;
