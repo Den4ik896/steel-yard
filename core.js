@@ -127,7 +127,8 @@ const ENEMY = {
   boss:      { n: 'Колосс', hp: 5120, speed: 0.85, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, desc: '🛡 Гигантский танк-босс. Вызывает подкрепление.' }
 };
 /* Баланс: все враги едут на 40% медленнее */
-const ESPK = .6; for (const d of Object.values(ENEMY)) { d.speed *= ESPK; if (d.boss || d.mini) d.hp = Math.round(d.hp * .85); } /* боссы и мини-боссы: −15% HP */
+const ESPK = .6; for (const d of Object.values(ENEMY)) { d.speed *= ESPK; if (d.boss || d.mini) d.hp = Math.round(d.hp * .85); d.hp = Math.round(d.hp * .9); } /* боссы и мини-боссы: −15% HP; все враги: ещё −10% HP */
+ENEMY.transport.speed *= .8; /* грузовик: −20% скорости */
 const ELOOK = {
   light: { h: '#e0763c', tur: 'circle', ts: .22, bar: 1, bl: .45, bw: .08 },
   scout: { h: '#7b8a4a', tur: 'dome', ts: .2, bar: 1, bl: .5, bw: .07, camo: 1 },
