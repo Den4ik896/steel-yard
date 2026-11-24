@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '61';
+const VER = '62';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,9 +371,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=17"></script>
+<script src="i18n.js?v=18"></script>
 <script src="sfx.js?v=4"></script>
-<script src="core.js?v=35"></script>
+<script src="core.js?v=36"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -515,8 +515,98 @@ function drawTruck(c, x, y, s, a, cab, cargo, kind) {
   rr(c, s * .35, -s * .19, s * .1, s * .38, s * .04); fs(c, '#a6dcff');
   c.restore();
 }
+/* Враги, нарисованные кодом (без спрайтов): бронекоптер, новые мини-боссы и боссы */
+const CLOOK = {
+  juggernaut: { h: '#3d4652', t: '#4f5a69', tur: 'box', ts: .3, bar: 1, bl: .42, bw: .22, brake: 1 },
+  phoenix: { h: '#c8452a', t: '#e0632f', tur: 'dome', ts: .27, bar: 2, bl: .55, bw: .1, extra: 'core', core: '#ffb03a' },
+  bastion: { h: '#5b6170', t: '#737b8c', tur: 'box', ts: .32, bar: 2, bl: .6, bw: .12, brake: 1 },
+  emperor: { h: '#2a2a33', t: '#3a3a46', tur: 'box', ts: .3, bar: 2, bl: .72, bw: .1, brake: 1, skull: 1 }
+};
+function drawCoded(c, type, x, y, s, a, tm, e) {
+  const lw = Math.max(1.4, s * .055), ta = e ? e.tur : a, tr = { tread: e ? e.tread : 0 }, now = typeof G !== 'undefined' && G.time || 0;
+  const poly = (pts) => { c.beginPath(); pts.forEach(([px, py], i) => i ? c.lineTo(px * s, py * s) : c.moveTo(px * s, py * s)); c.closePath(); };
+  c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
+  if (type === 'gunship') {   // 🛡 бронированный скрытый вертолёт: угловатый корпус, крылья с ракетами, 3-лопастной винт
+    const ga = c.globalAlpha; if (e) c.globalAlpha = ga * (.55 + .12 * Math.sin(tm * 5));
+    c.save(); c.translate(x, y);
+    c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.ellipse(s * .1, s * .25, s * .5, s * .24, a, 0, 7); c.fill();
+    c.translate(0, -s * .45); c.rotate(a + Math.sin(tm * 3) * .04);
+    rr(c, -s * .95, -s * .07, s * .62, s * .14, s * .04); fs(c, '#3c4450');
+    rr(c, -s * 1.02, -s * .22, s * .14, s * .44, s * .04); fs(c, '#4d5664');
+    rr(c, -s * .14, -s * .6, s * .2, s * 1.2, s * .05); fs(c, '#4d5664');
+    for (const sy of [-1, 1]) { rr(c, -s * .22, sy * s * .5 - s * .08, s * .4, s * .16, s * .07); fs(c, '#2f353d'); c.fillStyle = '#e0473c'; circ(c, s * .17, sy * s * .5, s * .045); c.fill(); }
+    poly([[.5, 0], [.36, -.25], [-.12, -.31], [-.4, -.2], [-.4, .2], [-.12, .31], [.36, .25]]); fs(c, '#5a6472');
+    c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = lw * .6; c.beginPath(); c.moveTo(-s * .12, -s * .31); c.lineTo(-s * .12, s * .31); c.moveTo(s * .18, -s * .27); c.lineTo(s * .18, s * .27); c.stroke(); c.strokeStyle = OL; c.lineWidth = lw;
+    c.fillStyle = '#c9d1d9'; for (const [px, py] of [[-.28, -.14], [-.28, .14], [.04, -.21], [.04, .21]]) { circ(c, px * s, py * s, s * .03); c.fill(); }
+    rr(c, s * .25, -s * .13, s * .12, s * .26, s * .04); fs(c, '#ff5040');
+    rr(c, s * .46, -s * .035, s * .24, s * .07, s * .02); fs(c, '#2f353d');
+    c.save(); c.rotate(tm * 22); c.fillStyle = 'rgba(40,40,40,.18)'; circ(c, 0, 0, s * .78); c.fill(); c.fillStyle = '#222'; for (let i = 0; i < 3; i++) { c.rotate(2.094); c.fillRect(-s * .035, 0, s * .07, s * .78); } c.restore();
+    c.fillStyle = '#2f353d'; circ(c, 0, 0, s * .08); c.fill(); c.stroke();
+    c.restore(); c.globalAlpha = ga; return;
+  }
+  if (type === 'carrier') {   // 💀 Матка: широкая платформа с ангаром, створки открываются перед выпуском
+    c.save(); c.translate(x, y);
+    c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(s * .07, s * .1, s * .66, s * .52, a, 0, 7); c.fill();
+    c.rotate(a);
+    const ph = (((e ? e.tread : 0) % 1) + 1) % 1;
+    for (const sy of [-1, 1]) { const ty = sy > 0 ? s * .28 : -s * .5; rr(c, -s * .6, ty, s * 1.2, s * .22, s * .08); fs(c, '#4b443c');
+      c.strokeStyle = 'rgba(0,0,0,.4)'; c.lineWidth = lw * .55; for (let i = 0; i < 9; i++) { const tx = -s * .54 + ((i + ph) / 9) * s * 1.08; c.beginPath(); c.moveTo(tx, ty + s * .04); c.lineTo(tx, ty + s * .18); c.stroke(); } c.strokeStyle = OL; c.lineWidth = lw; }
+    rr(c, -s * .56, -s * .36, s * 1.12, s * .72, s * .12); fs(c, '#556b3a');
+    rr(c, -s * .44, -s * .27, s * .7, s * .54, s * .06); fs(c, '#2e3a20');
+    const op = e && e.sumT < 1 ? (1 - e.sumT) * s * .12 : 0;
+    for (const sy of [-1, 1]) { rr(c, -s * .42, sy > 0 ? op : -s * .25 - op, s * .66, s * .25, s * .04); fs(c, '#6f8550');
+      c.fillStyle = '#ffd23f'; for (let i = 0; i < 3; i++) { c.beginPath(); const bx = -s * .36 + i * s * .2, by = sy > 0 ? op + s * .08 : -s * .17 - op; c.moveTo(bx, by); c.lineTo(bx + s * .1, by); c.lineTo(bx + s * .06, by + s * .09); c.lineTo(bx - s * .04, by + s * .09); c.closePath(); c.fill(); } }
+    rr(c, s * .3, -s * .3, s * .24, s * .6, s * .08); fs(c, '#6f8550');
+    rr(c, s * .44, -s * .2, s * .07, s * .4, s * .03); fs(c, '#a6dcff');
+    c.save(); c.translate(s * .38, 0); c.rotate(tm * 2); c.beginPath(); c.arc(0, 0, s * .17, -1.2, 1.2); c.closePath(); fs(c, '#cfd6dd'); c.restore();
+    for (const sy of [-1, 1]) { circ(c, -s * .5, sy * s * .3, s * .08); fs(c, '#7a8b5a'); }
+    c.restore(); return;
+  }
+  if (type === 'juggernaut') {   // ⭐ таран спереди, при рывке — пламя из выхлопа
+    c.save(); c.translate(x, y); c.rotate(a);
+    if (e && e.rushT > 0) for (const sy of [-1, 1]) { c.fillStyle = '#ffb03a'; c.beginPath(); c.ellipse(-s * .62, sy * s * .18, s * (.16 + Math.random() * .06), s * .07, 0, 0, 7); c.fill(); c.fillStyle = '#fff3b0'; c.beginPath(); c.ellipse(-s * .56, sy * s * .18, s * .07, s * .035, 0, 0, 7); c.fill(); }
+    poly([[.38, -.52], [.6, -.44], [.7, 0], [.6, .44], [.38, .52]]); fs(c, '#8a939e');
+    c.fillStyle = '#d8dde3'; for (const py of [-.3, -.1, .1, .3]) { poly([[.64, py - .06], [.8, py], [.64, py + .06]]); c.fill(); c.stroke(); }
+    c.restore();
+    drawTank(c, x, y, s, CLOOK.juggernaut, a, ta, tr);
+    c.save(); c.translate(x, y); c.rotate(a); c.fillStyle = '#ffd23f'; for (const sy of [-1, 1]) { rr(c, -s * .42, sy * s * .2 - s * .04, s * .22, s * .08, s * .02); c.fill(); } c.restore();
+    return;
+  }
+  if (type === 'phoenix') {   // ⭐ огненные крылья; после возрождения — золотые
+    c.save(); c.translate(x, y); c.rotate(a);
+    const fl = Math.sin(tm * 6) * .08, reb = e && e.reb;
+    c.globalAlpha *= .9;
+    for (const sy of [-1, 1]) { poly([[-.05, sy * .28], [-.5, sy * (.9 + fl)], [-.36, sy * .55], [-.75, sy * (.62 + fl / 2)], [-.38, sy * .3]]); fs(c, reb ? '#ffd23f' : '#ff7a1a');
+      c.fillStyle = reb ? '#fff3b0' : '#ffd23f'; poly([[-.12, sy * .3], [-.42, sy * (.7 + fl)], [-.3, sy * .38]]); c.fill(); }
+    c.globalAlpha /= .9; c.restore();
+    drawTank(c, x, y, s, CLOOK.phoenix, a, ta, tr);
+    if (e && e.inv > now) { c.strokeStyle = 'rgba(255,200,80,.9)'; c.lineWidth = 3; circ(c, x, y, s * .7); c.stroke(); c.lineWidth = lw; c.strokeStyle = OL; }
+    return;
+  }
+  if (type === 'bastion') {   // 💀 крепость: 4 генератора щита по углам, при щите — шестигранный купол
+    drawTank(c, x, y, s, CLOOK.bastion, a, ta, tr);
+    c.save(); c.translate(x, y); c.rotate(a);
+    const on = e && e.bsh > now;
+    for (const [px, py] of [[-.4, -.3], [-.4, .3], [.36, -.3], [.36, .3]]) { circ(c, px * s, py * s, s * .09); fs(c, '#3b404b'); c.fillStyle = on ? '#bfe8ff' : '#4fa8e0'; circ(c, px * s, py * s, s * .045); c.fill(); }
+    if (on) { const p = 1 + Math.sin(tm * 8) * .03; c.fillStyle = 'rgba(120,200,255,.22)'; c.strokeStyle = 'rgba(120,200,255,.95)'; c.lineWidth = 3;
+      c.beginPath(); for (let i = 0; i < 6; i++) { const q = i * Math.PI / 3; c.lineTo(Math.cos(q) * s * .82 * p, Math.sin(q) * s * .82 * p); } c.closePath(); c.fill(); c.stroke(); }
+    c.restore(); c.lineWidth = lw; c.strokeStyle = OL; return;
+  }
+  if (type === 'emperor') {   // 💀 Император: чёрно-золотой, ракетные блоки по бортам, корона на башне, в ярости — красное свечение
+    if (e && e.rg) { c.fillStyle = 'rgba(255,60,40,' + (.25 + .12 * Math.sin(tm * 10)) + ')'; circ(c, x, y, s * .8); c.fill(); }
+    drawTank(c, x, y, s, CLOOK.emperor, a, ta, tr);
+    c.save(); c.translate(x, y); c.rotate(a);
+    c.strokeStyle = '#ffd23f'; c.lineWidth = lw * .8; rr(c, -s * .42, -s * .26, s * .84, s * .52, s * .1); c.stroke(); c.strokeStyle = OL; c.lineWidth = lw;
+    for (const sy of [-1, 1]) { rr(c, -s * .36, sy * s * .4 - s * .09, s * .34, s * .18, s * .04); fs(c, '#3a3a46'); c.fillStyle = '#e0473c'; for (let i = 0; i < 3; i++) { circ(c, -s * .3 + i * s * .1, sy * s * .4, s * .035); c.fill(); } }
+    c.rotate(ta - a); c.fillStyle = '#ffd23f';
+    poly([[-.22, -.16], [-.06, -.2], [-.12, -.08], [-.02, 0], [-.12, .08], [-.06, .2], [-.22, .16]]); fs(c, '#ffd23f');
+    c.fillStyle = '#e0473c'; circ(c, -s * .12, 0, s * .045); c.fill();
+    c.restore(); return;
+  }
+}
 function drawEnemy(c, type, x, y, s, a, tm, e) {
   if (ENEMY[type] && ENEMY[type].img) type = ENEMY[type].img;
+  if (ENEMY[type] && ENEMY[type].code) return drawCoded(c, type, x, y, s, a, tm, e);
   const lw = Math.max(1.4, s * .055);
   c.lineWidth = lw; c.strokeStyle = OL; c.lineJoin = 'round';
   const sp2 = SPR_SPLIT[type], fr = SPR_TREAD[type] && e ? Math.floor(e.tread * 16) % 3 : 0;
@@ -601,7 +691,7 @@ const SPR_TREAD = { light: 1, tank: 1, scout: 1, heavy: 1, assault: 1, medic: 1 
 const SPR_STATIC = { oboz: 1, zavod: 1, tesla: 1, grom: 1, polar: 1 };
 /* грузим все картинки юнитов заранее, чтобы в начале боя не мелькали нарисованные кодом танки */
 setTimeout(() => { try {
-  TANKS.forEach(t => spr('t_' + t.id)); Object.keys(ENEMY).forEach(k => spr('e_' + (ENEMY[k].img || k)));
+  TANKS.forEach(t => spr('t_' + t.id)); Object.keys(ENEMY).forEach(k => ENEMY[k].code || spr('e_' + (ENEMY[k].img || k)));
   Object.keys(SPR_SPLIT).forEach(k => { spr('h_' + k); spr('u_' + k); }); Object.keys(SPR_TREAD).forEach(k => { spr('h_' + k); spr('h_' + k + '_1'); spr('h_' + k + '_2'); });
 } catch (e) {} }, 0);
 const SPR_GLOW = { tesla: 1, polar: 1, rail: 1, beam: 1 };
@@ -697,12 +787,12 @@ const ICON = {};
 const GIFTC = { red: ['#ff5b4f', '#ffd23f'], blue: ['#45a6ff', '#ffffff'], green: ['#5fcb45', '#ff5b4f'], purple: ['#b06bff', '#ffd23f'], gold: ['#ffc83a', '#ff4f9a'] };
 function icon(kind, id, size = 96, attrs, serial) {
   if (kind === 'b' || kind === 'bo') return `img/ui/box_${id}${kind === 'bo' ? '_o' : ''}.webp`;   // сундуки — нарисованные картинки (bo = открытый)
-  if ((kind === 't' && !attrs) || kind === 'e') return `img/units/i_${kind}_${id}.webp?v=2`;   // танки и враги — нарисованные картинки (мифики с камуфляжем — кодом)
+  if ((kind === 't' && !attrs) || kind === 'e' && !(ENEMY[id] && ENEMY[id].code)) return `img/units/i_${kind}_${id}.webp?v=2`;   // танки и враги — нарисованные картинки (мифики с камуфляжем — кодом)
   if (kind === 'g') return `img/ui/gift${GIFTC[id] && id !== 'red' ? '_' + id : ''}.webp`;   // подарки дня — картинки 5 цветов
   const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
   const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
   if (kind === 't') { const t = tankById(id); drawTank(c, size / 2, size / 2, size * .62, skinLook(t, sk), -Math.PI / 4, -Math.PI / 4, sk ? { gear: sk.gr, num: sk.n } : {}); if (sk && sk.fl) { c.font = `${Math.round(size * .26)}px system-ui`; c.fillText(sk.fl, size * .04, size * .3); } }
-  else if (kind === 'e') { const sc = { light: .7, scout: .7, btr: .66, tank: .62, heavy: .58, boss: .5, heli: .5, ghost: .5, assault: .6, bomber: .48, sbomber: .48, medic: .64, transport: .62 }[id]; drawEnemy(c, id, size / 2, size / 2 + (ENEMY[id].fly ? size * .14 : 0), size * sc, -Math.PI / 4, 0.3, null); }
+  else if (kind === 'e') { const sc = { light: .7, scout: .7, btr: .66, tank: .62, heavy: .58, boss: .5, heli: .5, ghost: .5, assault: .6, bomber: .48, sbomber: .48, medic: .64, transport: .62, gunship: .5, juggernaut: .54, phoenix: .56, carrier: .52, bastion: .54, emperor: .52 }[id] || .6; drawEnemy(c, id, size / 2, size / 2 + (ENEMY[id].fly ? size * .14 : 0), size * sc, -Math.PI / 4, 0.3, null); }
   else if (kind === 'b') { const b = BOXES.find(x => x.id === id); c.translate(size / 2, size / 2); drawChest(c, size * .95, b.col, b.band, BOXES.indexOf(b)); }
   else if (kind === 'g') { const [col, rib] = GIFTC[id] || GIFTC.red; c.translate(size / 2, size / 2 + size * .02); drawGift(c, size * .92, col, rib); }
   return ICON[k] = cv2.toDataURL();
@@ -1095,7 +1185,7 @@ async function buyStars(k, arg) {
 function preBattle(n) {
   if (n > maxUnlocked()) return toast('Сначала пройди предыдущий уровень');
   const L = LVL(n), wv = makeWaves(n, L.paths.length), types = [...new Set(wv.flat().map(q => q.type))];
-  const fresh = types.filter(k => ENEMY[k].from === n || k === 'boss');
+  const fresh = types.filter(k => ENEMY[k].from === n || ENEMY[k].boss);
   const first = !(S.stars[n] > 0), sil = first ? levelSilver(n) : Math.round(levelSilver(n) * .4);
   modal(`<button class="x" data-act="close">✕</button><div class="ribbon ${L.boss ? '' : 'b'}">${L.boss ? '💀 Босс' : 'Уровень ' + n}</div>
     <div class="muted"><i class="mi zone${LOCS.indexOf(L.loc) + 1}"></i> ${L.loc.name} · волн: ${wv.length}${L.paths.length > 1 ? ' · <b style="color:#c43a30">2 входа!</b>' : ''}</div>
@@ -1159,7 +1249,7 @@ function lossTip() {
   if (air && !hasAir) return 'Авиация пролетает напрямую к базе! Возьми танк с ✈: Шмель, Мороз, Вихрь, Тесла или Град.';
   if (air >= 3) return 'Авиация летит по прямой от входа к базе — ставь танки с ✈ на этой линии. Зенитка Вихрь рвёт вертолёты.';
   if (G.leak.scout) return 'Камуфляж 👁 скрытый — его видят только Сокол, Вихрь, Тесла и Шмель/Мороз/Град на ★3.';
-  if ((G.leak.tank || 0) + (G.leak.heavy || 0) + (G.leak.boss || 0)) return 'Прорвалась 🛡 броня. Без бронебойности урон всего 30% — ставь Бобра, Сокола, Жара или улучши Шмеля до ★4.';
+  if (Object.keys(G.leak).some(k => ENEMY[k] && ENEMY[k].arm)) return 'Прорвалась 🛡 броня. Без бронебойности урон всего 30% — ставь Бобра, Сокола, Жара или улучши Шмеля до ★4.';
   if (G.leak.medic) return 'Ремонтники чинят врагов — уничтожай их первыми (режим цели «Сильный»).';
   return 'Прокачай танки в гараже (+20% урона за уровень) или купи новые в магазине. И улучшай танки в бою до ★4!';
 }
@@ -1291,6 +1381,9 @@ function draw(fdt) {
     if (e.mod) { const M = MODS[e.mod], f = Math.max(9, T * .2); c.font = `900 ${f}px Nunito,system-ui,sans-serif`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.lineWidth = 3; c.strokeStyle = OL; c.strokeText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); c.fillStyle = M.col; c.fillText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); }
     if (e.d.arm) { c.beginPath(); c.moveTo(x - bw / 2 - 7, hy - 2); c.lineTo(x - bw / 2 + 1, hy - 2); c.lineTo(x - bw / 2 + 1, hy + bh - 1); c.lineTo(x - bw / 2 - 3, hy + bh + 3); c.lineTo(x - bw / 2 - 7, hy + bh - 1); c.closePath(); fs(c, e.shredT > 0 ? '#ff9a8a' : '#c9d1d9'); }
   }
+  for (const s of G.eshots || []) { if (s.t < 0) continue; const k = s.t / s.life, ex = PX(s.sx + (s.tw.x - s.sx) * k), ey = PY(s.sy + (s.tw.y - s.sy) * k) - Math.sin(k * Math.PI) * T * .9;
+    c.lineWidth = 2; c.strokeStyle = OL; c.fillStyle = s.k === 'rocket' ? '#ff7a1a' : '#ffd23f'; circ(c, ex, ey, T * (s.k === 'rocket' ? .08 : .11)); c.fill(); c.stroke();
+    c.fillStyle = 'rgba(255,170,60,.45)'; circ(c, ex - (PX(s.tw.x) - PX(s.sx)) * .04, ey + T * .05, T * .07); c.fill(); }
   for (const a of G.allies || []) {
     const x = PX(a.x), y = PY(a.y), s = T * a.sz;
     drawTank(c, x, y, s, ALLY_LOOK[a.kind], a.ang, a.tur, { tread: a.tread });
