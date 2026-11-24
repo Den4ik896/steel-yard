@@ -107,14 +107,14 @@ const HPU = 6.4, BASE_HP = 100;
 const hpN = v => { const x = v / HPU; return x >= 10 ? Math.round(x) : +x.toFixed(1); };
 const ENEMY = {
   /* arm — 🛡 бронированный (без бронебойности урон ×0.3), hid — 👁 скрытый, fly — ✈ летит напрямую */
-  light:     { n: 'Лёгкий танк', hp: 32, speed: 4, reward: 2.5, cost: 1, leak: 1, size: .5, gap: .55, from: 1, w: 4, desc: 'Быстрый и хлипкий. Берёт числом.' },
-  btr:       { n: 'Броневик', hp: 96, speed: 2, reward: 6, cost: 2, leak: 1, size: .56, gap: .8, from: 2, w: 3, desc: 'Покрепче лёгкого танка.' },
+  light:     { n: 'Лёгкий танк', hp: 32, speed: 4, reward: 2.5, cost: 1, leak: 1, size: .5, gap: .55, from: 1, w: 4, desc: 'Быстрый и хлипкий. Берёт числом. С 6-й волны — щит: первый удар не наносит урона.' },
+  btr:       { n: 'Броневик', hp: 96, speed: 2, reward: 6, cost: 2, leak: 1, size: .56, gap: .8, from: 2, w: 3, desc: 'Покрепче лёгкого танка. С 12-й волны — щит: первый удар не наносит урона.' },
   tank:      { n: 'Средний танк', hp: 224, speed: 1.6, arm: 1, reward: 15, cost: 4.5, leak: 2, size: .64, gap: 1.1, from: 4, w: 2, desc: '🛡 Броня: без бронебойности урон всего 30%. Нужен Бобр, Сокол, Жар или Тесла.' },
   heli:      { n: 'Вертолёт', hp: 109, speed: 2.4, fly: 1, road: 1, reward: 9, cost: 3, leak: 1, size: .62, gap: 1, from: 6, w: 1.6, desc: '✈ Летит над дорогой. Сбивают только танки с ✈.' },
   medic:     { n: 'Ремонтник', hp: 128, speed: 2, reward: 11, cost: 4, leak: 1, size: .56, gap: 1, from: 7, w: .85, heal: 1, desc: 'Чинит врагов рядом. Убивай его первым.' },
   scout:     { n: 'Камуфляж', hp: 96, speed: 2.6, hid: 1, reward: 11, cost: 3, leak: 1, size: .54, gap: .9, from: 9, w: 1.3, desc: '👁 Скрытый: его видят только танки с 👁 — Сокол, Вихрь, Тесла, Шмель ★3.' },
-  transport: { n: 'Грузовик', hp: 384, speed: 3, reward: 9, cost: 6, leak: 2, size: .62, gap: 1.1, from: 10, w: 2, spawn: 3, desc: 'При уничтожении высаживает 3 лёгких танка.' },
-  heavy:     { n: 'Тяжёлый танк', hp: 576, speed: 1.4, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все. С 16-й волны раз в ~10 с стреляет по твоему танку рядом: оглушение 15 с, а с шансом 10% танк уничтожен.' },
+  transport: { n: 'Грузовик', hp: 384, speed: 3, reward: 9, cost: 6, leak: 2, size: .62, gap: 1.1, from: 10, w: 2, spawn: 3, desc: 'При уничтожении высаживает танки: 3 лёгких (70%), 2 лёгких + средний (20%), лёгкий + 2 средних (6%), 2 лёгких + тяжёлый (4%). Высадка получает его множитель ХП (×5 → ×5).' },
+  heavy:     { n: 'Тяжёлый танк', hp: 576, speed: 1.4, arm: 1, reward: 35, cost: 10, leak: 3, size: .76, gap: 1.5, from: 12, w: .8, desc: '🛡 Огромный и бронированный. Мамонт срывает броню — тогда его бьют все. Стреляет по твоему танку рядом: до 15-й волны раз в ~20 с, оглушение 8 с; с 16-й — раз в ~10 с, оглушение 15 с, а с шансом 10% танк уничтожен.' },
   bomber:    { n: 'Бомбардировщик', hp: 510, speed: 3, fly: 1, reward: 15, cost: 0, leak: 0, size: .76, gap: 1.2, from: 14, w: 0, raid: 1, desc: '✈ Налёт: летит поперёк поля и сбрасывает бомбу на случайный танк — оглушение 3–8 с. Можно сбить до сброса. Улетает за край карты, базу не бьёт.' },
   sbomber:   { n: 'Супер-бомбардировщик', hp: 2040, speed: 3.5, fly: 1, reward: 60, cost: 0, leak: 0, size: 1, gap: 1.6, from: 20, w: 0, raid: 1, aoe: 1.5, img: 'bomber', desc: '✈ Тяжёлый налёт: ХП ×4, бомба оглушает все танки в радиусе 1.5 клетки на 1–4 с. Можно сбить до сброса. Улетает за край карты.' },
   assault:   { n: 'Штурмовой танк', hp: 300, speed: 1.9, arm: 1, reward: 20, cost: 7, size: .7, gap: 1.2, from: 17, w: .9, desc: '🛡 Быстрый бронированный танк. Опасен, если прорвётся.' },
@@ -139,7 +139,7 @@ const ENEMY = {
 };
 /* Баланс: все враги едут на 40% медленнее */
 const ESPK = .6; for (const d of Object.values(ENEMY)) { d.speed *= ESPK; if (d.boss || d.mini) d.hp = Math.round(d.hp * .85); d.hp = Math.round(d.hp * .9); } /* боссы и мини-боссы: −15% HP; все враги: ещё −10% HP */
-ENEMY.transport.speed *= .8; /* грузовик: −20% скорости */
+ENEMY.transport.speed *= .8 * 1.1; ENEMY.transport.hp = Math.round(ENEMY.transport.hp * .75); /* грузовик: −20% +10% скорости, −25% ХП */
 const ELOOK = {
   light: { h: '#e0763c', tur: 'circle', ts: .22, bar: 1, bl: .45, bw: .08 },
   scout: { h: '#7b8a4a', tur: 'dome', ts: .2, bar: 1, bl: .5, bw: .07, camo: 1 },
@@ -435,7 +435,8 @@ function spawn(type, pi, dist = 0, mod, o = {}) {
   const p = posAt(P, dist);
   G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: Math.round(d.reward * (M ? M.hp : 1) * rewK(d) * (.75 + G.rnd() * .5) * 10) / 10, x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
   if (d.taunt && G.vis && !G.tnTip) { G.tnTip = 1; tip('🎯 Провокатор: танки рядом стреляют только по нему!', 2400); }
-  if (type === 'heavy' && G.wave >= 16) { G.enemies[G.enemies.length - 1].hvS = 1; if (G.vis && !G.hvTip) { G.hvTip = 1; tip('💥 Тяжёлые танки стреляют по твоим танкам!', 2400); } }
+  if ((type === 'light' && G.wave >= 6) || (type === 'btr' && G.wave >= 12)) G.enemies[G.enemies.length - 1].fs = 1; /* 🔰 щит на первый удар */
+  if (type === 'heavy') { G.enemies[G.enemies.length - 1].hvS = G.wave >= 16 ? 1 : 2; if (G.vis && !G.hvTip) { G.hvTip = 1; tip('💥 Тяжёлые танки стреляют по твоим танкам!', 2400); } }
   if (o.ph) { G.enemies[G.enemies.length - 1].ph = 1; if (G.vis && !G.phTip) { G.phTip = 1; tip('🌀 Фаза: первую четверть дороги неуязвим, до середины не получает урон', 2600); } }
   if (d.raid) { const E = G.enemies[G.enemies.length - 1]; E.tw = tw; if (G.rnd() < .3) E.spk = 1.2 + G.rnd() * .2; } /* ✈ иногда самолёт быстрее */
 }
@@ -458,7 +459,7 @@ function hurt(e, dmg, o = {}) {
   if (e.dead || e.under || e.inv > G.time || e.prot) return;
   const ps = e.ph ? e.dist / e.P.total : 1; if (ps < .25) return;   /* 🌀 Фаза */
   const blocked = e.d.arm && !o.pen && !(e.shredT > 0), v = blocked ? dmg * ARMK : dmg;
-  if (ps >= .5) e.hp -=(e.shU > G.time ? v / 2 : v) * (e.bsh > G.time ? .15 : 1) * (e.bfU > G.time ? .8 : 1); if (!o.quiet) e.hitT = .08;
+  if (ps >= .5 && e.fs) { e.fs = 0; if (G.vis) G.fx.push({ k: 'ring', x: e.x, y: e.y, r: .6, t: 0, life: .35, col: '#8cd2ff' }); } else if (ps >= .5) e.hp -=(e.shU > G.time ? v / 2 : v) * (e.bsh > G.time ? .15 : 1) * (e.bfU > G.time ? .8 : 1); if (!o.quiet) e.hitT = .08;
   if (o.slow && !e.d.noslow) { const k = e.d.boss || e.d.mini ? (o.slowB != null ? o.slowB : o.slow / 2) : o.slow; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = 2; }
   if (o.stun) e.stunT = Math.max(e.stunT, e.d.boss ? o.stun / 3 : e.d.mini ? o.stun / 2 : o.stun);
   if (o.shred) e.shredT = o.shred;
@@ -472,7 +473,7 @@ function hurt(e, dmg, o = {}) {
 }
 function kill(e) {
   e.dead = true; G.cash += e.rew; G.kills++; if (e.d.fly) G.airKills++;
-  if (e.d.spawn) for (let i = 0; i < e.d.spawn; i++) spawn('light', e.pi, Math.max(0, e.dist - i * .35));
+  if (e.d.spawn) { const r = G.rnd(), L = r < .7 ? ['light', 'light', 'light'] : r < .9 ? ['light', 'light', 'tank'] : r < .96 ? ['light', 'tank', 'tank'] : ['light', 'light', 'heavy']; L.forEach((t, i) => spawn(t, e.pi, Math.max(0, e.dist - i * .35), e.mod || undefined)); } /* 🚚 высадка с множителем грузовика */
   if (!G.vis) return;
   const big = e.d.boss ? 2.2 : e.d.size * 1.6;
   G.fx.push({ k: 'boom', x: e.x, y: e.y - (e.d.fly ? .4 : 0), r: big * .6, t: 0, life: .5 });
@@ -637,7 +638,7 @@ function update(dt) {
       if (G.vis) G.fx.push({ k: 'ring', x: e.x, y: e.y, r: 1.9, t: 0, life: .6, col: '#9fe6ff' }); } }
     /* 💀 Колосс: каждые 10 с 3 снаряда по танкам (оглушение 5 с); Император: каждые 12 с 5 ракет (2 с) */
     /* 💥 тяжёлый танк с 16-й волны: раз в ~10 с снаряд по танку в радиусе 3.5 — оглушение 15 с, 10% — уничтожает */
-    if (e.hvS) { e.hvT = (e.hvT == null ? 3 + G.rnd() * 7 : e.hvT) - dt; if (e.hvT <= 0) { const P = G.towers.filter(t => Math.hypot(t.x - e.x, t.y - e.y) < 3.5); if (P.length) { e.hvT = 9 + G.rnd() * 2; G.eshots.push({ sx: e.x, sy: e.y, tw: P[Math.floor(G.rnd() * P.length)], t: 0, life: .6, st: 15, k: 'shell', kill: G.rnd() < .1 }); } else e.hvT = .5; } }
+    if (e.hvS) { const W = e.hvS === 2; e.hvT = (e.hvT == null ? (W ? 5 + G.rnd() * 12 : 3 + G.rnd() * 7) : e.hvT) - dt; if (e.hvT <= 0) { const P = G.towers.filter(t => Math.hypot(t.x - e.x, t.y - e.y) < 3.5); if (P.length) { e.hvT = W ? 18 + G.rnd() * 4 : 9 + G.rnd() * 2; G.eshots.push({ sx: e.x, sy: e.y, tw: P[Math.floor(G.rnd() * P.length)], t: 0, life: .6, st: W ? 8 : 15, k: 'shell', kill: !W && G.rnd() < .1 }); } else e.hvT = .5; } }
     if (e.d.zap || e.d.salvo) { e.zapT = (e.zapT == null ? 5 : e.zapT) - dt; if (e.zapT <= 0 && G.towers.length) { const Z = e.d.zap, N = Z ? 3 : 5; e.zapT = Z ? 10 : 12;
       let P = G.towers.filter(t => !(t.stn > 0)); if (P.length < N) P = G.towers.slice();
       for (let i = 0; i < N && P.length; i++) G.eshots.push({ sx: e.x, sy: e.y, tw: P.splice(Math.floor(G.rnd() * P.length), 1)[0], t: -i * .25, life: Z ? .7 : .9, st: Z ? 5 : 2, k: Z ? 'shell' : 'rocket' });
