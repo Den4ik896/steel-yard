@@ -131,7 +131,7 @@ const ENEMY = {
   /* 💀 боссы: на каждом боссовом уровне свой (8 — Колосс, 16 — Матка, 24 — Бастион, 32 — Император) */
   typhoon:   { n: 'Тайфун', hp: 1500, speed: 1.5, fly: 1, road: 1, elite: 1, reward: 70, cost: 0, leak: 8, size: .95, gap: 1.6, from: 17, w: 0, code: 1, desc: '🚁✈ Тяжёлый штурмовой вертолёт размером с мини-босса. Летит над дорогой — сбивают только танки с ✈. Ходит вместе с мини-боссами, но сам им не считается. Из модификаторов бывает только Раздутый ×2.' },
   taunt:     { n: 'Провокатор', hp: 1100, speed: 1.5, arm: 1, taunt: 1, grp: 1, reward: 50, cost: 0, leak: 6, size: .9, gap: 1.4, from: 13, w: 0, code: 1, desc: '🎯 Агро: все твои танки, до которых он достаёт, стреляют только по нему. Чуть слабее мини-босса, 🛡 броня. Ходит со Знаменосцами.' },
-  banner:    { n: 'Знаменосец', hp: 380, speed: 1.5, buff: 1, grp: 1, reward: 15, cost: 0, leak: 2, size: .66, gap: 1.2, from: 13, w: 0, code: 1, desc: '🚩 Бафер: лёгким, броневикам, средним, вертолётам, ремонтникам, камуфляжу и грузовикам рядом даёт +25% скорости и −20% получаемого урона, пока жив.' },
+  banner:    { n: 'Знаменосец', hp: 380, speed: 1.5, buff: 1, grp: 1, reward: 15, cost: 0, leak: 2, size: .66, gap: 1.2, from: 13, w: 0, code: 1, desc: '🚩 Бафер: лёгким, броневикам, средним, вертолётам, ремонтникам, камуфляжу и грузовикам рядом даёт +25% скорости и −20% получаемого урона, пока жив. Пока рядом есть кого баффать — его самого бить нельзя.' },
   boss:      { n: 'Колосс', hp: 5120, speed: 0.85, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.15, gap: 2, from: 99, w: 0, boss: 1, zap: 1, desc: '🛡 Гигантский танк-босс. Каждые 10 с даёт залп из 3 снарядов по твоим танкам — каждый оглушает танк на 5 с.' },
   carrier:   { n: 'Матка', hp: 5120, speed: 0.8, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.2, gap: 2, from: 99, w: 0, boss: 1, summon: 1, code: 1, desc: '🛡 Босс-носитель. Каждые 6 с выпускает подкрепление, каждый третий раз — вертолёт.' },
   bastion:   { n: 'Бастион', hp: 5120, speed: 0.75, arm: 1, reward: 200, cost: 0, leak: 20, size: 1.2, gap: 2, from: 99, w: 0, boss: 1, bulwark: 1, code: 1, desc: '🛡 Босс-крепость. Каждые 12 с поднимает силовой щит на 4 с: урон по нему −85%, и он чинится на 3%.' },
@@ -369,8 +369,8 @@ function makeWaves(n, np) {
     /* 🎯 Провокатор с двумя Знаменосцами (ур. 13+, с 8-й волны) */
     if (n >= 13 && w >= 7 && w < nw - 1 && r() < (n >= 17 ? .35 : .25)) list.splice(Math.floor(r() * (list.length + 1)), 0, 'banner', 'taunt', 'banner');
     /* ✈ налёты (с ур. 14): самолёт бомбит случайный танк — оглушение 3–8 с */
-    if (n >= ENEMY.bomber.from && w >= 2) { const k = (r() < Math.min(.5, .3 + .01 * (n - 14)) ? 1 : 0) + (n >= 25 && r() < .3 ? 1 : 0); for (let j = 0; j < k; j++) list.splice(Math.floor(r() * (list.length + 1)), 0, 'bomber'); }
-    if (n >= ENEMY.sbomber.from && w >= 4 && r() < Math.min(.45, .2 + .015 * (n - 20))) list.splice(Math.floor(r() * (list.length + 1)), 0, 'sbomber');
+    if (n >= ENEMY.bomber.from && w >= 2) { const k0 = (r() < Math.min(.5, .3 + .01 * (n - 14)) ? 1 : 0) + (n >= 25 && r() < .3 ? 1 : 0), km = k0 * (w >= 24 ? 2.5 : w >= 14 ? 2 : 1), k = Math.floor(km) + (r() < km % 1 ? 1 : 0); /* волны 15+ — ×2, 25+ — ×2.5 */ for (let j = 0; j < k; j++) list.splice(Math.floor(r() * (list.length + 1)), 0, 'bomber'); }
+    for (let j = 0; j < (w >= 19 ? 2 : 1); j++) if (n >= ENEMY.sbomber.from && w >= 4 && r() < Math.min(.45, .2 + .015 * (n - 20))) list.splice(Math.floor(r() * (list.length + 1)), 0, 'sbomber');   /* с 20-й волны — вдвое чаще */
     let pB = w === 0 ? 0 : Math.min(.22, .05 + .015 * w + .004 * n), pC = n >= 6 && w >= nw - 3 ? Math.min(.12, .03 + .004 * n) : 0;
     /* ❄ зима (ур. 17+), волны 12+: Колоссов ×5 больше, почти все остальные — Раздутые ×2 */
     if (n >= 17 && w >= 11) { pC = Math.max(pC, .16 + .004 * (w - 11)); pB = .92 - pC * 1.8; }
@@ -442,7 +442,7 @@ function targets(tw, s) {
     if (e.dead || e.y < -.4) continue;
     if (e.d.fly ? !s.air : !s.ground) continue;
     if (e.d.hid && !s.hid) continue;
-    if (e.under) continue;
+    if (e.under || e.prot) continue;
     const d = Math.hypot(e.x - tw.x, e.y - tw.y);
     if (d <= s.range * (G.bliz ? .75 : 1) + e.d.size * .3) { e._d = d; L.push(e); }
   }
@@ -452,7 +452,7 @@ function targets(tw, s) {
   const tn = L.filter(e => e.d.taunt); return tn.length ? tn : L;
 }
 function hurt(e, dmg, o = {}) {
-  if (e.dead || e.under || e.inv > G.time) return;
+  if (e.dead || e.under || e.inv > G.time || e.prot) return;
   const ps = e.ph ? e.dist / e.P.total : 1; if (ps < .25) return;   /* 🌀 Фаза */
   const blocked = e.d.arm && !o.pen && !(e.shredT > 0), v = blocked ? dmg * ARMK : dmg;
   if (ps >= .5) e.hp -=(e.shU > G.time ? v / 2 : v) * (e.bsh > G.time ? .15 : 1) * (e.bfU > G.time ? .8 : 1); if (!o.quiet) e.hitT = .08;
@@ -626,7 +626,7 @@ function update(dt) {
     if (e.burnT > 0) { e.burnT -= dt; hurt(e, e.burnD * dt, { pen: 1, quiet: 1 }); if (e.dead) continue; if (G.vis && Math.random() < dt * 10) G.parts.push({ x: e.x + (Math.random() - .5) * .3, y: e.y, vx: 0, vy: -1, t: 0, life: .4, r: .08, col: '#ff7a1a', flame: 1 }); }
     if (e.d.heal) { e.healT -= dt; if (e.healT <= 0) { e.healT = 1; for (const o of G.enemies) if (o !== e && !o.dead && Math.hypot(o.x - e.x, o.y - e.y) < 1.6 && o.hp < o.maxHp) o.hp = Math.min(o.maxHp, o.hp + o.maxHp * .06); if (G.vis) G.fx.push({ k: 'ring', x: e.x, y: e.y, r: 1.6, t: 0, life: .5, col: '#6bff8a' }); } }
     if (e.d.summon) { e.sumT -= dt; if (e.sumT <= 0) { e.sumT = 6; e.sumN = (e.sumN || 0) + 1; if (e.sumN % 3 === 0) spawn('heli', e.pi, Math.max(0, e.dist - .4)); else { spawn('light', e.pi, Math.max(0, e.dist - .4)); spawn('btr', e.pi, Math.max(0, e.dist - .8)); } } }
-    if (e.d.buff) for (const o of G.enemies) if (o !== e && !o.dead && BUFT.includes(o.type) && Math.hypot(o.x - e.x, o.y - e.y) < 1.7) o.bfU = G.time + .3;
+    if (e.d.buff) { let k = 0; for (const o of G.enemies) if (o !== e && !o.dead && BUFT.includes(o.type) && Math.hypot(o.x - e.x, o.y - e.y) < 1.7) { o.bfU = G.time + .3; k++; } e.prot = k > 0; }   /* 🚩 пока рядом есть кого баффать — Знаменосца не бьют */
     if (e.d.aura) for (const o of G.enemies) if (o !== e && !o.dead && Math.hypot(o.x - e.x, o.y - e.y) < 1.7) o.shU = G.time + .3;
     if (e.d.dig) { e.digC = (e.digC == null ? 3 : e.digC) - dt; if (e.digC <= 0) { e.under = !e.under; e.digC = e.under ? 1.5 : 3.5; } }
     if (e.stunT > 0) { e.stunT -= dt; continue; }
