@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '65';
+const VER = '66';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,9 +371,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=19"></script>
+<script src="i18n.js?v=20"></script>
 <script src="sfx.js?v=4"></script>
-<script src="core.js?v=38"></script>
+<script src="core.js?v=39"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -520,6 +520,8 @@ const CLOOK = {
   juggernaut: { h: '#3d4652', t: '#4f5a69', tur: 'box', ts: .3, bar: 1, bl: .42, bw: .22, brake: 1 },
   phoenix: { h: '#c8452a', t: '#e0632f', tur: 'dome', ts: .27, bar: 2, bl: .55, bw: .1, extra: 'core', core: '#ffb03a' },
   bastion: { h: '#5b6170', t: '#737b8c', tur: 'box', ts: .32, bar: 2, bl: .6, bw: .12, brake: 1 },
+  taunt: { h: '#d9482b', t: '#f06a3a', tur: 'box', ts: .3, bar: 1, bl: .5, bw: .16, brake: 1 },
+  banner: { h: '#3f6db3', t: '#5585cc', tur: 'circle', ts: .22, bar: 1, bl: .42, bw: .1 },
   emperor: { h: '#2a2a33', t: '#3a3a46', tur: 'box', ts: .3, bar: 2, bl: .72, bw: .1, brake: 1, skull: 1 }
 };
 function drawCoded(c, type, x, y, s, a, tm, e) {
@@ -591,6 +593,24 @@ function drawCoded(c, type, x, y, s, a, tm, e) {
     if (on) { const p = 1 + Math.sin(tm * 8) * .03; c.fillStyle = 'rgba(120,200,255,.22)'; c.strokeStyle = 'rgba(120,200,255,.95)'; c.lineWidth = 3;
       c.beginPath(); for (let i = 0; i < 6; i++) { const q = i * Math.PI / 3; c.lineTo(Math.cos(q) * s * .82 * p, Math.sin(q) * s * .82 * p); } c.closePath(); c.fill(); c.stroke(); }
     c.restore(); c.lineWidth = lw; c.strokeStyle = OL; return;
+  }
+  if (type === 'taunt') {   // 🎯 Провокатор: красный, жёлто-чёрные полосы, мигалка-сирена на башне
+    if (e) { const p = .5 + .5 * Math.sin(tm * 6); c.strokeStyle = 'rgba(255,60,40,' + (.35 + .4 * p) + ')'; c.lineWidth = 3; circ(c, x, y, s * (.75 + .08 * p)); c.stroke(); c.lineWidth = lw; c.strokeStyle = OL; }
+    drawTank(c, x, y, s, CLOOK.taunt, a, ta, tr);
+    c.save(); c.translate(x, y); c.rotate(a);
+    c.save(); rr(c, -s * .46, -s * .3, s * .14, s * .6, s * .03); c.clip(); c.fillStyle = '#ffd23f'; c.fillRect(-s * .5, -s * .35, s * .2, s * .7); c.fillStyle = '#222'; for (let i = -4; i < 5; i++) { c.beginPath(); c.moveTo(-s * .5, i * s * .14); c.lineTo(-s * .3, i * s * .14 + s * .1); c.lineTo(-s * .3, i * s * .14 + s * .17); c.lineTo(-s * .5, i * s * .14 + s * .07); c.fill(); } c.restore();
+    rr(c, -s * .46, -s * .3, s * .14, s * .6, s * .03); c.stroke();
+    c.rotate(ta - a); const on = Math.sin(tm * 10) > 0; c.fillStyle = on ? '#ff3b30' : '#7a1d18'; circ(c, -s * .04, -s * .08, s * .06); c.fill(); c.stroke(); c.fillStyle = on ? '#7a1d18' : '#3b8cff'; circ(c, -s * .04, s * .08, s * .06); c.fill(); c.stroke();
+    c.restore(); return;
+  }
+  if (type === 'banner') {   // 🚩 Знаменосец: синий лёгкий танк с развевающимся флагом
+    drawTank(c, x, y, s, CLOOK.banner, a, ta, tr);
+    c.save(); c.translate(x, y); c.rotate(a);
+    const px = -s * .28, fl = (i) => Math.sin(tm * 7 - i * 1.4) * s * .07;
+    c.beginPath(); c.moveTo(px, 0); for (let i = 0; i <= 4; i++) c.lineTo(px - i * s * .13, -s * .02 + fl(i)); for (let i = 4; i >= 0; i--) c.lineTo(px - i * s * .13, s * .3 + fl(i)); c.closePath(); fs(c, '#ffd23f');
+    c.fillStyle = '#e0473c'; c.beginPath(); for (let i = 0; i <= 4; i++) c.lineTo(px - i * s * .13, s * .1 + fl(i)); for (let i = 4; i >= 0; i--) c.lineTo(px - i * s * .13, s * .18 + fl(i)); c.closePath(); c.fill();
+    c.fillStyle = '#5a4632'; circ(c, px, 0, s * .06); c.fill(); c.stroke();
+    c.restore(); return;
   }
   if (type === 'emperor') {   // 💀 Император: чёрно-золотой, ракетные блоки по бортам, корона на башне, в ярости — красное свечение
     if (e && e.rg) { c.fillStyle = 'rgba(255,60,40,' + (.25 + .12 * Math.sin(tm * 10)) + ')'; circ(c, x, y, s * .8); c.fill(); }
@@ -1375,6 +1395,7 @@ function draw(fdt) {
     drawEnemy(c, e.type, x, y, s, e.ang, G.t + e.maxHp, e);
     if (e.shU > G.time) { c.strokeStyle = 'rgba(120,200,255,.9)'; c.lineWidth = 2.5; c.fillStyle = 'rgba(120,200,255,.18)'; circ(c, x, (e.d.fly ? y - s * .45 : y), s * .55); c.fill(); c.stroke(); }
     if (e.ph) { const q = e.dist / e.P.total; if (q < .5) { c.save(); c.strokeStyle = q < .25 ? 'rgba(190,110,255,.95)' : 'rgba(190,110,255,.45)'; c.fillStyle = q < .25 ? 'rgba(190,110,255,.18)' : 'rgba(0,0,0,0)'; c.lineWidth = 3; c.setLineDash([6, 5]); c.lineDashOffset = -G.t * 25; circ(c, x, e.d.fly ? y - s * .45 : y, s * .62); c.fill(); c.stroke(); c.restore(); } }
+    if (e.d.buff) { c.strokeStyle = 'rgba(255,210,63,.45)'; c.lineWidth = 2; c.setLineDash([6, 6]); c.lineDashOffset = -G.t * 15; circ(c, x, y, T * 1.7); c.stroke(); c.setLineDash([]); c.lineDashOffset = 0; }
     if (e.d.aura) { c.strokeStyle = 'rgba(176,107,255,.35)'; c.lineWidth = 2; c.setLineDash([6, 6]); circ(c, x, y, T * 1.7); c.stroke(); c.setLineDash([]); }
     const yy = e.d.fly ? y - s * .45 : y;
     if (e.hitT > 0) { c.fillStyle = 'rgba(255,255,255,.55)'; circ(c, x, yy, s * .45); c.fill(); }
@@ -1385,6 +1406,8 @@ function draw(fdt) {
     const hp = Math.max(0, e.hp / e.maxHp); if (hp > 0) { rr(c, x - bw / 2, hy, Math.max(bh, bw * hp), bh, bh / 2); c.fillStyle = e.d.boss || e.d.mini ? '#ff7a1a' : hp > .5 ? '#5fcb45' : hp > .25 ? '#ffc83a' : '#ff5b4f'; c.fill(); }
     rr(c, x - bw / 2, hy, bw, bh, bh / 2); c.stroke();
     if (e.mod) { const M = MODS[e.mod], f = Math.max(9, T * .2); c.font = `900 ${f}px Nunito,system-ui,sans-serif`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.lineWidth = 3; c.strokeStyle = OL; c.strokeText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); c.fillStyle = M.col; c.fillText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); }
+    if (e.bfU > G.time) { c.fillStyle = '#ffd23f'; c.strokeStyle = OL; c.lineWidth = 1.5; const ax = x - bw / 2 - 6, ay = hy + bh / 2; c.beginPath(); c.moveTo(ax, ay - 6); c.lineTo(ax + 5, ay); c.lineTo(ax + 2, ay); c.lineTo(ax + 2, ay + 5); c.lineTo(ax - 2, ay + 5); c.lineTo(ax - 2, ay); c.lineTo(ax - 5, ay); c.closePath(); c.fill(); c.stroke(); }
+    if (e.d.taunt) { c.font = `${Math.max(10, T * .22)}px system-ui,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillText('🎯', x, hy - 1); }
     if (e.ph) { c.font = `${Math.max(10, T * .22)}px system-ui,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillText('🌀', x, hy - 1); }
     if (e.d.arm) { c.beginPath(); c.moveTo(x - bw / 2 - 7, hy - 2); c.lineTo(x - bw / 2 + 1, hy - 2); c.lineTo(x - bw / 2 + 1, hy + bh - 1); c.lineTo(x - bw / 2 - 3, hy + bh + 3); c.lineTo(x - bw / 2 - 7, hy + bh - 1); c.closePath(); fs(c, e.shredT > 0 ? '#ff9a8a' : '#c9d1d9'); }
   }
