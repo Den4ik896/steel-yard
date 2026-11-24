@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '64';
+const VER = '65';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,9 +371,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=18"></script>
+<script src="i18n.js?v=19"></script>
 <script src="sfx.js?v=4"></script>
-<script src="core.js?v=37"></script>
+<script src="core.js?v=38"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -1374,6 +1374,7 @@ function draw(fdt) {
     if (e.under) { c.fillStyle = '#e8eef3'; c.beginPath(); c.ellipse(x, y + s * .1, s * .5, s * .3, 0, 0, 7); c.fill(); c.strokeStyle = '#9fb4c4'; c.lineWidth = 2; c.stroke(); c.fillStyle = '#8a6a4a'; c.beginPath(); c.ellipse(x, y + s * .05, s * .28, s * .14, 0, 0, 7); c.fill(); continue; }
     drawEnemy(c, e.type, x, y, s, e.ang, G.t + e.maxHp, e);
     if (e.shU > G.time) { c.strokeStyle = 'rgba(120,200,255,.9)'; c.lineWidth = 2.5; c.fillStyle = 'rgba(120,200,255,.18)'; circ(c, x, (e.d.fly ? y - s * .45 : y), s * .55); c.fill(); c.stroke(); }
+    if (e.ph) { const q = e.dist / e.P.total; if (q < .5) { c.save(); c.strokeStyle = q < .25 ? 'rgba(190,110,255,.95)' : 'rgba(190,110,255,.45)'; c.fillStyle = q < .25 ? 'rgba(190,110,255,.18)' : 'rgba(0,0,0,0)'; c.lineWidth = 3; c.setLineDash([6, 5]); c.lineDashOffset = -G.t * 25; circ(c, x, e.d.fly ? y - s * .45 : y, s * .62); c.fill(); c.stroke(); c.restore(); } }
     if (e.d.aura) { c.strokeStyle = 'rgba(176,107,255,.35)'; c.lineWidth = 2; c.setLineDash([6, 6]); circ(c, x, y, T * 1.7); c.stroke(); c.setLineDash([]); }
     const yy = e.d.fly ? y - s * .45 : y;
     if (e.hitT > 0) { c.fillStyle = 'rgba(255,255,255,.55)'; circ(c, x, yy, s * .45); c.fill(); }
@@ -1384,6 +1385,7 @@ function draw(fdt) {
     const hp = Math.max(0, e.hp / e.maxHp); if (hp > 0) { rr(c, x - bw / 2, hy, Math.max(bh, bw * hp), bh, bh / 2); c.fillStyle = e.d.boss || e.d.mini ? '#ff7a1a' : hp > .5 ? '#5fcb45' : hp > .25 ? '#ffc83a' : '#ff5b4f'; c.fill(); }
     rr(c, x - bw / 2, hy, bw, bh, bh / 2); c.stroke();
     if (e.mod) { const M = MODS[e.mod], f = Math.max(9, T * .2); c.font = `900 ${f}px Nunito,system-ui,sans-serif`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.lineWidth = 3; c.strokeStyle = OL; c.strokeText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); c.fillStyle = M.col; c.fillText('×' + M.hp, x + bw / 2 + 3, hy + bh / 2); }
+    if (e.ph) { c.font = `${Math.max(10, T * .22)}px system-ui,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillText('🌀', x, hy - 1); }
     if (e.d.arm) { c.beginPath(); c.moveTo(x - bw / 2 - 7, hy - 2); c.lineTo(x - bw / 2 + 1, hy - 2); c.lineTo(x - bw / 2 + 1, hy + bh - 1); c.lineTo(x - bw / 2 - 3, hy + bh + 3); c.lineTo(x - bw / 2 - 7, hy + bh - 1); c.closePath(); fs(c, e.shredT > 0 ? '#ff9a8a' : '#c9d1d9'); }
   }
   for (const s of G.eshots || []) { if (s.t < 0) continue; const k = s.t / s.life, ex = PX(s.sx + (s.tw.x - s.sx) * k), ey = PY(s.sy + (s.tw.y - s.sy) * k) - Math.sin(k * Math.PI) * T * .9;
@@ -1512,7 +1514,8 @@ function wavePreview() {
   if (G.wave >= G.waves.length) { el.innerHTML = '<b>Это последняя волна — держись!</b>'; return; }
   const cnt = {}; for (const q of G.waves[G.wave]) cnt[q.type] = (cnt[q.type] || 0) + 1;
   el.innerHTML = `<b>Волна ${G.wave + 1}:</b>` + Object.entries(cnt).map(([k, v]) => `<img src="${icon('e', k, 26)}" title="${ENEMY[k].n}">×${v}`).join(' ') +
-    Object.keys(MODS).map(m => { const n = G.waves[G.wave].filter(q => q.mod === m).length; return n ? ` <span class="chip" style="background:${MODS[m].col};color:#fff;font-size:11px">${MODS[m].n} ×${MODS[m].hp} ХП: ${n}</span>` : ''; }).join('');
+    Object.keys(MODS).map(m => { const n = G.waves[G.wave].filter(q => q.mod === m).length; return n ? ` <span class="chip" style="background:${MODS[m].col};color:#fff;font-size:11px">${MODS[m].n} ×${MODS[m].hp} ХП: ${n}</span>` : ''; }).join('') +
+    (G.waves[G.wave].some(q => q.ph) ? ` <span class="chip" style="background:#9a5cff;color:#fff;font-size:11px">🌀 Фаза: ${G.waves[G.wave].filter(q => q.ph).length}</span>` : '');
 }
 function hud() {
   $('#bLives').textContent = G.lives; { const hb = $('#bHp'), k = G.lives / G.L.lives; $('#bHpF').style.width = Math.max(0, k * 100) + '%'; hb.classList.toggle('mid', k <= .6 && k > .3); hb.classList.toggle('low', k <= .3); hb.querySelector('small').textContent = '/' + G.L.lives; if (hb._v != null && G.lives < hb._v) { hb.classList.remove('hit'); void hb.offsetWidth; hb.classList.add('hit'); } hb._v = G.lives; } $('#bCash').textContent = Math.floor(G.cash);

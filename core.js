@@ -376,6 +376,11 @@ function makeWaves(n, np) {
     /* ×7/×10/×15 чаще достаются средним/штурмовым/тяжёлым — такие почти как мини-боссы */
     const MID = ['tank', 'assault', 'heavy'];
     for (const q of qs) if ('txy'.includes(q.mod || '-') && !MID.includes(q.type) && r() < .6) { const m = qs.filter(o => MID.includes(o.type) && !'txy'.includes(o.mod || '-')); if (m.length) { const o = m[Math.floor(r() * m.length)]; o.mod = q.mod; delete q.mod; } }
+    /* 📈 лёгкий/броневик/средний/вертолёт/ремонтник/камуфляж — ХП ×2 каждые 10 волн, грузовик — каждые 13 (сверх всего остального) */
+    const DBL = ['light', 'btr', 'tank', 'heli', 'medic', 'scout'];
+    for (const q of qs) { const k = DBL.includes(q.type) ? 2 ** Math.floor(w / 10) : q.type === 'transport' ? 2 ** Math.floor(w / 13) : 1; if (k > 1) q.hk = k; }
+    /* 🌀 Фаза (с 11-й волны, не больше 2 за волну): первые 25% дороги неуязвим ко всему, до 50% — ловит дебаффы, но не урон */
+    if (w >= 10) { let k = 0; const mx = n <= 16 ? 1 : 2; for (const q of qs) { const d = ENEMY[q.type]; if (k < mx && !d.boss && !d.mini && !d.raid && r() < .02) { q.ph = 1; k++; } } }
     waves.push(qs);
   }
   return waves;
@@ -408,16 +413,17 @@ const upPrice = (tw) => tierUp(tw.t, tw.tier + 1);
 function rewK(d) { const p = Math.max(0, G.wave - 1) / G.waves.length; return d.boss ? 1 : p > .6 ? .25 : p > .4 ? .5 : 1; }
 const towerAt = (x, y) => G.towers.find(t => t.x === x && t.y === y);
 /* ✈ Налёт: самолёт летит слева направо над случайным танком и оглушает его на 3–8 с */
-function spawn(type, pi, dist = 0, mod) {
+function spawn(type, pi, dist = 0, mod, o = {}) {
   const d = ENEMY[type], M = MODS[mod];
   /* ✈ бомбардировщик: летит по прямой через ряд случайного танка, бомбит его и улетает за край */
   let tw = null, P = d.fly && !d.road ? G.air[pi] : G.paths[pi];
   if (d.raid) { tw = G.towers.length ? G.towers[Math.floor(G.rnd() * G.towers.length)] : null; const y = tw ? tw.y : ROWS / 2; P = buildPath([[-1.5, y], [COLS + 1.5, y]], true); }
   /* ❄ зима: босс ×2.5, мини-боссы с 16-й волны — с ХП босса */
   const base = (G.n >= 17 && d.boss ? d.hp * 2.5 : G.n >= 17 && d.mini && G.wave >= 16 ? ENEMY.boss.hp * 2.5 : d.hp) * (d.hpK || 1);
-  const hp = Math.round(base * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1));
+  const hp = Math.round(base * G.L.scale * (G.n <= 16 ? 1 : 1.3) * (1 + (G.n <= 16 ? .05 * Math.max(0, G.wave - 1) : .05 * Math.min(14, Math.max(0, G.wave - 1)) + .025 * Math.max(0, G.wave - 15))) * (d.boss ? .9 : 1) * (M ? M.hp : 1) * (o.hk || 1));
   const p = posAt(P, dist);
   G.enemies.push({ type, d, P, pi, hp, maxHp: hp, dist, mod: M ? mod : '', sc: M ? M.sc : 1, rew: Math.round(d.reward * (M ? M.hp : 1) * rewK(d) * (.75 + G.rnd() * .5) * 10) / 10, x: p.x, y: p.y, ang: p.ang, tur: p.ang, slowT: 0, slowK: 0, burnT: 0, burnD: 0, stunT: 0, shred: 0, shredT: 0, hitT: 0, tread: 0, healT: 1, sumT: 4 });
+  if (o.ph) { G.enemies[G.enemies.length - 1].ph = 1; if (G.vis && !G.phTip) { G.phTip = 1; tip('🌀 Фаза: первую четверть дороги неуязвим, до середины не получает урон', 2600); } }
   if (d.raid) { const E = G.enemies[G.enemies.length - 1]; E.tw = tw; if (G.rnd() < .3) E.spk = 1.2 + G.rnd() * .2; } /* ✈ иногда самолёт быстрее */
 }
 function targets(tw, s) {
@@ -436,13 +442,14 @@ function targets(tw, s) {
 }
 function hurt(e, dmg, o = {}) {
   if (e.dead || e.under || e.inv > G.time) return;
+  const ps = e.ph ? e.dist / e.P.total : 1; if (ps < .25) return;   /* 🌀 Фаза */
   const blocked = e.d.arm && !o.pen && !(e.shredT > 0), v = blocked ? dmg * ARMK : dmg;
-  e.hp -= (e.shU > G.time ? v / 2 : v) * (e.bsh > G.time ? .15 : 1); if (!o.quiet) e.hitT = .08;
+  if (ps >= .5) e.hp -=(e.shU > G.time ? v / 2 : v) * (e.bsh > G.time ? .15 : 1); if (!o.quiet) e.hitT = .08;
   if (o.slow && !e.d.noslow) { const k = e.d.boss || e.d.mini ? (o.slowB != null ? o.slowB : o.slow / 2) : o.slow; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = 2; }
   if (o.stun) e.stunT = Math.max(e.stunT, e.d.boss ? o.stun / 3 : e.d.mini ? o.stun / 2 : o.stun);
   if (o.shred) e.shredT = o.shred;
   if (blocked && !o.quiet && G.vis && Math.random() < .15) G.fx.push({ k: 'txt', x: e.x, y: e.y - .55, txt: '🛡', t: 0, life: .6, col: '#c9d1d9' });
-  if (o.show && G.vis) G.fx.push({ k: 'txt', x: e.x, y: e.y - .5, txt: (o.crit ? 'КРИТ! ' : '') + Math.round(v), t: 0, life: .9, col: o.crit ? '#ff5b4f' : '#fff' });
+  if (o.show && G.vis && ps >= .5) G.fx.push({ k: 'txt', x: e.x, y: e.y - .5, txt: (o.crit ? 'КРИТ! ' : '') + Math.round(v), t: 0, life: .9, col: o.crit ? '#ff5b4f' : '#fff' });
   if (e.hp <= 0) {
     /* 🔥 Феникс: один раз возрождается с 50% ХП */
     if (e.d.rebirth && !e.reb) { e.reb = 1; e.hp = e.maxHp * .5; e.inv = G.time + 1; e.burnT = 0; if (G.vis) { G.fx.push({ k: 'ring', x: e.x, y: e.y, r: 1.5, t: 0, life: .7, col: '#ffb03a' }); tip('🔥 Феникс возродился!', 1400); } }
@@ -597,11 +604,12 @@ function update(dt) {
   for (const k in G.sup) if (G.sup[k].cd > 0) G.sup[k].cd -= dt;
   for (const z of G.zones) { z.t -= dt; for (const e of G.enemies) if (!e.dead && !e.d.noslow && Math.hypot(e.x - z.x, e.y - z.y) < z.r) { const k = e.d.boss ? .25 : .5; e.slowK = e.slowT > 0 ? Math.max(e.slowK, k) : k; e.slowT = Math.max(e.slowT, .25); } }
   G.zones = G.zones.filter(z => z.t > 0);
-  if (G.spawnQ.length) { G.spawnT -= dt; if (G.spawnT <= 0) { const q = G.spawnQ.shift(); spawn(q.type, q.pi, 0, q.mod); G.spawnT = ENEMY[q.type].gap * (G.spawnQ[0] && G.spawnQ[0].type !== q.type ? 1.3 : 1) * (G.n >= 17 ? .7 : 1); } }
+  if (G.spawnQ.length) { G.spawnT -= dt; if (G.spawnT <= 0) { const q = G.spawnQ.shift(); spawn(q.type, q.pi, 0, q.mod, q); G.spawnT = ENEMY[q.type].gap * (G.spawnQ[0] && G.spawnQ[0].type !== q.type ? 1.3 : 1) * (G.n >= 17 ? .7 : 1); } }
   else if (G.wave > 0 && G.wave < G.waves.length && !G.enemies.length) { if (G.nextT == null) G.nextT = WAVE_GAP; G.nextT -= dt; if (G.nextT <= 0) callWave(false); }
   else G.nextT = null;
   for (const e of G.enemies) {
     if (e.dead) continue;
+    if (e.ph && e.dist < e.P.total * .25) e.slowT = e.stunT = e.burnT = e.shredT = 0;   /* 🌀 Фаза: в первой четверти дороги никаких дебаффов */
     if (e.hitT > 0) e.hitT -= dt;
     if (e.shredT > 0) e.shredT -= dt;
     if (e.burnT > 0) { e.burnT -= dt; hurt(e, e.burnD * dt, { pen: 1, quiet: 1 }); if (e.dead) continue; if (G.vis && Math.random() < dt * 10) G.parts.push({ x: e.x + (Math.random() - .5) * .3, y: e.y, vx: 0, vy: -1, t: 0, life: .4, r: .08, col: '#ff7a1a', flame: 1 }); }
