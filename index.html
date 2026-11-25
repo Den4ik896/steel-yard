@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '71';
+const VER = '72';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -371,7 +371,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=24"></script>
+<script src="i18n.js?v=25"></script>
 <script src="sfx.js?v=4"></script>
 <script src="core.js?v=44"></script>
 <script>
@@ -1217,8 +1217,29 @@ function marketHTML() {
   return h + `<div class="muted" style="margin-top:10px;font-size:12px">Все сделки проверяет сервер, комиссия ${NFT.fee * 100}%. После покупки танк можно перепродать через 24 ч.</div>`;
 }
 /* Золото за Telegram Stars: сервер создаёт счёт, оплата в окне Telegram, золото начисляет сервер после платежа */
+/* Без сервера игры: счёт создаёт Cloudflare Worker (PAY_URL), он же хранит оплаченные покупки до того, как игра их заберёт */
+const PAY_URL = 'https://tankdefense-pay.medievalwars.workers.dev'; /* адрес Worker оплаты, напр. https://tankdefense-pay.xxx.workers.dev */
+async function payApi(path, body = {}) {
+  try { const r = await fetch(PAY_URL + '/' + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, initData: TG.initData }) }); return await r.json(); } catch (e) { return { err: 'Нет связи с оплатой' }; }
+}
+async function claimPays() {
+  if (ON || !PAY_URL || !IN_TG) return 0;
+  const r = await payApi('claim'); if (!r.items || !r.items.length) return 0;
+  S.paid = S.paid || []; let n = 0;
+  for (const it of r.items) {
+    const p = starItem(it.k, it.arg); if (!p || S.paid.includes(it.id)) continue;
+    if (it.k === 'gold') S.gold += p.g; else if (it.k === 'gems') S.gems = (S.gems || 0) + p.gm; else if (it.k === 'fuel') S.fuel += FUELPACK.f; else if (it.k === 'x3') S.x3 = 1;
+    S.paid.push(it.id); n++;
+  }
+  S.paid = S.paid.slice(-300); if (n) { save(); render(); toast('Покупка зачислена!'); } return n;
+}
 async function buyStars(k, arg) {
-  if (!ON || !IN_TG || !TG.openInvoice) return toast('Оплата ⭐ работает в Telegram-версии');
+  if (!ON) {
+    if (!PAY_URL || !IN_TG || !TG.openInvoice) return toast('Оплата ⭐ работает в Telegram-версии');
+    const r = await payApi('invoice', { k, arg: String(arg) }); if (r.err) return toast(r.err);
+    return TG.openInvoice(r.link, (st) => { if (st !== 'paid') return; hapticN('success'); closeModal(); let i = 0; const go = async () => { if (await claimPays() || ++i >= 8) return; setTimeout(go, 1500); }; setTimeout(go, 800); });
+  }
+  if (!IN_TG || !TG.openInvoice) return toast('Оплата ⭐ работает в Telegram-версии');
   const r = await api('stars/invoice', { k, arg: String(arg) }); if (r.err) return toast(r.err);
   TG.openInvoice(r.link, async (st) => { if (st === 'paid') { hapticN('success'); closeModal(); setTimeout(async () => { await api('hello'); render(); toast('Покупка зачислена!'); }, 1200); } });
 }
@@ -1848,7 +1869,7 @@ document.addEventListener('click', (ev) => {
   /* есть сервер игры — работаем онлайн, иначе офлайн-прототип */
   const h = await api('hello');
   if (h.ok && h.state) { ON = true; DEVMODE = !!h.dev; }
-  else S = await loadState();
+  else { S = await loadState(); setTimeout(claimPays, 600); }   /* покупки, оплаченные, но ещё не полученные */
   if (!S.tut && S.stars[1]) S.tut = true;
   render();
   if (S.tut && dailyState().ready) setTimeout(dailyModal, 400);
