@@ -253,7 +253,7 @@ function tickFuel() {
 }
 function give(r) { if (r.silver) S.silver += r.silver; if (r.gold) S.gold += r.gold; if (r.fuel) S.fuel += r.fuel; if (r.gems) S.gems = (S.gems || 0) + r.gems; }
 /* Ежедневный подарок: цикл из 7 коробок. Серия растёт, если заходишь каждый день; каждые 10 дней серии — ещё +5 ⛽ */
-const DAILY = [{ silver: 100, c: 'red' }, { gold: 3, c: 'blue' }, { fuel: 3, c: 'green' }, { silver: 300, c: 'red' }, { gold: 8, c: 'blue' }, { fuel: 5, c: 'green' }, { silver: 600, gold: 20, c: 'gold' }];
+const DAILY = [{ silver: 100, c: 'd1' }, { gold: 3, c: 'd2' }, { fuel: 3, c: 'd3' }, { silver: 300, c: 'd4' }, { gold: 8, c: 'd5' }, { fuel: 5, c: 'd6' }, { silver: 600, gold: 20, c: 'd7' }];
 const STREAK_EVERY = 10, STREAK_FUEL = 5, STREAK_GEMS = 10, BOSS_GEMS = 20;
 const dayKey = (t = Date.now()) => new Date(t).toISOString().slice(0, 10);
 function dailyState() {

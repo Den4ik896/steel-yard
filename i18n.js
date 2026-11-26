@@ -162,7 +162,7 @@ var DICT = {
     'Рынок мификов': 'Mythic tank market', 'версии игры: там сервер проверяет каждую сделку. Здесь игра запущена без сервера.': 'version of the game: there the server checks every deal. Here the game runs without a server.',
     'Баланс': 'Balance', 'Кошелёк': 'Wallet', 'Все': 'All', 'Загрузка...': 'Loading...', 'Аукционы': 'Auctions', 'Продаются': 'For sale',
     'Пока никто не продаёт. Выбей мифик в бою с боссом — и стань первым!': 'Nobody is selling yet. Win a mythic tank from a boss — and be the first!',
-    'Мои предложения': 'My offers', 'Настройки': 'Settings', '⚙ Настройки': '⚙ Settings', '🔊 Звуки': '🔊 Sounds', '🎵 Музыка': '🎵 Music', '🌐 Язык': '🌐 Language', 'Отменить': 'Cancel', 'Мои мифики': 'My mythic tanks', 'Пока нет. Они падают с боссов (ур.': 'None yet. They drop from bosses (lv.', 'и за': 'and for',
+    'Мои предложения': 'My offers', 'Настройки': 'Settings', '⚙ Настройки': '⚙ Settings', '🔊 Звуки': '🔊 Sounds', 'Звуки': 'Sounds', 'Музыка': 'Music', '🎵 Музыка': '🎵 Music', '🌐 Язык': '🌐 Language', 'Отменить': 'Cancel', 'Мои мифики': 'My mythic tanks', 'Пока нет. Они падают с боссов (ур.': 'None yet. They drop from bosses (lv.', 'и за': 'and for',
     'Прототип: тестовая сеть': 'Prototype: testnet', 'Все сделки проверяет сервер, комиссия': 'Every deal is checked by the server, fee', 'После покупки танк можно перепродать через': 'After buying, a tank can be resold in',
     'ждёт': 'pending', 'выплачено': 'paid', 'Пополнить': 'Top up', 'Отправь': 'Send', 'на адрес': 'to the address', 'с комментарием': 'with the comment',
     'Без комментария сервер не поймёт, чьи это': "Without the comment the server won't know whose", 'Открыть': 'Open',

@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '73';
+const VER = '74';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -96,7 +96,9 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .loc .lock{position:absolute;inset:0;background:rgba(43,33,24,.45);z-index:3;display:grid;place-items:center;color:#fff;font-size:18px;text-align:center}
 .wmap{position:relative;border:3px solid var(--ink);border-radius:22px;margin:6px 0 16px;overflow:hidden;box-shadow:0 5px 0 rgba(20,30,45,.35)}
 .logo{display:block;width:min(62%,250px);margin:-4px auto -14px;position:relative;z-index:2;filter:drop-shadow(0 5px 0 rgba(0,0,0,.25));pointer-events:none}
-.logot{text-align:center;margin:6px auto 8px;position:relative;z-index:2;pointer-events:none;line-height:.92;font-weight:900;letter-spacing:1px}.logot b{display:block;font-size:42px;color:#ffd23f;-webkit-text-stroke:2px #2b2b2b;paint-order:stroke fill;text-shadow:0 4px 0 #2b2b2b,0 6px 0 rgba(0,0,0,.2)}.logot b+b{font-size:34px;color:#8fd14f}
+.logot{text-align:center;margin:6px auto 8px;position:relative;z-index:2;pointer-events:none;line-height:.92;font-weight:900;letter-spacing:1px}.logot b{display:block;font-size:42px;color:#ffd23f;-webkit-text-stroke:2px #2b2b2b;paint-order:stroke fill;text-shadow:0 4px 0 #2b2b2b,0 6px 0 rgba(0,0,0,.2)}.logot b+b{font-size:34px;color:#8fd14f}.logot img{width:min(62vw,230px);display:block;margin:0 auto;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
+#boot{position:fixed;inset:0;z-index:999;background:#3d7a2a url(img/bg_load.webp) center/cover;display:flex;justify-content:center;align-items:flex-start;transition:opacity .5s}#boot img{width:min(82vw,380px);margin-top:9vh;filter:drop-shadow(0 6px 0 rgba(0,0,0,.35))}#boot.out{opacity:0;pointer-events:none}
+.rb .pr img{width:14px;height:14px;vertical-align:-2px}.vi{width:26px;height:26px;vertical-align:middle}
 .reg{position:relative;overflow:hidden}
 .reg+.reg{border-top:3px dashed rgba(43,33,24,.4)}
 .reg .rd{position:absolute;inset:0;width:100%;height:100%}
@@ -329,6 +331,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 </style>
 </head>
 <body>
+<div id="boot"><img src="img/logo2.webp" alt="Tank Defense"></div>
 <div id="app">
   <header>
     <div class="cur" id="hSilver">🥈 0</div>
@@ -371,9 +374,9 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 
-<script src="i18n.js?v=25"></script>
+<script src="i18n.js?v=26"></script>
 <script src="sfx.js?v=5"></script>
-<script src="core.js?v=44"></script>
+<script src="core.js?v=45"></script>
 <script>
 /* ======================= Telegram ======================= */
 const TG = (window.Telegram && window.Telegram.WebApp) || null;
@@ -722,7 +725,7 @@ const ALLY_LOOK = [{ h: '#3f7fd0', tur: 'dome', ts: .27, bar: 1, bl: .5, bw: .14
 /* Спрайты юнитов: img/units/{t|e}_id.webp — вид сверху, смотрят вверх, центр картинки = центр корпуса.
    Пока картинка не загрузилась — рисуем кодом (drawTank/drawEnemy). */
 const SPR = {};
-function spr(k) { let im = SPR[k]; if (!im) { im = SPR[k] = new Image(); im.src = `img/units/${k}.webp?v=3`; } return im.complete && im.naturalWidth ? im : null; }
+function spr(k) { let im = SPR[k]; if (!im) { im = SPR[k] = new Image(); im.src = `img/units/${k}.webp?v=4`; } return im.complete && im.naturalWidth ? im : null; }
 /* дуло: доля размера картинки от центра вверх */
 const SPR_TIP = { baraban: .275, bobr: .288, grad: .238, grom: .258, kuvalda: .275, mamont: .283, moroz: .288, oboz: .225, polar: .233, relsa: .308, shmel: .296, sokol: .35, tesla: .02, uskor: .312, vihr: .308, zavod: .238, zhar: .288 };
 const SPR_K = { boss: .8, heli: .78, ghost: .78, bomber: .8 };
@@ -830,6 +833,7 @@ const GIFTC = { red: ['#ff5b4f', '#ffd23f'], blue: ['#45a6ff', '#ffffff'], green
 function icon(kind, id, size = 96, attrs, serial) {
   if (kind === 'b' || kind === 'bo') return `img/ui/box_${id}${kind === 'bo' ? '_o' : ''}.webp`;   // сундуки — нарисованные картинки (bo = открытый)
   if ((kind === 't' && !attrs) || kind === 'e' && !(ENEMY[id] && ENEMY[id].code)) return `img/units/i_${kind}_${id}.webp?v=3`;   // танки и враги — нарисованные картинки (мифики с камуфляжем — кодом)
+  if (kind === 'g' && /^dd$/.test(id)) return `img/ui/gift_${id}.webp`;
   if (kind === 'g') return `img/ui/gift${GIFTC[id] && id !== 'red' ? '_' + id : ''}.webp`;   // подарки дня — картинки 5 цветов
   const sk = attrs ? nftSkin(attrs, serial) : null, k = kind + id + size + (sk ? sk.h + sk.pt + sk.fl + sk.gr + sk.n : ''); if (ICON[k]) return ICON[k];
   const cv2 = document.createElement('canvas'); cv2.width = cv2.height = size * 2; const c = cv2.getContext('2d'); c.scale(2, 2);
@@ -920,7 +924,7 @@ function homeHTML() {
   const left = BOXCD - (Date.now() - S.boxTs), qs = quests(), qd = qs.filter(q => q.c).length, qr = qReady();
   const nextE = Object.keys(ENEMY).filter(k => ENEMY[k].from > un && ENEMY[k].from < 99).sort((a, b) => ENEMY[a].from - ENEMY[b].from)[0];
   const ups = S.deck.map(id => tankById(id)).filter(t => S.owned[t.id] < MAXLV).sort((a, b) => upCost(a, S.owned[a.id]) - upCost(b, S.owned[b.id]))[0];
-  let h = `<div class="logot"><b>TANK</b><b>DEFENSE</b></div><div class="hero" style="background:${loc.bg}">
+  let h = `<div class="logot"><img src="img/logo2.webp" alt="TANK DEFENSE"></div><div class="hero" style="background:${loc.bg}">
     <div class="loc2"><i class="mi zone${LOCS.indexOf(loc) + 1}"></i> ${loc.name} · ${done}/${loc.to - loc.from + 1}</div>
     <div class="lprog"><i style="width:${done / (loc.to - loc.from + 1) * 100}%"></i></div>
     <div class="ttl lvt">${L.boss ? '💀 Босс · ' : ''}Уровень ${un}</div>
@@ -1322,10 +1326,10 @@ const cv = $('#cv'), ctx = cv.getContext('2d'), bg = document.createElement('can
 let W = 0, H = 0, T = 40, OX = 0, OY = 0, DPR = 1, last = 0, hudT = 0, acc = 0;
 const PX = (x) => OX + (x + .5) * T, PY = (y) => OY + (y + .5) * T;
 function resize() {
-  const r = $('#stage').getBoundingClientRect(); DPR = Math.min(2, window.devicePixelRatio || 1);
+  const r = $('#stage').getBoundingClientRect(); DPR = Math.min(3, window.devicePixelRatio || 1);
   W = r.width; H = r.height;
   cv.width = bg.width = Math.round(W * DPR); cv.height = bg.height = Math.round(H * DPR);
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); bgc.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); bgc.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.imageSmoothingQuality = bgc.imageSmoothingQuality = 'high';
   T = Math.floor(Math.min(W / COLS, H / (ROWS + 1.1)));
   OX = Math.round((W - COLS * T) / 2); OY = Math.round((H - (ROWS + 1.1) * T) / 2 + .55 * T);
   drawBG();
@@ -1615,12 +1619,12 @@ function openRadial(x, y) {
   let items, ang;
   if (tw) {
     items = [];
-    if (tw.tier < maxT(tw.t)) items.push({ act: 'rup', html: '<span class="ri">⬆️</span>', pr: `${upPrice(tw)} 💵`, cost: upPrice(tw) }); else items.push({ act: 'none', html: '<span class="ri">👑</span>', pr: 'Макс' });
-    items.push({ act: 'rsell', html: '<span class="ri">💰</span>', pr: `+${Math.floor(tw.spent * .6)}` });
-    if (tw.t.kind !== 'supply') items.push({ act: 'rmode', html: '<span class="ri">🎯</span>', pr: MODES[tw.mode] });
+    if (tw.tier < maxT(tw.t)) items.push({ act: 'rup', html: '<img src="img/ui/i_up.webp">', pr: `${upPrice(tw)} <img src="img/ui/i_cash.webp">`, cost: upPrice(tw) }); else items.push({ act: 'none', html: '<span class="ri">👑</span>', pr: 'Макс' });
+    items.push({ act: 'rsell', html: '<img src="img/ui/i_sell.webp">', pr: `+${Math.floor(tw.spent * .6)}` });
+    if (tw.t.kind !== 'supply') items.push({ act: 'rmode', html: '<img src="img/ui/i_target.webp">', pr: MODES[tw.mode] });
     ang = [-90, 90, 180];
   } else {
-    items = G.deck.map(id => ({ act: 'rb', id, html: `<img src="${icon('t', id, 48)}">`, pr: `${tankById(id).cost} 💵`, cost: tankById(id).cost }));
+    items = G.deck.map(id => ({ act: 'rb', id, html: `<img src="${icon('t', id, 48)}">`, pr: `${tankById(id).cost} <img src="img/ui/i_cash.webp">`, cost: tankById(id).cost }));
     ang = [[-90], [-135, -45], [-150, -90, -30], [-135, -45, 45, 135]][items.length - 1];
   }
   const cx = Math.min(W - R - 30, Math.max(R + 30, PX(x))), cy = Math.min(H - R - 34, Math.max(R + 30, PY(y)));
@@ -1847,7 +1851,7 @@ document.addEventListener('click', (ev) => {
     case 'close': closeModal(); render(); break;
     case 'settings': {
       const sl = (k, ic, t, v) => `<label class="vrow"><span>${ic} ${t}</span><input type="range" min="0" max="100" step="5" data-vol="${k}" value="${Math.round(v * 100)}"><b>${Math.round(v * 100)}%</b></label>`;
-      modal(`<button class="x" data-act="close">✕</button><div class="ribbon">⚙ Настройки</div><div class="panel">${sl('s', '🔊', 'Звуки', SFX.vol)}${sl('m', '🎵', 'Музыка', SFX.mvol)}</div><div class="sect ttl">🌐 Язык</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn sm ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div><div class="row c" style="margin-top:12px"><button class="btn green" data-act="close">Готово</button></div>`); break;
+      modal(`<button class="x" data-act="close">✕</button><div class="ribbon">⚙ Настройки</div><div class="panel">${sl('s', '<img class="vi" src="img/ui/i_snd.webp">', 'Звуки', SFX.vol)}${sl('m', '<img class="vi" src="img/ui/i_mus.webp">', 'Музыка', SFX.mvol)}</div><div class="sect ttl">🌐 Язык</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn sm ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div><div class="row c" style="margin-top:12px"><button class="btn green" data-act="close">Готово</button></div>`); break;
     }
     case 'lang': modal(`<button class="x" data-act="close">✕</button><div class="ribbon">🌐 Language</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
     case 'setLang': setLang(a.dataset.l); break;
@@ -1872,6 +1876,7 @@ document.addEventListener('click', (ev) => {
   else { S = await loadState(); setTimeout(claimPays, 600); }   /* покупки, оплаченные, но ещё не полученные */
   if (!S.tut && S.stars[1]) S.tut = true;
   render();
+  { const b = $('#boot'); if (b) setTimeout(() => { b.classList.add('out'); setTimeout(() => b.remove(), 600); }, 800); }
   if (S.tut && dailyState().ready) setTimeout(dailyModal, 400);
   setInterval(() => { if (!G.running) { renderHeader(); tickUI(); } }, 1000);
 })();
