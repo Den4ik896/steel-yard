@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '74';
+const VER = '75';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -97,7 +97,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .wmap{position:relative;border:3px solid var(--ink);border-radius:22px;margin:6px 0 16px;overflow:hidden;box-shadow:0 5px 0 rgba(20,30,45,.35)}
 .logo{display:block;width:min(62%,250px);margin:-4px auto -14px;position:relative;z-index:2;filter:drop-shadow(0 5px 0 rgba(0,0,0,.25));pointer-events:none}
 .logot{text-align:center;margin:6px auto 8px;position:relative;z-index:2;pointer-events:none;line-height:.92;font-weight:900;letter-spacing:1px}.logot b{display:block;font-size:42px;color:#ffd23f;-webkit-text-stroke:2px #2b2b2b;paint-order:stroke fill;text-shadow:0 4px 0 #2b2b2b,0 6px 0 rgba(0,0,0,.2)}.logot b+b{font-size:34px;color:#8fd14f}.logot img{width:min(62vw,230px);display:block;margin:0 auto;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
-#boot{position:fixed;inset:0;z-index:999;background:#3d7a2a url(img/bg_load.webp) center/cover;display:flex;justify-content:center;align-items:flex-start;transition:opacity .5s}#boot img{width:min(82vw,380px);margin-top:9vh;filter:drop-shadow(0 6px 0 rgba(0,0,0,.35))}#boot.out{opacity:0;pointer-events:none}
+#boot{position:fixed;inset:0;z-index:999;background:#3d7a2a url(img/bg_load.webp?v=2) center/cover;display:flex;justify-content:center;align-items:flex-start;transition:opacity .5s}#boot img{width:min(82vw,380px);margin-top:9vh;filter:drop-shadow(0 6px 0 rgba(0,0,0,.35))}#boot.out{opacity:0;pointer-events:none}
 .rb .pr img{width:14px;height:14px;vertical-align:-2px}.vi{width:26px;height:26px;vertical-align:middle}
 .reg{position:relative;overflow:hidden}
 .reg+.reg{border-top:3px dashed rgba(43,33,24,.4)}
