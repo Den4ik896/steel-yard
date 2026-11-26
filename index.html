@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '72';
+const VER = '73';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -372,7 +372,7 @@ header .cur{background:none;border:0;box-shadow:none;border-image:url(img/kit/ba
 <div id="toast"></div>
 
 <script src="i18n.js?v=25"></script>
-<script src="sfx.js?v=4"></script>
+<script src="sfx.js?v=5"></script>
 <script src="core.js?v=44"></script>
 <script>
 /* ======================= Telegram ======================= */
@@ -1847,9 +1847,9 @@ document.addEventListener('click', (ev) => {
     case 'close': closeModal(); render(); break;
     case 'settings': {
       const sl = (k, ic, t, v) => `<label class="vrow"><span>${ic} ${t}</span><input type="range" min="0" max="100" step="5" data-vol="${k}" value="${Math.round(v * 100)}"><b>${Math.round(v * 100)}%</b></label>`;
-      modal(`<div class="ribbon">⚙ Настройки</div><div class="panel">${sl('s', '🔊', 'Звуки', SFX.vol)}${sl('m', '🎵', 'Музыка', SFX.mvol)}</div><div class="sect ttl">🌐 Язык</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn sm ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
+      modal(`<button class="x" data-act="close">✕</button><div class="ribbon">⚙ Настройки</div><div class="panel">${sl('s', '🔊', 'Звуки', SFX.vol)}${sl('m', '🎵', 'Музыка', SFX.mvol)}</div><div class="sect ttl">🌐 Язык</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn sm ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div><div class="row c" style="margin-top:12px"><button class="btn green" data-act="close">Готово</button></div>`); break;
     }
-    case 'lang': modal(`<div class="ribbon">🌐 Language</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
+    case 'lang': modal(`<button class="x" data-act="close">✕</button><div class="ribbon">🌐 Language</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
     case 'setLang': setLang(a.dataset.l); break;
     case 'reset': modal(`<div class="ribbon">Сбросить?</div><p class="muted">Все танки, серебро и звёзды удалятся.</p><div class="row c"><button class="btn red" data-act="doReset">Сбросить</button><button class="btn gray" data-act="close">Отмена</button></div>`); break;
     case 'doReset': if (ON) { api('reset').then(() => { closeModal(); setTab('home'); }); break; } S = DEF(); save(); closeModal(); setTab('home'); break;

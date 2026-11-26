@@ -112,6 +112,8 @@ const SFX = (() => {
   function toggle() { setVol(vol > 0 ? 0 : lastVol); if (vol) play('click'); return vol > 0; }
   /* 🎵 Музыка: music/<k>.mp3 — раскодированный буфер с бесшовным повтором, плавная смена трека (кроссфейд). k = null — тишина */
   const mbufs = {};
+  /* выравнивание громкости треков к меню (~−22 dB средняя): лёд и пустыня записаны заметно тише */
+  const MGAIN = { menu: 1, meadow: 1.75, desert: 3.6, ice: 4.6, event_desert: 1 };
   function loopPts(b) { /* срезаем тишину-набивку mp3 по краям (до 0.12 с), чтобы петля была без щелчка */
     const d = b.getChannelData(0), lim = Math.floor(b.sampleRate * .12); let i = 0, j = d.length - 1;
     while (i < lim && Math.abs(d[i]) < 2e-4) i++; while (d.length - 1 - j < lim && Math.abs(d[j]) < 2e-4) j--;
@@ -126,7 +128,7 @@ const SFX = (() => {
     if (!b) return; /* ещё грузится */
     const src = ac.createBufferSource(), g = ac.createGain(), now = ac.currentTime, [s0, s1] = loopPts(b);
     src.buffer = b; src.loop = true; src.loopStart = s0; src.loopEnd = s1;
-    g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(1, now + 2); src.connect(g); g.connect(mg); src.start(0, s0);
+    g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(MGAIN[k] || 1, now + 2); src.connect(g); g.connect(mg); src.start(0, s0);
     if (cur) fadeOut(cur); cur = { k, src, g };
   }
   function music(k) { want = k || null; musicStart(); }
