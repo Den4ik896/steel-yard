@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <script>/* Telegram держит старый index.html в кэше. Если на сайте версия новее (ver.txt) — перезагружаемся с ?v=, это обходит кэш. Меняй VER и ver.txt вместе при выкладке */
-const VER = '75';
+const VER = '76';
 fetch('ver.txt?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => { v = v.trim(); if (!v || v === VER) return; try { if (sessionStorage.vr === v) return; sessionStorage.vr = v; } catch (e) {} const q = new URLSearchParams(location.search); q.set('v', v); location.replace(location.pathname + '?' + q + location.hash); }).catch(() => {});
 </script>
 <meta charset="utf-8">
@@ -177,7 +177,7 @@ nav .dot{position:absolute;top:2px;right:10px;width:12px;height:12px;border-radi
 .sw{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink);margin-right:4px;vertical-align:-1px}
 /* Слитки вместо 🥈/🥇 (подставляет i18n.js) */
 .mi{display:inline-block;width:1.3em;height:1.3em;vertical-align:middle;background:center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}.mi.x1{opacity:.55}
-.mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.vrow{display:grid;grid-template-columns:auto 1fr 44px;gap:10px;align-items:center;font-weight:800;padding:6px 2px}.vrow input{width:100%;accent-color:#f2a23a}.vrow b{text-align:right;font-variant-numeric:tabular-nums}
+.mi.shop{background-image:url(img/ui/shop.webp)}.mi.garage{background-image:url(img/ui/garage.webp)}.mi.battle{background-image:url(img/ui/battle.webp)}.mi.market{background-image:url(img/ui/market.webp)}.mi.quests{background-image:url(img/ui/quests.webp)}.mi.map{background-image:url(img/ui/map.webp)}.mi.settings{background-image:url(img/ui/settings.webp)}.vrow{display:grid;grid-template-columns:auto auto 1fr 62px;gap:8px;align-items:center;font-weight:800;padding:6px 2px}.vrow input{width:100%;accent-color:#f2a23a}.vrow b{text-align:right;font-variant-numeric:tabular-nums}.vic{width:40px;height:40px;border-radius:50%;border:0;background:none;padding:0;display:grid;place-items:center;cursor:pointer}.vic img{width:36px;height:36px;transition:opacity .15s}.vic.off img{opacity:.3;filter:grayscale(1)}.vpc{display:flex;align-items:center;gap:1px;font-weight:800}.vpc input{width:44px;padding:4px 2px;border:2px solid var(--ink);border-radius:8px;text-align:center;font:inherit;font-weight:800;background:#fff}
 .mi.lang{background-image:url(img/ui/lang.webp)}.mi.pause{background-image:url(img/ui/pause.webp)}.mi.speed{background-image:url(img/ui/speed.webp)}.mi.strike{background-image:url(img/ui/strike.webp)}.mi.mine{background-image:url(img/ui/mine.webp)}.mi.smoke{background-image:url(img/ui/smoke.webp)}.mi.repair{background-image:url(img/ui/repair.webp)}.mi.barrage{background-image:url(img/ui/barrage.webp)}.mi.emp{background-image:url(img/ui/emp.webp)}.mi.orbital{background-image:url(img/ui/orbital.webp)}.mi.freeze{background-image:url(img/ui/freeze.webp)}.mi.zone1{background-image:url(img/ui/zone1.webp)}.mi.zone2{background-image:url(img/ui/zone2.webp)}.mi.zone3{background-image:url(img/ui/zone3.webp)}
 nav button.home .mi{width:1.25em;height:1.25em}.hb .mi{width:1.45em;height:1.45em}.hcard .big .mi{width:1.6em;height:1.6em}
 .ing{display:inline-block;width:1.35em;height:1.35em;vertical-align:-.3em;margin:0 .08em;background:center/contain no-repeat}
@@ -1565,8 +1565,9 @@ async function startLevel(n) {
   last = performance.now(); requestAnimationFrame(loop);
 }
 /* ⚙ ползунки громкости */
-document.addEventListener('input', e => { const t = e.target, k = t.dataset && t.dataset.vol; if (!k) return; const v = t.value / 100; if (k === 's') SFX.setVol(v); else SFX.setMusic(v); t.nextElementSibling.textContent = t.value + '%'; });
-document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.vol === 's') sfx('click'); });
+function setVolUI(k, p, from) { p = Math.max(0, Math.min(100, Math.round(+p || 0))); if (k === 's') SFX.setVol(p / 100); else SFX.setMusic(p / 100); if (p > 0) try { localStorage['vl' + k] = p; } catch (e) {} document.querySelectorAll(`[data-vol="${k}"]`).forEach(i => { if (i !== from) i.value = p; }); const b = document.querySelector(`.vic[data-id="${k}"]`); if (b) b.classList.toggle('off', p === 0); }
+document.addEventListener('input', e => { const t = e.target, k = t.dataset && t.dataset.vol; if (!k || t.value === '') return; setVolUI(k, t.value, t); });
+document.addEventListener('change', e => { const t = e.target; if (!(t.dataset && t.dataset.vol)) return; if (t.type === 'number') { setVolUI(t.dataset.vol, t.value); t.value = Math.max(0, Math.min(100, Math.round(+t.value || 0))); } if (t.dataset.vol === 's') sfx('click'); });
 const MUS = ['meadow', 'desert', 'ice']; /* music/event_desert.mp3 — для ивента */
 function exitBattle() {
   if (G.running && !G.over && !ON) { qAdd('kill', G.kills); qAdd('build', G.built); qAdd('air', G.airKills); save(); }
@@ -1621,7 +1622,7 @@ function openRadial(x, y) {
     items = [];
     if (tw.tier < maxT(tw.t)) items.push({ act: 'rup', html: '<img src="img/ui/i_up.webp">', pr: `${upPrice(tw)} <img src="img/ui/i_cash.webp">`, cost: upPrice(tw) }); else items.push({ act: 'none', html: '<span class="ri">👑</span>', pr: 'Макс' });
     items.push({ act: 'rsell', html: '<img src="img/ui/i_sell.webp">', pr: `+${Math.floor(tw.spent * .6)}` });
-    if (tw.t.kind !== 'supply') items.push({ act: 'rmode', html: '<img src="img/ui/i_target.webp">', pr: MODES[tw.mode] });
+    if (tw.t.kind !== 'supply') items.push({ act: 'rmode', html: '<img src="img/ui/i_target.webp?v=2">', pr: MODES[tw.mode] });
     ang = [-90, 90, 180];
   } else {
     items = G.deck.map(id => ({ act: 'rb', id, html: `<img src="${icon('t', id, 48)}">`, pr: `${tankById(id).cost} <img src="img/ui/i_cash.webp">`, cost: tankById(id).cost }));
@@ -1849,9 +1850,10 @@ document.addEventListener('click', (ev) => {
     case 'faucet': api('dev/faucet').then(r => { if (r.err) return toast(r.err); toast('+1000 тестовых гемов'); mk.ts = 0; render(); }); break;
     case 'devdrop': api('dev/drop', { model: id }).then(r => { if (r.err) return toast(r.err); toast('Тестовый мифик выдан'); render(); }); break;
     case 'close': closeModal(); render(); break;
+    case 'vmute': { const cur = id === 's' ? SFX.vol : SFX.mvol; let last = 60; try { last = +localStorage['vl' + id] || 60; } catch (e) {} setVolUI(id, cur > 0 ? 0 : last); if (id === 's') sfx('click'); break; }
     case 'settings': {
-      const sl = (k, ic, t, v) => `<label class="vrow"><span>${ic} ${t}</span><input type="range" min="0" max="100" step="5" data-vol="${k}" value="${Math.round(v * 100)}"><b>${Math.round(v * 100)}%</b></label>`;
-      modal(`<button class="x" data-act="close">✕</button><div class="ribbon">⚙ Настройки</div><div class="panel">${sl('s', '<img class="vi" src="img/ui/i_snd.webp">', 'Звуки', SFX.vol)}${sl('m', '<img class="vi" src="img/ui/i_mus.webp">', 'Музыка', SFX.mvol)}</div><div class="sect ttl">🌐 Язык</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn sm ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div><div class="row c" style="margin-top:12px"><button class="btn green" data-act="close">Готово</button></div>`); break;
+      const sl = (k, ic, t, v) => `<div class="vrow"><button class="vic${v > 0 ? '' : ' off'}" data-act="vmute" data-id="${k}">${ic}</button><span>${t}</span><input type="range" min="0" max="100" step="1" data-vol="${k}" value="${Math.round(v * 100)}"><span class="vpc"><input type="number" inputmode="numeric" min="0" max="100" data-vol="${k}" value="${Math.round(v * 100)}">%</span></div>`;
+      modal(`<button class="x" data-act="close">✕</button><div class="ribbon">⚙ Настройки</div><div class="panel">${sl('s', '<img src="img/ui/i_snd.webp" alt="">', 'Звуки', SFX.vol)}${sl('m', '<img src="img/ui/i_mus.webp" alt="">', 'Музыка', SFX.mvol)}</div><div class="sect ttl">🌐 Язык</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn sm ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div><div class="row c" style="margin-top:12px"><button class="btn green" data-act="close">Готово</button></div>`); break;
     }
     case 'lang': modal(`<button class="x" data-act="close">✕</button><div class="ribbon">🌐 Language</div><div class="row c" data-notr style="flex-wrap:wrap">${Object.entries(LANGS).map(([k, v]) => `<button class="btn ${k === LANG ? '' : 'gray'}" data-act="setLang" data-l="${k}">${v}</button>`).join('')}</div>`); break;
     case 'setLang': setLang(a.dataset.l); break;
